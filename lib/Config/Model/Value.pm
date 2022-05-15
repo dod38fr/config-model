@@ -1735,10 +1735,10 @@ sub _fetch {
             $res = $std;
         }
         when ('backend') {
-            $res = $data // $pref
+            $res = $self->_data_or_alt($data, $pref);
         }
         when ([qw/user allow_undef/]) {
-            $res = $data // $std
+            $res = $self->_data_or_alt($data, $std);
         }
         default {
             die "unexpected mode $mode ";
@@ -1748,6 +1748,21 @@ sub _fetch {
     $logger->debug( "done in '$mode' mode for " . $self->location . " -> " . ( $res // '<undef>' ) )
         if $logger->is_debug;
 
+    return $res;
+}
+
+sub _data_or_alt ($self, $data, $alt) {
+    my $res;
+    given ($self->value_type) {
+        when ([qw/integer boolean number/]) {
+            $res = $data // $alt
+        }
+        default {
+            # empty string is considered as undef, but empty string is
+            # still returned if there's not defined alternative ($alt)
+            $res = length($data) ? $data : $alt // $data
+        }
+    }
     return $res;
 }
 
@@ -2024,7 +2039,8 @@ purpose. (C<upstream_default> parameter)
 =item *
 
 mandatory value: reading a mandatory value raises an exception if the
-value is not specified and has no default value.
+value is not specified (i.e is C<undef> or empty string) and has no
+default value.
 
 =item *
 
