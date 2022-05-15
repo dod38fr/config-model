@@ -468,6 +468,9 @@ subtest "boolean where values are translated" => sub {
         $bp->store($v);
         is( $bp->fetch, $expect, "boolean_plain: '$v'->'$expect'" );
     }
+
+    $bp->clear;
+    is( $bp->fetch, undef, "boolean_plain: get 'undef' after clear()" );
 };
 
 subtest "check changes with boolean where values are translated to true/false" => sub {
@@ -499,6 +502,12 @@ subtest "boolean_with_write_as_and_default" => sub {
     my $bwwaad = $root->fetch_element('boolean_with_write_as_and_default');
     is( $bwwaad->fetch, 'true', "boolean_with_write_as_and_default reads true" );
 
+    $bwwaad->store(0);
+    $bwwaad->clear;
+    is( $bwwaad->fetch, 'true', "boolean_with_write_as_and_default returns 'true'" );
+};
+
+subtest "enum with wrong declaration" => sub {
     throws_ok { $bad_root->fetch_element('crooked_enum'); }
         'Config::Model::Exception::Model',
         "test create expected failure with enum with wrong default";
