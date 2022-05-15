@@ -4,6 +4,7 @@ use v5.20;
 
 use strict;
 use warnings;
+use feature "switch";
 
 use Mouse;
 use Mouse::Util::TypeConstraints;
@@ -31,7 +32,7 @@ with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
 
 use feature qw/postderef signatures/;
-no warnings qw/experimental::postderef experimental::signatures/;
+no warnings qw/experimental::postderef experimental::smartmatch experimental::signatures/;
 
 my $logger        = get_logger("Tree::Element::Value");
 my $user_logger   = get_logger("User");
@@ -1725,22 +1726,24 @@ sub _fetch {
         return $nbu;
     }
 
-    my $res =
-          $mode eq 'preset'           ? $self->{preset}
-        : $mode eq 'default'          ? $self->{default}
-        : $mode eq 'standard'         ? $std
-        : $mode eq 'layered'          ? $self->{layered}
-        : $mode eq 'upstream_default' ? $self->{upstream_default}
-        : $mode eq 'user'             ? defined $data
-            ? $data
-            : $std
-        : $mode eq 'allow_undef' ? defined $data
-            ? $data
-            : $std
-        : $mode eq 'backend' ? defined $data
-            ? $data
-            : $pref
-        : die "unexpected mode $mode ";
+    my $res;
+    given ($mode) {
+        when ([qw/preset default upstream_default layered/]) {
+            $res = $self->{$mode};
+        }
+        when ('standard') {
+            $res = $std;
+        }
+        when ('backend') {
+            $res = $data // $pref
+        }
+        when ([qw/user allow_undef/]) {
+            $res = $data // $std
+        }
+        default {
+            die "unexpected mode $mode ";
+        }
+    }
 
     $logger->debug( "done in '$mode' mode for " . $self->location . " -> " . ( $res // '<undef>' ) )
         if $logger->is_debug;
