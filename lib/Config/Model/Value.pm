@@ -1683,7 +1683,7 @@ sub _fetch {
         :                                      $self->{upstream_default};
     my $std = defined $pref ? $pref : $known_upstream;
 
-    if ( not defined $data and defined $self->{_migrate_from} ) {
+    if ( defined $self->{_migrate_from} and not defined $data ) {
         $data = $self->migrate_value;
     }
 
