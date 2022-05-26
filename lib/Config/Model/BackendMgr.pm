@@ -318,7 +318,6 @@ sub try_read_backend {
         $res = $backend_obj->$f(
             @read_args,
             file_path => $file_path,
-            io_handle => Config::Model::DeprecatedHandle->new($fh),
             object    => $self->node,
         );
     };
@@ -405,7 +404,6 @@ sub auto_write_init {
         # override needed for "save as" button
         my %backend_args = (
             @wr_args,
-            io_handle => Config::Model::DeprecatedHandle->new($fh),
             file_path => $file_path,
             object    => $node,
             %cb_args            # override from user
@@ -502,34 +500,6 @@ sub is_auto_write_for_type {
 
 __PACKAGE__->meta->make_immutable;
 
-package Config::Model::DeprecatedHandle;
-
-our $AUTOLOAD;
-
-sub new {
-    my $class = shift;
-    my $fh = shift;
-
-    return defined $fh ? bless \$fh, $class : undef;
-}
-
-sub AUTOLOAD {
-    my $self = shift;
-    my $f = $AUTOLOAD;
-    $f =~ s/.*:://;
-    my ($package, $filename, $line) = caller;
-
-    # $$self may not be defined during destruction
-    if ($$self and $self->can($f)) {
-        $logger->warn(
-            "io_handle backend parameter is deprecated, ",
-            "please use file_path parameter. ",
-            "(called $f at $filename:$line)"
-        ) unless $package eq "Config::Model::BackendMgr";
-
-        $$self->$f(@_);
-    }
-}
 1;
 
 # ABSTRACT: Load configuration node on demand
