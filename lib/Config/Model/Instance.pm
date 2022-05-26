@@ -533,7 +533,7 @@ sub write_back {
             $args{$k} ||= '';
             $args{$k} .= '/' if $args{$k} and $args{$k} !~ m(/$);
         }
-        elsif ( $k !~ /^(config_file|backend)$/ ) {
+        elsif ( $k ne 'config_file' ) {
             croak "write_back: wrong parameters $k";
         }
     }
@@ -565,7 +565,6 @@ sub _write_back_node {
     my %args = @_;
 
     my $path = delete $args{path};
-    my $force_backend = delete $args{backend} || $self->{backend};
     my $force_write   = delete $args{force_write};
 
     my $node = $self->config_root->grab(
@@ -581,7 +580,6 @@ sub _write_back_node {
         my @wb_args = (
             %args,
             config_file   => $self->{config_file},
-            force_backend => $force_backend,
             force         => $force_write,
             backup        => $self->backup,
         );
@@ -590,17 +588,10 @@ sub _write_back_node {
             my $dir = $args{config_dir};
             mkpath( $dir, 0, oct(755) ) if $dir and not -d $dir;
 
-            my $res ;
-            if (not $force_backend
-                or $force_backend eq $backend
-                or $force_backend eq 'all' ) {
-
-                # exit when write is successfull
-                my $res = $cb->(@wb_args);
-                $logger->info( "write_back called with $backend backend, result is ",
-                               defined $res ? $res : '<undef>' );
-                last if ( $res and not $force_backend );
-            }
+            # exit when write is successfull
+            my $res = $cb->(@wb_args);
+            $logger->info( "write_back called with $backend backend, result is ",
+                           defined $res ? $res : '<undef>' );
         }
 
         if (not defined $node) {
