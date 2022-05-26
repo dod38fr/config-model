@@ -427,8 +427,6 @@ sub auto_write_init {
         return defined $res ? $res : $@ ? 0 : 1;
     };
 
-    # FIXME: enhance write back mechanism so that different backend *and* different nodes
-    # work as expected
     $logger->trace( "registering write $backend in node " . $self->node->name );
 
     $instance->register_write_back(  $self->node->location, $backend, $wb  );
