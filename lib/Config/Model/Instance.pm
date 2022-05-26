@@ -1051,7 +1051,7 @@ L<Config::Model::AnyThing/notify_change> for more details.
 In summary, save the content of the configuration tree to
 configuration files.
 
-In more details, C<write_back> trie to run all subroutines registered
+In more details, C<write_back> tries to run all subroutines registered
 with C<register_write_back> to write the configuration information.
 (See L<Config::Model::BackendMgr> for details).
 
