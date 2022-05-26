@@ -225,7 +225,7 @@ sub register_write_back {
 }
 
 # used for auto_read auto_write feature
-has [qw/name application backend backend_arg backup/] => (
+has [qw/name application backend_arg backup/] => (
     is  => 'ro',
     isa => 'Maybe[Str]',
 );
@@ -724,10 +724,6 @@ directory if C<root_dir> is empty.
 Directory to read or write configuration file. This parameter must be
 supplied if not provided by the configuration model. (string)
 
-=item backend
-
-Specify which backend to use. See L</write_back> for details
-
 =item backend_arg
 
 Specify a backend argument that may be retrieved by some
@@ -1021,11 +1017,6 @@ configuration model, then load all configuration data.
 This feature enables you to declare with the model a way to load
 configuration data (and to write it back). See
 L<Config::Model::BackendMgr> for details.
-
-=head2 backend
-
-Get the preferred backend method for this instance (as passed to the
-constructor).
 
 =head2 backend_arg
 
