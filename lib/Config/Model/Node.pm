@@ -1120,7 +1120,7 @@ sub apply_fixes ($self, $filter='' ) {
     $fix_logger->debug( "apply fix started from ", $self->name );
     $scan->scan_node( undef, $self );
     $fix_logger->trace("apply fix done");
-    return;
+    return $self;
 }
 
 sub deep_check ($self, %args){
@@ -1815,7 +1815,7 @@ deprecated elements or values. Return 1 if data needs to be saved.
 =head2 apply_fixes
 
 Scan the tree from this node and apply fixes that are attached to warning specifications.
-See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
+See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>. Return C<$self> since v2.151.
 
 =head2 load
 
