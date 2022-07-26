@@ -105,11 +105,17 @@ has error_list => (
     handles => {
         add_error    => 'push',
         clear_errors => 'clear',
-        error_msg    => [ join => "\n" ],
         has_error    => 'count',
         all_errors   => 'elements',
         is_ok        => 'is_empty'
     } );
+
+sub error_msg  ($self) {
+    my @add;
+    push @add, $self->compute_obj->compute_info if $self->compute_obj;
+    push @add, $self->{_migrate_from}->compute_info if $self->{_migrate_from};
+    return join("\n", $self->all_errors, @add);
+}
 
 has warning_list => (
     is      => 'ro',
@@ -370,11 +376,9 @@ sub migrate_value {
 
     #print "check result: $ok\n";
     if ( not $ok ) {
-        my $error = $self->error_msg . "\n\t" . $self->{_migrate_from}->compute_info;
-
         Config::Model::Exception::WrongValue->throw(
             object => $self,
-            error  => "migrated value error:\n\t" . $error
+            error  => "migrated value error:\n\t" . $self->error_msg
         );
     }
 
@@ -1393,7 +1397,7 @@ sub _store ($self, %args) {
     else {
         $self->instance->add_error( $self->location );
         if ($check eq 'skip') {
-            if (not $silent and $self->error_msg) {
+            if (not $silent and $self->has_error) {
                 my $msg = "Warning: ".$self->location." skipping value $value because of the following errors:\n"
                     . $self->error_msg . "\n\n";
                 # fuse UI exits when a warning is issued. No other need to advertise this option
