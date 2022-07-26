@@ -293,6 +293,8 @@ sub perform_compute {
     # check if the computed result fits with the constraints of the
     # Value model
     my ($ok, $value, $error, $warn) = $self->_check_value(value => $result);
+    $self->_check_mandatory_value(value => $value, error => $error);
+    $ok = not @$error;
 
     if ( not $ok ) {
         my $error = join("\n", (@$error, $self->compute_info));
@@ -916,20 +918,6 @@ sub _check_value ($self, %args) {
         Config::Model::Exception::Model->throw( object => $self, message => $msg );
     }
 
-    # a value may be mandatory and have a default value with layers
-    if ( $self->{mandatory}
-         and $check eq 'yes'
-         and ( $mode =~ /backend|user/ )
-         and ( not defined $value or not length($value) )
-         and ( not defined $self->{layered} or not length($self->{layered}))
-        ) {
-        # check only "empty" mode.
-        my $msg = "Undefined mandatory value.";
-        $msg .= $self->warp_error
-            if defined $self->{warped_attribute}{default};
-        push @error, $msg;
-    }
-
     if ( defined $self->{match_regexp} and defined $value ) {
         push @error, "value '$value' does not match regexp " . $self->{match}
             unless $value =~ $self->{match_regexp};
@@ -991,9 +979,32 @@ sub _check_value ($self, %args) {
     return ($ok, $value, \@error, \@warn);
 }
 
+sub _check_mandatory_value ($self, %args) {
+    my $value     = $args{value};
+    my $check     = $args{check} || 'yes';
+    my $mode      = $args{mode} || 'backend';
+    my $error     = $args{error} // carp "Missing error parameter";
+
+    # a value may be mandatory and have a default value with layers
+    if ( $self->{mandatory}
+         and $check eq 'yes'
+         and ( $mode =~ /backend|user/ )
+         and ( not defined $value or not length($value) )
+         and ( not defined $self->{layered} or not length($self->{layered}))
+        ) {
+        # check only "empty" mode.
+        my $msg = "Undefined mandatory value.";
+        $msg .= $self->warp_error
+            if defined $self->{warped_attribute}{default};
+        push $error->@*, $msg;
+    }
+
+    return;
+}
 
 sub check_value ($self, @args) {
     my ($ok, $value, $error, $warn) = $self->_check_value(@args);
+    $self->_check_mandatory_value(@args, value => $value, error => $error);
     $self->clear_errors;
     $self->clear_warnings;
     $self->add_error(@$error)  if @$error;
