@@ -558,9 +558,7 @@ throws_ok { $root->fetch_element('var_path')->fetch; }
 # set one variable of the formula
 $root->fetch_element('where_is_element')->store('get_element');
 
-throws_ok { $root->fetch_element('var_path')->fetch; }
-    qr/'! where_is_element' is 'get_element'/,
-    'reading var_path while where_is_element is defined' ;
+is( $root->fetch_element('var_path')->fetch(check => 'no'), undef, 'reading var_path while where_is_element is defined' );
 throws_ok { $root->fetch_element('var_path')->fetch; }
     qr/Undefined mandatory value/, 'reading var_path while get_element variable is undef';
 

@@ -297,9 +297,8 @@ sub perform_compute {
     my $result = $self->compute_obj->compute;
 
     # check if the computed result fits with the constraints of the
-    # Value model
+    # Value model, but don't check if it's mandatory
     my ($value, $error, $warn) = $self->_check_value(value => $result);
-    $self->_check_mandatory_value(value => $value, error => $error);
 
     if ( scalar $error->@* ) {
         my $error = join("\n", (@$error, $self->compute_info));
