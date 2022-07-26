@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.151 2022-07-26
+
+  Bug fixes:
+    * fix (Value): do not check compute result with mandatory value
+      (Debian #1015913)
+    * fix (Value): consider an empty string as an unset value
+
+  Misc:
+    * Node: apply_fixes now returns $self
+
 2.150 2022-05-08
 
   New features:
