@@ -292,11 +292,10 @@ sub perform_compute {
 
     # check if the computed result fits with the constraints of the
     # Value model
-    my ($ok, $value, $error, $warn) = $self->_check_value(value => $result);
+    my ($value, $error, $warn) = $self->_check_value(value => $result);
     $self->_check_mandatory_value(value => $value, error => $error);
-    $ok = not @$error;
 
-    if ( not $ok ) {
+    if ( scalar $error->@* ) {
         my $error = join("\n", (@$error, $self->compute_info));
 
         Config::Model::Exception::WrongValue->throw(
@@ -306,7 +305,7 @@ sub perform_compute {
     }
 
     $logger->trace("done");
-    return $ok ? $result : undef;
+    return $result;
 }
 
 # internal, used to generate error messages
@@ -975,8 +974,8 @@ sub _check_value ($self, %args) {
         " errors and ", scalar @warn, " warnings"
     );
 
-    my $ok = not @error;
-    return ($ok, $value, \@error, \@warn);
+    # return $value because it may be modified by apply_fixes
+    return ($value, \@error, \@warn);
 }
 
 sub _check_mandatory_value ($self, %args) {
@@ -1003,7 +1002,7 @@ sub _check_mandatory_value ($self, %args) {
 }
 
 sub check_value ($self, @args) {
-    my ($ok, $value, $error, $warn) = $self->_check_value(@args);
+    my ($value, $error, $warn) = $self->_check_value(@args);
     $self->_check_mandatory_value(@args, value => $value, error => $error);
     $self->clear_errors;
     $self->clear_warnings;
@@ -1012,6 +1011,7 @@ sub check_value ($self, @args) {
 
     $logger->trace("done");
 
+    my $ok = not $error->@*;
     # return $value because it may be updated by apply_fix
     return wantarray ? ($ok, $value) : $ok;
 }
