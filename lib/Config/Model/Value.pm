@@ -861,8 +861,8 @@ sub _check_value ($self, %args) {
         if (defined $value) {
             my $path = path($value);
             if ($path->exists) {
-                my $check = 'is_'.$vt ;
-                push @warn, "$value is not a $vt" if not path($value)->$check;
+                my $check_sub = 'is_'.$vt ;
+                push @warn, "$value is not a $vt" if not path($value)->$check_sub;
             }
             else {
                 push @warn, "$vt $value does not exists" ;
