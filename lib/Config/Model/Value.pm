@@ -111,10 +111,14 @@ has error_list => (
     } );
 
 sub error_msg  ($self) {
-    my @add;
-    push @add, $self->compute_obj->compute_info if $self->compute_obj;
-    push @add, $self->{_migrate_from}->compute_info if $self->{_migrate_from};
-    return join("\n", $self->all_errors, @add);
+    my $msg = '';
+    if ($self->has_error) {
+        my @add;
+        push @add, $self->compute_obj->compute_info if $self->compute_obj;
+        push @add, $self->{_migrate_from}->compute_info if $self->{_migrate_from};
+        $msg = join("\n", $self->all_errors, @add);
+    }
+    return $msg;
 }
 
 has warning_list => (
