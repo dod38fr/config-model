@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.152 2022-07-28
+
+  Bug fixes:
+    * fix regression (Value): error_msg now returns empty string
+      when there's no error 
+
 2.151 2022-07-26
 
   Bug fixes:
