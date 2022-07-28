@@ -450,6 +450,9 @@ ok( $bv, "created av and bv values" );
 
 ok( $compute_int = $root->fetch_element('compute_int'), "create computed integer value (av + bv)" );
 
+is($compute_int->has_error,0,"has_error is false");
+is($compute_int->error_msg,'',"error message is empty");
+
 no warnings 'once';
 
 my $parser = Parse::RecDescent->new($Config::Model::ValueComputer::compute_grammar);
