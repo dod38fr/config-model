@@ -62,6 +62,29 @@ sub _log_cmd {
     $verbose_logger->info("command '$str': $message");
 }
 
+sub _split_string ($str) {
+    # do a split on ' ' but take quoted string into account
+    return (
+        $str =~ m/
+         (         # begin of *one* command
+          (?:        # group parts of a command (e.g ...:...=... )
+           [^\s"]+  # match anything but a space and a quote
+           (?:        # begin quoted group
+             "         # begin of a string
+              (?:        # begin group
+                \\"       # match an escaped quote
+                |         # or
+                [^"]      # anything but a quote
+              )*         # lots of time
+             "         # end of the string
+           )          # end of quoted group
+           ?          # match if I got more than one group
+          )+      # can have several parts in one command
+         )        # end of *one* command
+        /gx    # 'g' means that all commands are fed into @command array
+    );         #"asdf ;
+}
+
 sub load {
     my $self = shift;
 
@@ -87,26 +110,7 @@ sub load {
     # accept commands
     my $huge_string = ref $steps ? join( ' ', @$steps ) : $steps;
 
-    # do a split on ' ' but take quoted string into account
-    my @command = (
-        $huge_string =~ m/
-         (         # begin of *one* command
-          (?:        # group parts of a command (e.g ...:...=... )
-           [^\s"]+  # match anything but a space and a quote
-           (?:        # begin quoted group
-             "         # begin of a string
-              (?:        # begin group
-                \\"       # match an escaped quote
-                |         # or
-                [^"]      # anything but a quote
-              )*         # lots of time
-             "         # end of the string
-           )          # end of quoted group
-           ?          # match if I got more than one group
-          )+      # can have several parts in one command
-         )        # end of *one* command
-        /gx    # 'g' means that all commands are fed into @command array
-    );         #"asdf ;
+    my @command = _split_string($huge_string);
 
     #print "command is ",join('+',@command),"\n" ;
 
