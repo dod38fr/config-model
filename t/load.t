@@ -29,6 +29,28 @@ binmode STDERR, ':encoding(UTF-8)';
 
 ok( 1, "compiled" );
 
+subtest "split command" => sub {
+    my @tests = (
+        [ qq!#"root comment " std_id:ab X=Bv -\na_string="titi and\nfoo"!, '#"root comment "', 'std_id:ab', 'X=Bv', '-', qq!a_string="titi and\nfoo"!],
+        [ q!std_id:~"/a\".*/"!, ],
+        [ q!std_id:~"a\".*"!, ],
+        [ q!a:~/b.*/.="\"a"! ],
+        [ 'a:~"b.*".="\"a"' ],
+        [ 'm:=a,"a b "' ],
+        [ 'a:=~"s/.*\".*/c/g"' ],
+    );
+
+    foreach my $subtest (@tests) {
+        my ( $str, @command ) = @$subtest;
+        push @command, $str unless @command;
+        my @res = Config::Model::Loader::_split_string($str);
+        my $label = length $str > 20 ? substr($str,0,20).'...' : $str;
+
+        eq_or_diff( \@res, \@command, "test _split_string with '$label'" );
+    }
+
+};
+
 subtest "mega regexp" => sub {
 
     my $big_list = '"dh-autoreconf","pkg-config","debhelper-compat (= 12)","dh-autotools (> 3)"';
@@ -54,11 +76,11 @@ subtest "mega regexp" => sub {
         [ "a.=\x{263A}",       [ 'a',  'x',  'x',           'x',            '.=', 'x',      "\x{263A}", 'x' ] ], # utf8 smiley
         [ 'a="b=c"',           [ 'a',  'x',  'x',           'x',            '=',  'x',      '"b=c"',    'x' ] ],
         [ 'a="b=\"c\""',       [ 'a',  'x',  'x',           'x',            '=',  'x',      '"b=\"c\""','x' ] ],
-        [ 'a=~/a/A/',          [ 'a',  'x',  'x',           'x',            '=~', 'x',      '/a/A/',    'x' ] ], # subst on value
+        [ 'a=~s/a/A/',         [ 'a',  'x',  'x',           'x',            '=~', 'x',      's/a/A/',   'x' ] ], # subst on value
         [ 'a=b#B',             [ 'a',  'x',  'x',           'x',            '=',  'x',      'b',        'B' ] ],
         [ 'a#B',               [ 'a',  'x',  'x',           'x',            'x',  'x',      'x',        'B' ] ],
         [ 'a#"b=c"',           [ 'a',  'x',  'x',           'x',            'x',  'x',      'x',        '"b=c"' ] ],
-
+        [ 'c=~s/\s*".*//',     [ 'c',  'x',  'x',           'x',            '=~', 'x',      's/\s*".*//', 'x' ]],
         #                              id_operation                        leaf_operation
         # string                 elt   op   (param)          id             op    (param)      val        note
         [ 'a:b=c',             [ 'a',  ':',  'x',           'b',            '=',  'x',      'c',        'x' ] ], # fetch and assign elt
