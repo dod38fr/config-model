@@ -5,17 +5,20 @@ use Test::More;
 use Test::Exception;
 use Test::Differences;
 use Test::Memory::Cycle;
+use Test::Synopsis::Expectation;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 use Test::Log::Log4perl;
 
 use strict;
 use warnings;
+use lib "t/lib";
+use utf8;
+
 
 Test::Log::Log4perl->ignore_priority("info");
 
-use lib "t/lib";
-use utf8;
+synopsis_ok('lib/Config/Model/Loader.pm');
 
 my ($model, $trace) = init_test();
 

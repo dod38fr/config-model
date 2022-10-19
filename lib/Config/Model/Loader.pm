@@ -1135,28 +1135,20 @@ __END__
      listb:0=foo listb:1=baz';
  $root->load( steps => $steps );
 
- print $root->describe,"\n" ;
- # name         value        type         comment
- # foo          FOO          string
- # bar          [undef]      string
- # hash_of_nodes <Foo>        node hash    keys: "en" "fr"
- # lista        foo,bar,baz  list
- # listb        foo,baz      list
-
+ my $s = $root->fetch_element_value('foo');      # => is 'FOO'
+ $s = $root->grab_value('hash_of_nodes:en foo'); # => is 'hello'
+ $s = $root->grab_value('lista:1');              # => is 'bar'
+ $s = $root->grab_value('lista:2');              # => is 'baz'
 
  # delete some data
  $root->load( steps => 'lista~2' );
 
- print $root->describe(element => 'lista'),"\n" ;
- # name         value        type         comment
- # lista        foo,bar      list
+ $s = $root->grab_value('lista:2');              # => is undef
 
  # append some data
  $root->load( steps => q!hash_of_nodes:en foo.=" world"! );
 
- print $root->grab('hash_of_nodes:en')->describe(element => 'foo'),"\n" ;
- # name         value        type         comment
- # foo          "hello world" string
+ $s = $root->grab_value('hash_of_nodes:en foo'); # => is 'hello world'
 
 =head1 DESCRIPTION
 
