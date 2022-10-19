@@ -68,7 +68,7 @@ sub _split_string ($str) {
         $str =~ m/
          (         # begin of *one* command
           (?:        # group parts of a command (e.g ...:...=... )
-           [^\s"]+  # match anything but a space and a quote
+           [^\s"']+  # match anything but a space and a quote
            (?:        # begin quoted group
              "         # begin of a string
               (?:        # begin group
@@ -77,6 +77,16 @@ sub _split_string ($str) {
                 [^"]      # anything but a quote
               )*         # lots of time
              "         # end of the string
+           )          # end of quoted group
+           ?          # match if I got more than one group
+           (?:        # begin quoted group
+             '         # begin of a string
+              (?:        # begin group
+                \\'       # match an escaped quote
+                |         # or
+                [^']      # anything but a quote
+              )*         # lots of time
+             '         # end of the string
            )          # end of quoted group
            ?          # match if I got more than one group
           )+      # can have several parts in one command
@@ -157,7 +167,7 @@ sub _split_cmd {
     my $cmd = shift;
     $logger->trace("split on: ->$cmd<-");
 
-    my $quoted_string = qr/"(?: \\" | [^"] )* "/x;    # quoted string
+    my $quoted_string = qr/(?:"(?: \\" | [^"] )* ")|(?:'(?: \\' | [^'] )* ')/x;    # quoted string
 
     # do a split on ' ' but take quoted string into account
     my @command = (
@@ -183,7 +193,7 @@ sub _split_cmd {
                 | (
                     (?:
                       $quoted_string
-                     | [^#\s]                # or non whitespace
+                     | [^#\s"']              # or non whitespace
                     )+                       # many
                   )
 	        )?
@@ -1461,9 +1471,11 @@ C<foo#comment:bar> is B<not> valid.
 
 =head2 Quotes
 
-You can surround indexes and values with double quotes. E.g.:
+You can surround indexes and values with single or double quotes. E.g.:
 
-  a_string="\"foo\" and \"bar\""
+  a_string='"foo" and "bar"'
+
+Single quotes were added in version 2.153.
 
 =head1 Examples
 

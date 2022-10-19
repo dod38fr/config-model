@@ -35,9 +35,16 @@ subtest "split command" => sub {
         [ q!std_id:~"/a\".*/"!, ],
         [ q!std_id:~"a\".*"!, ],
         [ q!a:~/b.*/.="\"a"! ],
-        [ 'a:~"b.*".="\"a"' ],
-        [ 'm:=a,"a b "' ],
-        [ 'a:=~"s/.*\".*/c/g"' ],
+        [ q!a:~"b.*".="\"a"! ],
+        [ q!m:=a,"a b "! ],
+        [ q!a:=~"s/.*\".*/c/g"! ],
+        [ qq!#'root comment ' std_id:ab X=Bv -\na_string='titi and\nfoo'!, q!#'root comment '!, 'std_id:ab', 'X=Bv', '-', qq!a_string='titi and\nfoo'!],
+        [ q!std_id:~'/a\'.*/'!, ],
+        [ q!std_id:~'a\'.*'!, ],
+        [ q!a:~/b.*/.='\'a'! ],
+        [ q!a:~'b.*'.='\'a'! ],
+        [ q!m:=a,'a b '! ],
+        [ q!a:=~'s/.*\'.*/c/g'! ],
     );
 
     foreach my $subtest (@tests) {
@@ -63,11 +70,14 @@ subtest "mega regexp" => sub {
         [ 'a',                 [ 'a',  'x',  'x',           'x',            'x',  'x',      'x',        'x' ] ],
         [ '#C',                [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        'C' ] ],
         [ '#"m C"',            [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        '"m C"' ] ],
+        [ q!#'m C'!,           [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        "'m C'" ] ],
         [ 'a=b',               [ 'a',  'x',  'x',           'x',            '=',  'x',      'b',        'x' ] ],
         [ 'a=a~',              [ 'a',  'x',  'x',           'x',            '=',  'x',      'a~',       'x' ] ],
         [ 'a="~"',             [ 'a',  'x',  'x',           'x',            '=',  'x',      '"~"',      'x' ] ],
+        [ "a='~'",             [ 'a',  'x',  'x',           'x',            '=',  'x',      "'~'",      'x' ] ],
         [ 'a=.foo(bar)',       [ 'a',  'x',  'x',           'x',          '=.foo','bar',   'x',        'x' ] ],
         [ 'a=.foo("b r")',     [ 'a',  'x',  'x',           'x',          '=.foo','"b r"', 'x',        'x' ] ],
+        [ "a=.foo('b r')",     [ 'a',  'x',  'x',           'x',          '=.foo',"'b r'", 'x',        'x' ] ],
         [ 'a=.json(dir/foo.json/b/a)',
           [ 'a',  'x',  'x',           'x',          '=.json','dir/foo.json/b/a', 'x',        'x' ] ], # path + vector
         [ 'a-z=b',             [ 'a-z','x',  'x',           'x',            '=',  'x',      'b',        'x' ] ],
@@ -75,16 +85,18 @@ subtest "mega regexp" => sub {
         [ 'a.=b',              [ 'a',  'x',  'x',           'x',            '.=', 'x',      'b',        'x' ] ],
         [ "a.=\x{263A}",       [ 'a',  'x',  'x',           'x',            '.=', 'x',      "\x{263A}", 'x' ] ], # utf8 smiley
         [ 'a="b=c"',           [ 'a',  'x',  'x',           'x',            '=',  'x',      '"b=c"',    'x' ] ],
+        [ "a='b=c'",           [ 'a',  'x',  'x',           'x',            '=',  'x',      "'b=c'",    'x' ] ],
         [ 'a="b=\"c\""',       [ 'a',  'x',  'x',           'x',            '=',  'x',      '"b=\"c\""','x' ] ],
         [ 'a=~s/a/A/',         [ 'a',  'x',  'x',           'x',            '=~', 'x',      's/a/A/',   'x' ] ], # subst on value
         [ 'a=b#B',             [ 'a',  'x',  'x',           'x',            '=',  'x',      'b',        'B' ] ],
         [ 'a#B',               [ 'a',  'x',  'x',           'x',            'x',  'x',      'x',        'B' ] ],
         [ 'a#"b=c"',           [ 'a',  'x',  'x',           'x',            'x',  'x',      'x',        '"b=c"' ] ],
-        [ 'c=~s/\s*".*//',     [ 'c',  'x',  'x',           'x',            '=~', 'x',      's/\s*".*//', 'x' ]],
+        [ q!c=~'s/\s*".*//'!,  [ 'c',  'x',  'x',           'x',            '=~', 'x',      q!'s/\s*".*//'!, 'x' ]],
         #                              id_operation                        leaf_operation
         # string                 elt   op   (param)          id             op    (param)      val        note
         [ 'a:b=c',             [ 'a',  ':',  'x',           'b',            '=',  'x',      'c',        'x' ] ], # fetch and assign elt
         [ 'a:"b\""="\"c"',     [ 'a',  ':',  'x',           '"b\""',        '=',  'x',      '"\"c"',    'x' ] ],
+        [ q!a:'b\''='\'c'!,    [ 'a',  ':',  'x',           q!'b\''!,        '=',  'x',      q!'\'c'!,   'x' ] ],
         # fetch and assign elt with quotes
         [ 'a:~',               [ 'a',  ':~', 'x',           'x',            'x',  'x',      'x',        'x' ] ], # loop on matched value
         [ 'a:~.=b',            [ 'a',  ':~', 'x',           'x',            '.=', 'x',      'b',        'x' ] ], # loop on matched value
@@ -92,6 +104,9 @@ subtest "mega regexp" => sub {
         [ 'a:~"b.*"',          [ 'a',  ':~', 'x',           '"b.*"',        'x',  'x',      'x',        'x' ] ], # loop on matched value
         [ 'a:~/b.*/.="\"a"',   [ 'a',  ':~', 'x',           '/b.*/',        '.=', 'x',      '"\"a"',    'x' ] ], # loop on matched value and append
         [ 'a:~"b.*".="\"a"',   [ 'a',  ':~', 'x',           '"b.*"',        '.=', 'x',      '"\"a"',    'x' ] ], # loop on matched value and append
+        [ q!a:~'b.*'!,         [ 'a',  ':~', 'x',           "'b.*'",        'x',  'x',      'x',        'x' ] ], # loop on matched value
+        [ q!a:~/b.*/.='\'a'!,  [ 'a',  ':~', 'x',           '/b.*/',        '.=', 'x',      q!'\'a'!,   'x' ] ], # loop on matched value and append
+        [ q!a:~'b.*'.='\'a'!,  [ 'a',  ':~', 'x',           "'b.*'",        '.=', 'x',      q!'\'a'!,   'x' ] ], # loop on matched value and append
         [ 'a:~/^\w+$/',        [ 'a',  ':~', 'x',           '/^\w+$/',      'x',  'x',      'x',        'x' ] ], # loop on matched value
         [ 'a:="dod@foo.com"',  [ 'a',  ':=', 'x',           '"dod@foo.com"','x',  'x',      'x',        'x' ] ], # set list
         [ 'a:=b,c,d',          [ 'a',  ':=', 'x',           'b,c,d',        'x',  'x',      'x',        'x' ] ], # set list
@@ -99,6 +114,9 @@ subtest "mega regexp" => sub {
         [ 'm:=a,"a b "',       [ 'm',  ':=', 'x',           'a,"a b "',     'x',  'x',      'x',        'x' ] ], # set list with quotes
         [ 'm:="a b ",c',       [ 'm',  ':=', 'x',           '"a b ",c',     'x',  'x',      'x',        'x' ] ], # set list with quotes
         [ 'm:="a b","c d"',    [ 'm',  ':=', 'x',           '"a b","c d"',  'x',  'x',      'x',        'x' ] ], # set list with quotes
+        [ q!m:=a,'a b '!,      [ 'm',  ':=', 'x',           "a,'a b '",     'x',  'x',      'x',        'x' ] ], # set list with quotes
+        [ q!m:='a b ',c!,      [ 'm',  ':=', 'x',           "'a b ',c",     'x',  'x',      'x',        'x' ] ], # set list with quotes
+        [ q!m:='a b','c d'!,   [ 'm',  ':=', 'x',           q!'a b','c d'!, 'x',  'x',      'x',        'x' ] ], # set list with quotes
         [ "m:=$big_list",      [ 'm',  ':=', 'x',           $big_list,      'x',  'x',      'x',        'x' ] ], # set list with quotes
         [ 'm=a,"a b "',        [ 'm',  'x',  'x',           'x',            '=',  'x',      'a,"a b "', 'x' ] ],
 
@@ -128,7 +146,8 @@ subtest "mega regexp" => sub {
         [ 'a:~/b/<c',          [ 'a',  ':~', 'x',           '/b/',          '<',  'x',      'c',        'x' ] ], # insert at matching value
 
         # function call
-        [ 'a:.b("foo(a > b)")',[ 'a',  ':.b','"foo(a > b)"','x',            'x',  'x',      'x',        'x' ] ], # tricky value with ()
+        [ 'a:.b("foo(a > b)")', [ 'a',  ':.b','"foo(a > b)"','x',            'x',  'x',      'x',        'x' ] ], # tricky value with ()
+        [ q!a:.b('foo(a > b)')!,[ 'a',  ':.b',"'foo(a > b)'",'x',            'x',  'x',      'x',        'x' ] ], # tricky value with ()
     );
 
     foreach my $subtest (@regexp_test) {
