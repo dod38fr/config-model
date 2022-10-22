@@ -219,7 +219,7 @@ sub _split_cmd {
             error   => "Syntax error: spurious char at command end: '$leftout'. Did you forget double quotes ?"
         );
     }
-    return wantarray ? @command : \@command;
+    return @command;
 }
 
 my %load_dispatch = (

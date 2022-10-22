@@ -155,13 +155,13 @@ subtest "mega regexp" => sub {
 
     foreach my $subtest (@regexp_test) {
         my ( $cmd, $ref ) = @$subtest;
-        my $res = Config::Model::Loader::_split_cmd($cmd);
+        my @res = Config::Model::Loader::_split_cmd($cmd);
 
         #print Dumper $res,"\n";
-        foreach (@$res) {
+        foreach (@res) {
             $_ = 'x' unless defined $_;
         }
-        eq_or_diff( $res, $ref, "test _split_cmd with '$cmd'" );
+        eq_or_diff( \@res, $ref, "test _split_cmd with '$cmd'" );
     }
 };
 
