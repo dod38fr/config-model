@@ -83,5 +83,5 @@ Non Debian users can also prepare a patch using CPAN tarball:
 Feedback is important. Please take a moment to rate, comment or add
 stars to this project:
 
-* [cme github](https://github.com/dod38fr/cme-perl) or [cme cpan ratings](http://cpanratings.perl.org/rate/?distribution=App-Cme)
+* [cme github](https://github.com/dod38fr/cme-perl)
 * [config-model github](https://github.com/dod38fr/config-model) or [config-model cpan ratings](http://cpanratings.perl.org/rate/?distribution=Config::Model)
