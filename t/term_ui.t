@@ -11,11 +11,12 @@ use Test::Differences;
 BEGIN {
     my $ok = eval {
         require Term::ReadLine;
-        my $test = Term::ReadLine->new( 'Test' );
         1;
     }
-        and ( eval { require Term::ReadLine::Gnu; 1; }
-        or eval { require Term::ReadLine::Perl; 1; } );
+        and (
+            eval { require Term::ReadLine::Gnu; 1; }
+            or eval { require Term::ReadLine::Perl; 1; }
+        );
 
     if ($ok) {
         plan tests => 18;
