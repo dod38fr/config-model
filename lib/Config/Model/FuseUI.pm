@@ -153,11 +153,6 @@ sub read {
     return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
     my $v = fetch_as_line($obj);
 
-    if ( not defined $v ) {
-        return -EINVAL() if $off > 0;
-        return '';
-    }
-
     return -EINVAL() if $off > length($v);
     return 0 if $off == length($v);
     my $ret = substr( $v, $off, $buf );
