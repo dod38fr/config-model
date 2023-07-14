@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.153-TRIAL 2023-07-14
+
+  Bug fixes:
+    * term_ui.t: fix test for Term::ReadLine::Gnu 1.46
+    * Config::Model::Value: remove deprecated given instruction
+    * docs: remove links to cpanratings
+
+  New feature:
+    * Loader: add support for single quotes
+
 2.152 2022-07-28
 
   Bug fixes:
