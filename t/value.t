@@ -473,6 +473,18 @@ subtest "boolean where values are translated" => sub {
     is( $bp->fetch, undef, "boolean_plain: get 'undef' after clear()" );
 };
 
+subtest "boolean written with wrong value" => sub {
+    # emulate FuseUi behavior
+    $inst->clear_changes;
+    my $bp = $root->fetch_element('boolean_plain');
+
+    $bp->store(qw/value a check skip/);
+    is( $bp->fetch(qw/check no/), undef, "boolean_plain: get empty value after writing bad value" );
+
+    $bp->clear;
+    is( $bp->fetch(), undef, "boolean_plain: get 'undef' after clear()" );
+};
+
 subtest "check changes with boolean where values are translated to true/false" => sub {
     $inst->clear_changes;
     my $bwwa = $root->fetch_element('boolean_with_write_as');
