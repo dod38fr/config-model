@@ -1,6 +1,7 @@
 {{$NEXT}}
 
-2.153-TRIAL 2023-07-14
+2.153 2023-07-14
+
 
   Bug fixes:
     * term_ui.t: fix test for Term::ReadLine::Gnu 1.46
