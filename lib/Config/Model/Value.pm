@@ -22,8 +22,7 @@ use Scalar::Util qw/weaken/;
 use Carp;
 use Storable qw/dclone/;
 use Path::Tiny;
-use List::MoreUtils qw(any) ;
-
+use List::Util qw(any) ;
 extends qw/Config::Model::AnyThing/;
 
 with "Config::Model::Role::WarpMaster";
@@ -1745,22 +1744,20 @@ sub _fetch {
     }
 
     my $res;
-    given ($mode) {
-        when ([qw/preset default upstream_default layered/]) {
-            $res = $self->{$mode};
-        }
-        when ('standard') {
-            $res = $std;
-        }
-        when ('backend') {
-            $res = $self->_data_or_alt($data, $pref);
-        }
-        when ([qw/user allow_undef/]) {
-            $res = $self->_data_or_alt($data, $std);
-        }
-        default {
-            die "unexpected mode $mode ";
-        }
+    if (any {$_ eq $mode} qw/preset default upstream_default layered/) {
+        $res = $self->{$mode};
+    }
+    elsif ( $mode eq 'standard') {
+        $res = $std;
+    }
+    elsif ( $mode eq 'backend') {
+        $res = $self->_data_or_alt($data, $pref);
+    }
+    elsif (any {$mode eq $_} qw/user allow_undef/) {
+        $res = $self->_data_or_alt($data, $std);
+    }
+    else {
+        die "unexpected mode $mode ";
     }
 
     $logger->debug( "done in '$mode' mode for " . $self->location . " -> " . ( $res // '<undef>' ) )
@@ -1771,15 +1768,15 @@ sub _fetch {
 
 sub _data_or_alt ($self, $data, $alt) {
     my $res;
-    given ($self->value_type) {
-        when ([qw/integer boolean number/]) {
-            $res = $data // $alt
-        }
-        default {
-            # empty string is considered as undef, but empty string is
-            # still returned if there's not defined alternative ($alt)
-            $res = length($data) ? $data : $alt // $data
-        }
+    my $vt = $self->value_type;
+
+    if (any {$_ eq $vt} qw/integer boolean number/) {
+        $res = $data // $alt
+    }
+    else {
+        # empty string is considered as undef, but empty string is
+        # still returned if there's not defined alternative ($alt)
+        $res = length($data) ? $data : $alt // $data
     }
     return $res;
 }
