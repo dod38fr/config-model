@@ -62,10 +62,9 @@ sub create_fallback {
     my $self     = shift;
     my $fallback = shift;
 
-    map {
-        $self->{$_} =
-            sub { }
-    } qw/node_content_hook hash_element_hook list_element_hook/;
+    foreach my $item (qw/node_content_hook hash_element_hook list_element_hook/) {
+        $self->{$item} = sub { };
+    }
 
     return if not defined $fallback or $fallback eq 'none';
 
@@ -74,8 +73,8 @@ sub create_fallback {
     if ( $fallback eq 'node' or $fallback eq 'all' ) {
         $done++;
         my $node_content_cb = sub {
-            my ( $scanner, $data_r, $node, @element ) = @_;
-            map { $scanner->scan_element( $data_r, $node, $_ ) } @element;
+            my ( $scanner, $data_r, $node, @elements ) = @_;
+            foreach my $item (@elements) { $scanner->scan_element( $data_r, $node, $item ) };
         };
 
         my $node_element_cb = sub {
@@ -85,7 +84,7 @@ sub create_fallback {
 
         my $hash_element_cb = sub {
             my ( $scanner, $data_r, $node, $element_name, @keys ) = @_;
-            map { $scanner->scan_hash( $data_r, $node, $element_name, $_ ) } @keys;
+            foreach my $item (@keys) { $scanner->scan_hash( $data_r, $node, $element_name, $item ) };
         };
 
         $self->{list_element_cb} = $hash_element_cb;
@@ -498,7 +497,9 @@ Example:
      # custom code using $data_ref
 
      # resume exploration (if needed)
-     map {$scanner->scan_list($data_ref,$node,$element_name,$_)} @idx ;
+     foreach my $i (@idx){
+         $scanner->scan_list($data_ref,$node,$element_name,$i);
+     }
 
      # note: scan_list and scan_hash are equivalent
   }
@@ -534,7 +535,9 @@ Example:
      # custom code using $data_ref
 
      # resume exploration
-     map {$scanner->scan_hash($data_ref,$node,$element_name,$_)} @keys ;
+     foreach my $k (@keys) {
+         $scanner->scan_hash($data_ref,$node,$element_name,$key);
+     }
   }
 
 =head2 Hash element hook
@@ -554,12 +557,14 @@ C<@element_list> contains all the element names of the node.
 Example:
 
   sub my_content_cb {
-     my ($scanner, $data_ref,$node,@element) = @_ ;
+     my ($scanner, $data_ref,$node,@elements) = @_ ;
 
      # custom code using $data_ref
 
      # resume exploration
-     map {$scanner->scan_element($data_ref, $node,$_)} @element ;
+     foreach my $elt (@elements) {
+         $scanner->scan_element($data_ref, $node,$elt);
+     }
   }
 
 =head2 Node content hook
@@ -598,7 +603,9 @@ Example:
      # custom code using $data_ref
 
      # resume exploration
-     map {$scanner->scan_element($data_ref, $node,$_)} @element ;
+     foreach my $elt (@elements) {
+         $scanner->scan_element($data_ref, $node,$elt);
+     }
   }
 
 =head2 Node element callback
