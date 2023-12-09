@@ -307,7 +307,7 @@ extends 'Config::Model::Exception::User';
 
 sub _desc { 'unknown element' }
 
-has [qw/element function where/] => (is => 'rw');
+has [qw/element function where autoadd/] => (is => 'rw');
 
 sub full_message {
     my $self = shift;
@@ -352,7 +352,7 @@ sub full_message {
     }
 
     my @match_keys = $obj->can('accept_regexp') ? $obj->accept_regexp() : ();
-    if (@match_keys) {
+    if (@match_keys and $self->autoadd) {
         $msg .= "\tor an acceptable parameter matching '" . join( "','", @match_keys ) . "'\n";
     }
 

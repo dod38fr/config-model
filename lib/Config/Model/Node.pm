@@ -167,6 +167,7 @@ sub create_element ($self, @args) {
                 object   => $self,
                 where    => $self->location || 'configuration root',
                 element  => $element_name,
+                autoadd  => $args{autoadd},
             );
         }
         else {
@@ -628,7 +629,7 @@ sub fetch_element ($self, @args) {
 
         # We also need to check if element name is matched by any of 'accept' parameters
         $self->accept_element($element_name) if $autoadd;
-        $self->create_element( name => $element_name, check => $check ) or return;
+        $self->create_element( name => $element_name, check => $check, autoadd => $autoadd ) or return;
     }
 
     # check level

@@ -175,6 +175,7 @@ COMMAND:
                     object   => $obj,
                     element  => $name,
                     function => 'grab',
+                    autoadd  => $autoadd,
                     info     => "grab called from '" . $self->name . "' with steps '@saved'"
                 );
             }
