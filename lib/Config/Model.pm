@@ -2490,7 +2490,7 @@ C<force-load>.
 
 Like L<cme> command, C<cme> functions accepts C<force-load>
 parameters. When this argument is true, the instance is created with
-C<check => 'no'>. Hence bad values are stored in C<cme> and must be
+C<<check => 'no'>>. Hence bad values are stored in C<cme> and must be
 corrected before saving back the data.
 
 =head1 Configuration class
