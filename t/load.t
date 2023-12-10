@@ -554,8 +554,8 @@ subtest "test list.ensure" => sub {
     $root->load( qq!lista:.ensure(b2)! );
     eq_or_diff( [ $lista->fetch_all_values ], [qw/a b b2 c d/], "ensure(b2) -> inserted and sorted");
 
-    $root->load( qq!lista:.ensure(c2,f4,b2,c2)! );
-    eq_or_diff( [ $lista->fetch_all_values ], [qw/a b b2 c c2 d f4/], "ensure several values");
+    $root->load( qq!lista:.ensure(c2,f4,b2,c2,"z z")! );
+    eq_or_diff( [ $lista->fetch_all_values ], [qw/a b b2 c c2 d f4/, "z z"], "ensure several values");
 };
 
 subtest "test combination of annotation plus load and some utf8" => sub {

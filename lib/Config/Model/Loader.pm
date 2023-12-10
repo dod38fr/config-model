@@ -1329,11 +1329,12 @@ is preserved. Note that all keys are sorted once this instruction is
 called. Putting key order aside, C<xxx:.insort(zz,vv)> has the
 same effect as C<xxx:zz=vv> instruction.
 
-=item xxx:.ensure(zz)
+=item xxx:.ensure(zz,...)
 
 Ensure that list C<xxx> contains value C<zz>. If value C<zz> is
 already stored in C<xxx> list, this function does nothing. In the
-other case, value C<zz> is inserted in alphabetical order.
+other case, value C<zz> is inserted in alphabetical order. This
+function accepts a list of values separated by a comma.
 
 =item xxx:=z1,z2,z3
 
