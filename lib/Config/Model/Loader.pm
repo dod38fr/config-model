@@ -508,6 +508,7 @@ sub _load_check_list {
         'hash_*' => {
             ':.sort'          => sub { $_[1]->sort; return 'ok'; },
             ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
+            ':.rename'        => sub { $_[1]->move( $_[5], $_[6] ); return 'ok'; },
             ':.clear'         => sub { $_[1]->clear; return 'ok';},
         },
         # part of list or hash. leaf element have their own dispatch table
@@ -525,7 +526,7 @@ sub _load_check_list {
     );
 
     my %equiv = (
-        'hash_*' => { qw/:@ :.sort/},
+        'hash_*' => { qw/:@ :.sort :.move :.rename/},
         list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
         # fix for cme gh#2
         leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.substitute/ },
@@ -1353,6 +1354,14 @@ Using C<xxx:~/yy/=zz> is also possible.
 =item xxx:.copy(yy,zz)
 
 copy item C<yy> in C<zz> (hash or list).
+
+=item xxx:.rename(yy,zz)
+
+rename item C<yy> in C<zz> (hash).
+
+=item xxx:.move(yy,zz)
+
+Alias to rename.
 
 =item xxx:.json("path/to/file.json/foo/bar")
 
