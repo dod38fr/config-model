@@ -19,8 +19,8 @@ sub read {
 
     my $dir = $args{root}->child($args{config_dir});
     foreach my $file ($dir->children()) {
-        my_log("dummy read file $file");
         my ($key,$elt) = split /\./,$file->basename;
+        my_log("dummy read file $file, loading $elt:$key");
         $args{object}->load("$elt:$key");
     }
     return 1;
@@ -112,6 +112,13 @@ my @tests = (
         # push a value to force loading of install.bar file
         load => 'install:bar list:.push(pushed) - install~bar',
         file_check_sub => sub { shift @{$_[0]}; },
+    },
+    {   # test file rename
+        name  => 'with-index-and-rename',
+        data_from  => 'with-index',
+        # push a value to force loading of install.bar file
+        load => 'install:.rename(bar,baz) move:.rename(bar,baz)',
+        file_check_sub => sub { foreach my $file (@{$_[0]}) { $file =~ s/bar/baz/;} },
     },
 
 );

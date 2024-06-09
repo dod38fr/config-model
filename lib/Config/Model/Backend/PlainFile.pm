@@ -56,7 +56,7 @@ sub read {
         my $dir = $self->get_tuned_config_dir(%args);
         my $file = $dir->child($file_name);
 
-        $logger->trace("looking for plainfile $file for ", $obj->location);
+        $logger->trace("looking to read plainfile $file for ", $obj->location);
 
         my $type = $obj->get_type;
 
@@ -134,6 +134,8 @@ sub write {
 
         my $file_name = $self->get_file_name(%args, elt => $elt);
         my $file = $dir->child($file_name);
+
+        $logger->trace("looking to write plainfile $file for ", $obj->location);
 
         my $type = $obj->get_type;
         my @v;
