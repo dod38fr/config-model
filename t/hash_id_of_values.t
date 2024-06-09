@@ -304,6 +304,12 @@ $oh->fetch_with_id('z')->store('1z');
 $oh->fetch_with_id('x')->store('2x');
 $oh->fetch_with_id('a')->store('3a');
 
+throws_ok {
+    $oh->copy('bogus','dont_care');
+}
+    'Config::Model::Exception::User',
+   "check copy unknown key";
+
 eq_or_diff( [ $oh->fetch_all_indexes ], [qw/z x a/], "check index order of ordered_hash" );
 $inst->clear_changes;
 

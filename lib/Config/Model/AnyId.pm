@@ -774,8 +774,12 @@ sub set ($self, $path, @args) {
     return $self->fetch_with_id($item)->set( $new_path, @args );
 }
 
-sub copy {
-    my ( $self, $from, $to ) = @_;
+sub copy ( $self, $from, $to ) {
+
+    Config::Model::Exception::User->throw(
+        object  => $self,
+        message => "move: unknow from key $from"
+    ) unless $self->exists($from);
 
     my $from_obj = $self->fetch_with_id($from);
     my $ok       = $self->check_idx($to);
