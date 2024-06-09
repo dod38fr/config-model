@@ -434,6 +434,12 @@ $oh->load_data( {
 eq_or_diff( [ $oh->fetch_all_indexes ],
     [qw/a b c d e/], "check index order of ordered_hash loaded with hash and __order" );
 
+throws_ok {
+    $oh->move('bogus','dont_care');
+}
+    'Config::Model::Exception::User',
+    "check move unknown key";
+
 $oh->move( 'e', 'e2' );
 eq_or_diff( [ $oh->fetch_all_indexes ],
     [qw/a b c d e2/], "check index order of ordered_hash after move(e e2)" );

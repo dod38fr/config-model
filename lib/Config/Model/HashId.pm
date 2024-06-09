@@ -324,6 +324,11 @@ sub move {
 
     $logger->trace("moving item from $from to $to");
 
+    Config::Model::Exception::User->throw(
+        object  => $self,
+        message => "move: unknow from key $from"
+    ) unless exists $self->{data}{$from};
+
     my $ok = $self->check_idx($to);
 
     my $check = $args{check};
