@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.154 2024-06-15
+
+  Bug fixes:
+    * AnyId: raise an error when copy is called on an unknown key or idx
+    * HashId: raise an error when move is called on an unknown key
+    * HashId: improve copy method to fix PlainFile backend
+    * grab: fix error message when autoadd is 0
+    * loader: update .ensure() doc
+
+  New feature:
+    * Loader: add .rename() function for hash
+
 2.153 2023-07-14
 
 
