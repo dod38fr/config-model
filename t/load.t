@@ -165,9 +165,26 @@ subtest "mega regexp" => sub {
     }
 };
 
+$model->load('Master' => 'dump_load_model.pl',);
+
+$model->augment_config_class(
+    name => 'Master',
+    element => [
+        # uses to test .set_to_std_value
+        two => {
+            type => 'leaf',
+            value_type => 'uniline',
+            compute => {
+                allow_override => 1,
+                use_eval => 1,
+                formula => '1+1;'
+            }
+        },
+    ]
+);
+
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 'dump_load_model.pl',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
@@ -692,6 +709,13 @@ subtest "test some errors cases" => sub {
     foreach my $bad ( sort keys %errors ) {
         throws_ok { $root->load($bad) } $errors{$bad}, "Check error for load('$bad')";
     }
+};
+
+subtest "test .set_to_std_value" => sub {
+    $root->load('two=3');
+    is($root->grab_value("two"), 3, "check two value (wrong)");
+    $root->load('two=.set_to_std_value()');
+    is($root->grab_value("two"), 2, "check two value (correct)");
 };
 
 memory_cycle_ok( $model, "check memory cycles" );
