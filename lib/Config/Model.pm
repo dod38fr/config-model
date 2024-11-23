@@ -2656,7 +2656,7 @@ returns C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 =head2 augment_config_class (name => '...', class_data )
 
 Enhance the feature of a configuration class. This method uses the same parameters
-as L<create_config_class>. See
+as L</create_config_class>. See
 L<Config::Model::Manual::ModelCreationAdvanced/"Model Plugin">
 for more details on creating model plugins.
 
