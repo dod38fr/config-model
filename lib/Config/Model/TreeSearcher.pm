@@ -117,7 +117,7 @@ sub search {
     my @loc;
     my $store_sub = sub {
         my $p = shift;
-        return if @loc and $loc[$#loc] eq $p;
+        return if @loc and $loc[-1] eq $p;
         $logger->trace("TreeSearcher: storing location '$p'");
         push @loc, $p;
     };

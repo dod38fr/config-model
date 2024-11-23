@@ -30,7 +30,7 @@ with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
 
 use feature qw/postderef signatures/;
-no warnings qw/experimental::postderef experimental::smartmatch experimental::signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 my $logger        = get_logger("Tree::Element::Value");
 my $user_logger   = get_logger("User");

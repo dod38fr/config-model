@@ -12,6 +12,9 @@ extends 'Config::Model::Backend::Any';
 with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::FileHandler";
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my $logger = get_logger("Backend::PlainFile");
 
 sub annotation { return 0; }
@@ -22,7 +25,7 @@ sub annotation { return 0; }
 
 # file not opened by BackendMgr
 # file_path is undef
-sub skip_open { 1; }
+sub skip_open { return 1; }
 
 sub get_file_name {
     my ($self, %args) = @_;
@@ -31,10 +34,8 @@ sub get_file_name {
     return $args{file} ? $obj->compute_string($args{file}) : $args{elt};
 }
 
-sub read {
-    my $self = shift;
-    my %args = @_;
-
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub read ($self, %args) {
     # args are:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -90,6 +91,7 @@ sub read_leaf {
         $logger->trace("storing leaf value '$str' from $file ");
     }
     $obj->store( value => $v, check => $check );
+    return;
 }
 
 sub read_list {
@@ -101,17 +103,16 @@ sub read_list {
     $logger->trace("storing list value @v from $file ");
 
     $obj->store_set(@v);
+    return;
 }
 
 sub read_hash {
     my ( $self, $obj, $elt, $check, $file, $args ) = @_;
     $logger->debug("PlainFile read skipped hash $elt");
+    return;
 }
 
-sub write {
-    my $self = shift;
-    my %args = @_;
-
+sub write ($self, %args){
     # args are:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -167,10 +168,8 @@ sub write {
     return 1;
 }
 
-sub delete {
-    my $self = shift;
-    my %args = @_;
-
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub delete ($self, %args) {
     # args are:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -192,6 +191,7 @@ sub delete {
         $logger->info( "Removing $file (deleted node)" );
         $file->remove;
     }
+    return;
 }
 
 no Mouse;

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-return [
+[
   {
     'author' => [
       'Dominique Dumont'
@@ -207,4 +207,3 @@ return [
   }
 ]
 ;
-

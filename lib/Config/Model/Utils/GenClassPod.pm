@@ -4,25 +4,32 @@ package Config::Model::Utils::GenClassPod;
 
 use strict;
 use warnings;
-use 5.010;
+use 5.020;
 use parent qw(Exporter);
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
+# function is used in one liner script, so auto export is easier to use
+## no critic (Modules::ProhibitAutomaticExportation)
 our @EXPORT = qw(gen_class_pod);
 
 use Path::Tiny ;
 use Config::Model ;             # to generate doc
 
-sub gen_class_pod {
+sub gen_class_pod (@models) {
     # make sure that doc is generated from models from ./lib and not
     # installed models
     my $local_model_dir = path("lib/Config/Model/models") -> absolute;
     my $cm = Config::Model -> new(model_dir => $local_model_dir->stringify ) ;
     my %done;
 
-    my @models = @_ ? @_ :
-        map { /^\s*model\s*=\s*([\w:-]+)/ ? ($1) : (); }
+    if (not scalar @models) {
+        @models = map { /^\s*model\s*=\s*([\w:-]+)/ ? ($1) : (); }
         map  { $_->lines; }
         map  { $_->children; }
         path ("lib/Config/Model/")->children(qr/\.d$/);
+    }
 
     foreach my $model (@models) {
         # %done avoid generating doc several times (generate_doc scan docs for
@@ -31,6 +38,7 @@ sub gen_class_pod {
         $cm->load($model) ;
         $cm->generate_doc ($model,'lib', \%done) ;
     }
+    return;
 }
 
 1;
