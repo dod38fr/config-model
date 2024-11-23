@@ -4,7 +4,6 @@ use v5.20;
 
 use strict;
 use warnings;
-use feature "switch";
 
 use Mouse;
 use Mouse::Util::TypeConstraints;
