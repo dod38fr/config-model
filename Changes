@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.155 2024-11-24
+
+  New feature:
+    * Loader: add .set_to_standard_value() function
+
 2.154 2024-06-15
 
   Bug fixes:
