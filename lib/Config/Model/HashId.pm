@@ -493,11 +493,13 @@ sub _load_data_from_hash ($self, %args) {
     $logger->info(
         "HashId load_data (" . $self->location .
             ") will load idx @load_keys from hash ref $from"
-        );
+    );
+    my $res = 0;
     foreach my $elt (@load_keys) {
         my $obj = $self->fetch_with_id($elt);
-        $obj->load_data( %args, data => $data->{$elt} ) if defined $data->{$elt};
+        $res += $obj->load_data( %args, data => $data->{$elt} ) if defined $data->{$elt};
     }
+    return !!$res;
 }
 
 sub load_data ($self, @args) {
@@ -506,9 +508,10 @@ sub load_data ($self, @args) {
     my $check = $self->_check_check( $args{check} );
 
     if ( ref($data) eq 'HASH' ) {
-        $self->_load_data_from_hash(data => $data, %args);
+        return $self->_load_data_from_hash(data => $data, %args);
     }
     elsif ( ref($data) eq 'ARRAY' ) {
+        my $res = 0;
         $logger->info(
             "HashId load_data (" . $self->location . ") will load idx 0..$#$data from array ref" );
         $self->notify_change( note => "Converted ordered data to non ordered", really => 1) unless $self->ordered;
@@ -516,8 +519,9 @@ sub load_data ($self, @args) {
         while ( $idx < @$data ) {
             my $elt = $data->[ $idx++ ];
             my $obj = $self->fetch_with_id($elt);
-            $obj->load_data( %args, data => $data->[ $idx++ ] );
+            $res += $obj->load_data( %args, data => $data->[ $idx++ ] );
         }
+        return !!$res;
     }
     elsif ( defined $data ) {
 
@@ -529,6 +533,7 @@ sub load_data ($self, @args) {
             wrong_data => $data,
         );
     }
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -653,6 +658,8 @@ important:
   { __skip_order => 1, b => 'bar', a => 'foo'}
 
 load_data can also be called with a single ref parameter.
+
+Return 1 of some data was loaded.
 
 =head2 get_info
 
