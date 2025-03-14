@@ -122,6 +122,8 @@ is( $tested->element_name,      'bar',           "test bar element_name" );
 is( $tested->name,              'hash_args bar', "test bar name" );
 is( $tested->location,          'hash_args bar', "test bar location" );
 
+is($tested->get_element_names()."","X Y Z", "check that element list does not include deprecated element");
+
 my $inst2 = $model->instance(
     root_class_name => 'Master',
     instance_name   => 'test2'
