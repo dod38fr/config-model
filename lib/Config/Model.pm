@@ -149,22 +149,6 @@ has skip_inheritance => (
         $self->skip_include = $self->skip_inheritance;
     } );
 
-# remove this hack mid 2022
-around BUILDARGS => sub ($orig, $class, %args) {
-    my %new;
-    foreach my $k (keys %args) {
-        if (defined $args{$k}) {
-            $new{$k} = $args{$k};
-        }
-        else {
-            # cannot use logger, it's not initialised yet
-            croak("Config::Model new: passing undefined constructor argument is deprecated ($k argument)\n");
-        }
-    }
-
-    return $class->$orig(%new);
-};
-
 # keep this as a separate sub from BUILD. So user can call it before
 # creating Config::Model object
 sub initialize_log4perl (@args) {
