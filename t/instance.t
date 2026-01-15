@@ -92,6 +92,18 @@ subtest "second instance" => sub {
     is( $binst->has_warning, 0, "test has_warning with big model" );
 };
 
+subtest "instance deletion" => sub {
+    my $inst = $model->instance(
+        root_class_name => 'Master',
+        instance_name   => 'test3'
+    );
+    ok( $inst, "created dummy instance" );
+
+    ok($model->has_instance('test3'),"instance exists");
+    ok($model->delete_instance('test3'),"instance deleted");
+    ok(! $model->has_instance('test3'),"instance no longer exists");
+};
+
 memory_cycle_ok($model, "memory cycles");
 
 done_testing;

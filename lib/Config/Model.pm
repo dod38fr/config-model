@@ -57,6 +57,7 @@ has instances => (
         store_instance => 'set',
         get_instance   => 'get',
         has_instance   => 'defined',
+        delete_instance => 'delete',
     },
 );
 
@@ -2463,6 +2464,10 @@ Retrieve an existing instance using its name.
 Check if an instance name already exists
 
   my $maybe = $model->has_instance('test1');
+
+=head2 delete_instance
+
+Delete an instance.
 
 =head2 cme
 
