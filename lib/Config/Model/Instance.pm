@@ -866,7 +866,14 @@ Parameters: C<< ( quiet => (0|1), %args ) >>
 
 Try to run update command on all nodes of the configuration tree. Node
 without C<update> method are ignored. C<update> prints a message
-otherwise (unless C<quiet> is true).
+otherwise (unless C<quiet> is true). Note that plain
+L<Config::Model::Node> has no C<update> method. Only classes
+inheriting from L<Config::Model::Node> can have C<update> methods.
+
+The goal of the update method is to update configuration data from
+external data. For instance, update is called on
+C<Config::Model::Dpkg::Copyright> nodes to udpate copyright data from
+sources files.
 
 =head2 grab
 
