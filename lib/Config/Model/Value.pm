@@ -686,7 +686,6 @@ sub built_in {
     goto &upstream_default;
 }
 
-## FIXME::what about id ??
 sub name {
     my $self = shift;
     my $name = $self->{parent}->name . ' ' . $self->{element_name};
