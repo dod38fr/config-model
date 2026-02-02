@@ -80,7 +80,7 @@ has appli_info => (
 
 
 # preset mode:  to load values found by HW scan or other automatic scheme
-# layered mode: to load values found in included files (e.g. a la multistrap)
+# layered mode: to load values found in included files
 # canonical mode: write config data back using model order instead of user order
 has [qw/preset layered canonical/] => (
     is      => 'ro',

@@ -87,9 +87,9 @@ __END__
 
 This class inherits from L<Config::Model::Value>. It overrides
 L<_store> to trigger a refresh of layered value when a value is
-changed. I.e. changing this value trigger a reload of the referred configuration
-file which values are used as default value. This class was designed to
-cope with L<multistrap|http://wiki.debian.org/Multistrap> configuration.
+changed. I.e. changing this value trigger a reload of the referred
+configuration file which values are used as default value. This class
+was designed to cope with late multistrap configuration.
 
 =head2 CAUTION
 
@@ -99,8 +99,8 @@ A configuration file can support 2 kinds of include:
 
 =item *
 
-Layered include which sets default values like multistrap or ssh. These includes are
-read-only.
+Layered include which sets default values like default values for ssh
+configuration. These includes are read-only.
 
 =item *
 

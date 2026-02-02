@@ -664,7 +664,7 @@ parameter:
       store_class_in_hash => 'my_class_holder',
     }
 
-Of course they are exceptions. For instance, in C<Multistrap>, the C<[General]> 
+Of course they are exceptions. For instance, in late C<Multistrap>, the C<[General]> 
 INI class must be mapped to a specific node object. This can be specified
 with the C<section_map> parameter: 
 

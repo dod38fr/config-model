@@ -2802,7 +2802,7 @@ The default value (defined by the configuration model)
 =item layered
 
 The value found in included files (treated in layered mode: values specified
-there are handled as upstream default values). E.g. like in multistrap config.
+there are handled as upstream default values).xs
 
 =item upstream_default
 

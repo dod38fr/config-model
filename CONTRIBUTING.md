@@ -22,7 +22,6 @@ Here are the dedicated trackers:
 * problem with `cme check|fix|edit approx`: https://github.com/dod38fr/config-model-approx/issues
 * problem with `cme check|fix|edit dpkg`: run `reportbug libconfig-model-dpkg-perl`
 * problem with `cme check|fix|edit popcon`: https://github.com/dod38fr/config-model/issues
-* problem with `cme check|fix|edit multistrap`: https://github.com/dod38fr/config-model/issues
 * problem with `cme meta edit`: https://github.com/dod38fr/config-model-itself/issues
 * problem with cme GUI: https://github.com/dod38fr/config-model-tkui/issues
 

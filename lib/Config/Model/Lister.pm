@@ -106,13 +106,13 @@ category (system or user or application) => application list. E.g.
 
 application name to model information. E.g.
 
- { 'multistrap' => { model => 'Multistrap', require_config_file => 1 }
+ { 'popcon' => { model => 'Popcon', require_config_file => 1 }
 
 =item *
 
 application name to model name. E.g.
 
- { popcon => 'Popcon', 'multistrap' => 'Multistrap' }
+ { popcon => 'Popcon' }
 
 =back
 

@@ -4,9 +4,6 @@ Debian's config file locations) :
 - /etc/popularity-contest.conf (for Popcon)
 - /etc/fstab
 
-Models for users:
-- multistrap configuration
-
 Other models:
 
 - /etc/approx/approx.conf in Config::Model::Approx

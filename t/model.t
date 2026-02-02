@@ -22,8 +22,6 @@ my ( $cat, $models ) = Config::Model::Lister::available_models(1);
 eq_or_diff( $cat->{system}, [qw/fstab popcon/], "check available system models" );
 is( $models->{popcon}{model}, 'PopCon', "check available popcon" );
 
-eq_or_diff( $cat->{application}, [qw/multistrap/], "check available application models" );
-
 my $class_name = $model->create_config_class(
     name       => 'Sarge',
     status      => [ D => 'deprecated' ],                 #could be obsolete, standard
