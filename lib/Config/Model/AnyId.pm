@@ -1244,6 +1244,14 @@ When the hash contains leaves, you can also use:
        def_2 => 'def_2 stuff'
    }
 
+With a list, you must use numeric keys:
+
+   default_with_init => {
+       0 => 'def_1 stuff',
+       1 => 'def_2 stuff'
+   },
+
+
 =item migrate_keys_from
 
 Specifies that the keys of the hash are copied from another hash in
