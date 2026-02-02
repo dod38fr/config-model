@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.156 2026-02-02
+
+  New feature:
+    * Model: add delete_instance method
+
+  Doc update:
+    * AnyId: update default_with_init parameter doc
+    * Instance: improve doc of update() method
+
+  Misc:
+    * remove obsolete multistrap model. Multistrap project is dead.
+
 2.155 2024-11-24
 
   New feature:
@@ -18,7 +30,6 @@
     * Loader: add .rename() function for hash
 
 2.153 2023-07-14
-
 
   Bug fixes:
     * term_ui.t: fix test for Term::ReadLine::Gnu 1.46
