@@ -790,7 +790,7 @@ This computed default value is written to the configuration file.
 
 This default value may be already known by the application so the computed value
 should B<not> be written to the configuration file. The computed value is interesting
-because it cab be shown to the user. In this case, use the C<use_as_upstream_default>
+because it can be shown to the user. In this case, use the C<use_as_upstream_default>
 parameter:
 
  compute_known_upstream => {
