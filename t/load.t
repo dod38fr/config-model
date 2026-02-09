@@ -692,6 +692,12 @@ subtest "test load data from YAML file" => sub {
     is( $root->grab_value('a_string'), "bar yaml value", "extract data from yaml file");
 };
 
+# Mostly target dist.ini files for Perl modules using Dist::Zilla
+subtest "test load data from INI file" => sub {
+    $root->load('a_string=.ini("t/lib/load-data.ini/foo/bar")');
+    is( $root->grab_value('a_string'), "bar INI value", "extract data from INI file");
+};
+
 subtest "load data from environment" => sub {
     my $expect = $ENV{TEST_CONFIG_MODEL_LOADER} = 'plop';
     $root->load("a_string=.env(TEST_CONFIG_MODEL_LOADER)");

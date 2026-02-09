@@ -11,6 +11,7 @@ use Log::Log4perl qw(get_logger :levels);
 use JSON;
 use Path::Tiny;
 use YAML::Tiny;
+use Config::IniFiles;
 
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
@@ -920,6 +921,7 @@ my %load_value_dispatch = (
     '=.set_to_standard_value' => \&_set_to_standard_value,
     '=.json' => \&_store_json_vector_in_value,
     '=.yaml' => \&_store_yaml_vector_in_value,
+    '=.ini' => \&_store_ini_vector_in_value,
     '=.env' => sub { $_[1]->store( value => $ENV{$_[2]}, check => $_[3] ); return 'ok'; },
 );
 
@@ -1052,6 +1054,20 @@ sub _store_yaml_vector_in_value {
     my $data = YAML::Tiny->read($file->stringify);
     $element->store(
         value => __data_from_vector($data, @vector),
+        check => $check
+    );
+}
+
+sub _store_ini_vector_in_value {
+    my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
+    my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
+    if (scalar @vector > 2) {
+        die "$element calls .ini with too many elements in subpath @vector. Max is 2\n";
+    }
+    my ($section, $parameter) = @vector;
+    my $data = Config::IniFiles->new( -file => $file->stringify);
+    $element->store(
+        value => $data->val($section, $parameter),
         check => $check
     );
 }
@@ -1463,6 +1479,20 @@ For instance, if C<data.yaml> contains:
     bar: 42
 
 The instruction C<baz=.yaml(data.yaml/0/foo/bar)> stores C<42> in
+C<baz> element.
+
+=item xxx=.ini(path/to/data.ini/foo/bar)
+
+Open file C<data.ini> and store value from INI data extracted with
+C<foo/bar> subpath. INI files contains sections and parameter, so the
+subpath must contains at most 2 elements.
+
+For instance, if C<data.ini> contains:
+
+  [foo]
+    bar = 42
+
+The instruction C<baz=.ini(data.ini/foo/bar)> stores C<42> in
 C<baz> element.
 
 =item xxx=.env(yyy)
