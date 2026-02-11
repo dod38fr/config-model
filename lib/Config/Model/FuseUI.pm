@@ -352,7 +352,7 @@ For some configuration, mapping each parameter to a file may lead to a high numb
 
 =item *
 
-The content of a file is when writing a wrong value. I.e. the files is
+The content of a file is trashed when writing a wrong value. I.e. the files is
 empty and the old value is lost.
 
 =back
