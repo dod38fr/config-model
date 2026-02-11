@@ -10,17 +10,23 @@ use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::Value;
 use Test::Log::Log4perl;
+use Path::Tiny;
 
 use strict;
 use warnings;
 
 use 5.010;
 
-Test::Log::Log4perl->ignore_priority("info");
-
 binmode STDOUT, ':encoding(UTF-8)';
 
+my $test_dir = path("wr_root/value");
+$test_dir->mkdir;
+my $ini_file = $test_dir->child('test.ini');
+
 my ($model, $trace) = init_test();
+
+# override setup done in init_test()
+Test::Log::Log4perl->ignore_priority("debug");
 
 # minimal set up to get things working
 $model->create_config_class(
@@ -285,6 +291,13 @@ $failed++ unless $v =~ /$item[1]/ ;
         t_dir => {
             type => 'leaf',
             value_type => 'dir'
+        },
+        data_from_ini_file => {
+            type => 'leaf',
+            value_type => 'uniline',
+            update => [
+                { type => 'ini', file => $ini_file->stringify, subpath => "foo.bar"}
+            ]
         }
     ],                          # dummy class
 );
@@ -1073,6 +1086,24 @@ subtest "problems during initial load" => sub {
     is( $inst2->needs_save, 0, "verify instance needs_save status after writing 'boolean_with_write_as'" );
 
     $inst2->initial_load_stop;
+};
+
+subtest "load from ini file" => sub {
+    my $inst2 = $model->instance(
+        root_class_name => 'Master',
+        instance_name   => 'load_from_ini_test'
+    );
+    ok( $inst2, "created load_from_ini_test instance" );
+    my $data = "my_data";
+    $ini_file->spew("[foo]\n","bar = $data\n");
+    my $ini = $inst2->config_root->fetch_element("data_from_ini_file");
+    is($ini->fetch, undef,"test that parameter is empty before udpate");
+
+    my $xp = Test::Log::Log4perl->expect(
+        ['User', info =>  qr/Updating Master data_from_ini_file from file/]
+    );
+    $ini->update_from_file;
+    is($ini->fetch, $data,"test that parameter is set after udpate");
 };
 
 memory_cycle_ok( $model, "check memory cycles" );

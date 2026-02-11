@@ -10,6 +10,7 @@ use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 
 use Parse::RecDescent 1.90.0;
+use Config::INI::Reader;
 
 use Data::Dumper ();
 use Config::Model::Exception;
@@ -65,8 +66,8 @@ has \@common_int_params => ( is => 'ro', isa => 'Maybe[Int]' );
 my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_if warn_unless help/;
 has \@common_hash_params => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
-my @common_list_params = qw/choice/;
-has \@common_list_params => ( is => 'ro', isa => 'Maybe[ArrayRef]' );
+my @common_list_params = qw/choice update/;
+has \@common_list_params => ( is => 'rw', isa => 'Maybe[ArrayRef]' );
 
 my @common_str_params = qw/default upstream_default convert match grammar warn/;
 has \@common_str_params => ( is => 'ro', isa => 'Maybe[Str]' );
@@ -563,6 +564,7 @@ sub set_properties ($self, @args) {
     }
 
     $self->set_help( \%args );
+    $self->set_update( \%args );
     $self->set_value_type( \%args );
     $self->set_default( \%args );
     $self->set_convert( \%args ) if defined $args{convert};
@@ -601,6 +603,63 @@ sub set_help {
     return unless defined $args->{help};
     $self->{help} = delete $args->{help};
     return;
+}
+
+my @update_keys = qw/file type subpath/;
+sub set_update ( $self, $args ) {
+    return unless defined $args->{update};
+    $self->update(delete $args->{update});
+
+    foreach my $spec_ref ($self->update->@*) {
+        if (ref $spec_ref ne "HASH") {
+            Config::Model::Exception::Model->throw(
+                object => $self,
+                error  => "update parameter must be a hash, not $spec_ref"
+            );
+        }
+        my %spec = $spec_ref->%*;
+        foreach my $k (@update_keys) {
+            next if delete $spec{$k};
+            Config::Model::Exception::Model->throw(
+                object => $self,
+                error  => "update parameter: missing $k sub parameter"
+            );
+        }
+
+        if (keys %spec > 0) {
+            Config::Model::Exception::Model->throw(
+                object => $self,
+                error  => "update parameter: unexpected ".join(',',keys %spec)." sub parameter"
+            );
+        }
+    }
+
+    return;
+}
+
+my %update_dispatch = (
+    ini => sub ($file, $path) {
+        my $config_hash = Config::INI::Reader->read_file($file);
+        my $current = $config_hash;
+        foreach my $step (split /\./, $path) {
+            $current = $current->{$step};
+            return $current if not ref $current;
+        }
+        return ;
+    }
+);
+
+sub update_from_file ($self) {
+    return unless defined $self->update;
+
+    foreach my $spec ($self->update->@*) {
+        my ($type, $file, $subpath) = $spec->@{"type", "file", "subpath"};
+        $logger->debug( "update called on type $type, file $file, path $subpath");
+        my $v = $update_dispatch{$type}->($file, $subpath);
+        next unless defined $v;
+        $user_logger->info("Updating ". $self->name. " from file $file path $subpath");
+        $self->store($v);
+    }
 }
 
 # this code is somewhat dead as warping value_type is no longer supported
