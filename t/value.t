@@ -1043,7 +1043,7 @@ subtest "problems during initial load" => sub {
         root_class_name => 'Master',
         instance_name   => 'initial_test'
     );
-    ok( $inst2, "created initial_test inst2ance" );
+    ok( $inst2, "created initial_test instance" );
 
     # is triggered internally only when at least one node has a RW backend
     $inst2->initial_load_start;
