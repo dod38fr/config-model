@@ -20,14 +20,8 @@ if ( $Config{osname} ne 'linux' ) {
     plan skip_all => "Not a Linux system";
 }
 
-my @lsmod = eval { `lsmod`; };
-
-if ($@) {
-    plan skip_all => "Cannot check is fuse kernel module is loaded: $@";
-}
-
-if ( not any {/fuse/} @lsmod ) {
-    plan skip_all => "fuse kernel module is not loaded";
+if ( not -w '/dev/fuse' ) {
+    plan skip_all => "fuse kernel module is not loaded. /dev/fuse is either missing or not writable";
 }
 
 if ( system(q!bash -c 'type -p fusermount' > /dev/null!) != 0 ) {
