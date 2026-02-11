@@ -136,6 +136,8 @@ $a_boolean_fhw->print("1");
 $a_boolean_fhw->close;
 is( $fused->child('a_boolean')->slurp, "1\n", "check new a_boolean content (set to 1)" );
 
+# cannot use Test::Log4perl because the warning comes from a forked process
+note("The test below shows a warning coming from a forked process, which is expected");
 $a_boolean_fhw = $fused->child('a_boolean')->openw;
 $a_boolean_fhw->print("a");
 $a_boolean_fhw->close;
