@@ -1100,10 +1100,15 @@ subtest "load from ini file" => sub {
     is($ini->fetch, undef,"test that parameter is empty before udpate");
 
     my $xp = Test::Log::Log4perl->expect(
-        ['User', info =>  qr/Updating Master data_from_ini_file from file/]
+        ['User', (info =>  qr/Updating Master data_from_ini_file from file/) x 2 ]
     );
     $ini->update_from_file;
-    is($ini->fetch, $data,"test that parameter is set after udpate");
+    is($ini->fetch, $data,"test that parameter is set after leaf udpate");
+
+    my $new_data = "new_data";
+    $ini_file->spew("[foo]\n","bar = $new_data\n");
+    $inst2->update;
+    is($ini->fetch, $new_data,"test that parameter is set after instance udpate");
 };
 
 memory_cycle_ok( $model, "check memory cycles" );
