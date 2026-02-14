@@ -1,6 +1,3 @@
-# -*- cperl -*-
-
-
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
@@ -23,6 +20,7 @@ my $test_dir = path("wr_root/value");
 $test_dir->mkdir;
 my $ini_file = $test_dir->child('test.ini');
 my $json_file = $test_dir->child('test.json');
+my $yaml_file = $test_dir->child('test.yaml');
 
 my ($model, $trace) = init_test();
 
@@ -317,6 +315,19 @@ $model->create_config_class(
             value_type => 'uniline',
             update => [
                 { type => 'json', file => $json_file->stringify, subpath => "foo.bar"}
+            ]
+        },
+    ],
+);
+
+$model->create_config_class(
+    name    => "YamlLoad",
+    element => [
+        data_from_yaml_file => {
+            type => 'leaf',
+            value_type => 'uniline',
+            update => [
+                { type => 'yaml', file => $yaml_file->stringify, subpath => "foo.bar"}
             ]
         },
     ],
@@ -1177,6 +1188,29 @@ subtest "load from json file" => sub {
     $json_file->spew(qq!{"foo": { "bar" : "$data" }}\n!);
     $inst2->update;
     is($json->fetch, $data,"test that parameter is set after instance udpate");
+};
+
+subtest "load from yaml file" => sub {
+    # cleanup;
+    $yaml_file->remove;
+
+    my $inst2 = $model->instance(
+        root_class_name => 'YamlLoad',
+        instance_name   => 'load_from_yaml_test'
+    );
+    ok( $inst2, "created load_from_yaml_test instance" );
+    my $data = "my_data";
+
+    my $yaml = $inst2->config_root->fetch_element("data_from_yaml_file");
+
+    my $xp = Test::Log::Log4perl->expect(
+        ['User', info =>  qr/Updating data_from_yaml_file from file/]
+    );
+
+    # set right path in YAML file
+    $yaml_file->spew(qq!---\nfoo:\n  bar: $data\n!);
+    $inst2->update;
+    is($yaml->fetch, $data,"test that parameter is set after instance udpate");
 };
 
 memory_cycle_ok( $model, "check memory cycles" );
