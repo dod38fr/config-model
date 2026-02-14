@@ -1,0 +1,15 @@
+# see https://perlhacks.com/2024/01/github-actions-for-perl-development/
+
+---
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: PerlToolsTeam/github_workflows/.github/workflows/cpan-test.yml@main
