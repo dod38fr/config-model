@@ -11,6 +11,7 @@ use MouseX::StrictConstructor;
 
 use Parse::RecDescent 1.90.0;
 use Config::INI::Reader;
+use JSON;
 
 use Data::Dumper ();
 use Config::Model::Exception;
@@ -647,7 +648,8 @@ sub __data_from_path ($self, $data, $path) {
 }
 
 my %update_dispatch = (
-    ini => sub ($file) { return Config::INI::Reader->read_file($file); }
+    ini => sub ($file)  { return Config::INI::Reader->read_file($file); },
+    json => sub ($file) { return decode_json(path($file)->slurp_utf8); },
 );
 
 sub update_from_file ($self) {

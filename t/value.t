@@ -22,6 +22,7 @@ binmode STDOUT, ':encoding(UTF-8)';
 my $test_dir = path("wr_root/value");
 $test_dir->mkdir;
 my $ini_file = $test_dir->child('test.ini');
+my $json_file = $test_dir->child('test.json');
 
 my ($model, $trace) = init_test();
 
@@ -1153,6 +1154,29 @@ subtest "load from ini file" => sub {
         $inst2->update;
         is($ini->fetch, $new_data,"test that parameter is set after instance udpate");
     }
+};
+
+subtest "load from json file" => sub {
+    # cleanup;
+    $json_file->remove;
+
+    my $inst2 = $model->instance(
+        root_class_name => 'JsonLoad',
+        instance_name   => 'load_from_json_test'
+    );
+    ok( $inst2, "created load_from_json_test instance" );
+    my $data = "my_data";
+
+    my $json = $inst2->config_root->fetch_element("data_from_json_file");
+
+    my $xp = Test::Log::Log4perl->expect(
+        ['User', info =>  qr/Updating data_from_json_file from file/]
+    );
+
+    # set right path in JSON file
+    $json_file->spew(qq!{"foo": { "bar" : "$data" }}\n!);
+    $inst2->update;
+    is($json->fetch, $data,"test that parameter is set after instance udpate");
 };
 
 memory_cycle_ok( $model, "check memory cycles" );
