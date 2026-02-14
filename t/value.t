@@ -21,6 +21,7 @@ $test_dir->mkdir;
 my $ini_file = $test_dir->child('test.ini');
 my $json_file = $test_dir->child('test.json');
 my $yaml_file = $test_dir->child('test.yaml');
+my $toml_file = $test_dir->child('test.toml');
 
 my ($model, $trace) = init_test();
 
@@ -328,6 +329,19 @@ $model->create_config_class(
             value_type => 'uniline',
             update => [
                 { type => 'yaml', file => $yaml_file->stringify, subpath => "foo.bar"}
+            ]
+        },
+    ],
+);
+
+$model->create_config_class(
+    name    => "TomlLoad",
+    element => [
+        data_from_toml_file => {
+            type => 'leaf',
+            value_type => 'uniline',
+            update => [
+                { type => 'toml', file => $toml_file->stringify, subpath => "foo.bar"}
             ]
         },
     ],
@@ -1211,6 +1225,29 @@ subtest "load from yaml file" => sub {
     $yaml_file->spew(qq!---\nfoo:\n  bar: $data\n!);
     $inst2->update;
     is($yaml->fetch, $data,"test that parameter is set after instance udpate");
+};
+
+subtest "load from toml file" => sub {
+    # cleanup;
+    $toml_file->remove;
+
+    my $inst2 = $model->instance(
+        root_class_name => 'TomlLoad',
+        instance_name   => 'load_from_toml_test'
+    );
+    ok( $inst2, "created load_from_toml_test instance" );
+    my $data = "my_data";
+
+    my $toml = $inst2->config_root->fetch_element("data_from_toml_file");
+
+    my $xp = Test::Log::Log4perl->expect(
+        ['User', info =>  qr/Updating data_from_toml_file from file/]
+    );
+
+    # set right path in TOML file
+    $toml_file->spew(qq![foo]\nbar = "$data"\n!);
+    $inst2->update;
+    is($toml->fetch, $data,"test that parameter is set after instance udpate");
 };
 
 memory_cycle_ok( $model, "check memory cycles" );

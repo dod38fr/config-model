@@ -668,6 +668,10 @@ my %update_dispatch = (
         _lazy_load("YAML", "YAML::PP");
         return YAML::PP->new()-> load_file($file);
     },
+    toml => sub ($file) {
+        _lazy_load("TOML", "TOML::Tiny");
+        return TOML::Tiny->new()-> decode(path($file)->slurp_utf8);
+    },
 );
 
 sub update_from_file ($self) {
