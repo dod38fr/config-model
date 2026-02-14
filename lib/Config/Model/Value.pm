@@ -637,7 +637,9 @@ sub set_update ( $self, $args ) {
 }
 
 sub __data_from_path ($self, $data, $path, $limit = 0) {
-    foreach my $step (split /\./, $path, $limit) {
+    # negative look behing assertion to skip \. in subpath
+    foreach my $step (split /(?<!\\)\./, $path, $limit) {
+        $step =~ s/\\\././g; # convert \. to .
         $data = (ref($data) eq 'HASH') ? $data->{$step} : $data->[$step];
         return $data if not ref $data;
     }
@@ -2178,6 +2180,11 @@ value is an enumerated type where the possible values (choice) is
 defined by the existing keys of a has element somewhere in the tree. See
 L</"Value Reference">.
 
+=item *
+
+update from an external file: a value can be extracted from an
+external file.
+
 =back
 
 =head1 Default values
@@ -2485,6 +2492,10 @@ For instance:
    '.' => 'help for all other values'
  }
 
+=item update
+
+See L</update>
+
 =back
 
 =head2 Value types
@@ -2534,6 +2545,48 @@ A directory name or path. A warning is issued if the directory
 does not exists (or is a plain file)
 
 =back
+
+=head2 update
+
+Specify how the value can be updated from an external file. User must
+specify, the file type (ini, yaml, json or toml), the file path
+(absolute or relative to where the program is run), and the sub path
+to get the data. Several files can be tried.
+
+For instance, the value of C<repository> element below is loaded from
+C<package.json> using C<repository> and C<url> keys:
+
+  element => [
+    repository => {
+      type => 'leaf',
+      value_type => 'unline',
+      update => [
+        {
+          type => 'json',
+          file => "package.json",
+          subpath => "repository.url"
+        }
+      ]
+    }
+  ]
+
+Here's an example to try 2 files:
+
+  update => [ {
+    type => 'json',
+    file => 'META.json',
+    subpath => 'resources.repository.url'
+  } , {
+    type => 'ini',
+    file => 'dist.ini',
+    subpath => 'MetaResources.repository\.url'
+  }]
+
+Note the C<\.> to allow a sub path element with an embedded dot.
+
+Note that value are updated when L</update_from_file> method is
+called. This is the case when running a C<cme udpate> command (See
+L<App::Cme::Command::update> for details)
 
 =head1 Warp: dynamic value configuration
 
@@ -2970,6 +3023,12 @@ Get a value from a directory like path.
 =head2 set( path , value )
 
 Set a value from a directory like path.
+
+=head2 update_from_file
+
+Trigger an update from files specified in C<update> configuration
+parameter. This method is intented to be called by
+L<Config::Model::Instance/update>
 
 =head1 Examples
 

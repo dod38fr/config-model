@@ -343,7 +343,7 @@ $model->create_config_class(
             type => 'leaf',
             value_type => 'uniline',
             update => [
-                { type => 'yaml', file => $yaml_file->stringify, subpath => "foo.bar"}
+                { type => 'yaml', file => $yaml_file->stringify, subpath => 'foo.bar\.baz'}
             ]
         },
     ],
@@ -1261,7 +1261,7 @@ subtest "load from yaml file" => sub {
     );
 
     # set right path in YAML file
-    $yaml_file->spew(qq!---\nfoo:\n  bar: $data\n!);
+    $yaml_file->spew(qq!---\nfoo:\n  bar.baz: $data\n!);
     $inst2->update;
     is($yaml->fetch, $data,"test that parameter is set after instance udpate");
 };
