@@ -637,16 +637,17 @@ sub set_update ( $self, $args ) {
     return;
 }
 
-my %update_dispatch = (
-    ini => sub ($file, $path) {
-        my $config_hash = Config::INI::Reader->read_file($file);
-        my $current = $config_hash;
-        foreach my $step (split /\./, $path) {
-            $current = $current->{$step};
-            return $current if not ref $current;
-        }
-        return ;
+sub __data_from_path ($self, $data, $path) {
+    foreach my $step (split /\./, $path) {
+        $data = (ref($data) eq 'HASH') ? $data->{$step} : $data->[$step];
+        return $data if not ref $data;
     }
+    $user_logger->warn("Did not get scalar value with $path: got $data");
+    return;
+}
+
+my %update_dispatch = (
+    ini => sub ($file) { return Config::INI::Reader->read_file($file); }
 );
 
 sub update_from_file ($self) {
@@ -659,7 +660,8 @@ sub update_from_file ($self) {
             $user_logger->warn("Cannot update ", $self->name,": $file does not exist");
             return;
         }
-        my $v = $update_dispatch{$type}->($file, $subpath);
+        my $data = $update_dispatch{$type}->($file);
+        my $v = $self->__data_from_path($data, $subpath);
         if (defined $v) {
             $user_logger->info("Updating ". $self->location. " from file $file path $subpath");
             $self->store($v);
