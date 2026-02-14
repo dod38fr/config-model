@@ -655,6 +655,10 @@ sub update_from_file ($self) {
     foreach my $spec ($self->update->@*) {
         my ($type, $file, $subpath) = $spec->@{"type", "file", "subpath"};
         $logger->debug( "update called on type $type, file $file, path $subpath");
+        if (! -e $file) {
+            $user_logger->warn("Cannot update ", $self->name,": $file does not exist");
+            return;
+        }
         my $v = $update_dispatch{$type}->($file, $subpath);
         if (defined $v) {
             $user_logger->info("Updating ". $self->location. " from file $file path $subpath");

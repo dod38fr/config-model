@@ -1089,6 +1089,9 @@ subtest "problems during initial load" => sub {
 };
 
 subtest "load from ini file" => sub {
+    # cleanup;
+    $ini_file->remove;
+
     my $inst2 = $model->instance(
         root_class_name => 'Master',
         instance_name   => 'load_from_ini_test'
@@ -1101,12 +1104,17 @@ subtest "load from ini file" => sub {
 
     my $xp = Test::Log::Log4perl->expect(
         ['User',
+         warn => qr/does not exist/,
          warn => qr/No data found/,
          (info =>  qr/Updating Master data_from_ini_file from file/) x 2,
      ]
     );
 
-    # first test wrong path in INI file
+    # first test missing file
+    $ini->update_from_file;
+    is($ini->fetch, undef,"test that parameter is still empty after missing file");
+
+    # test wrong path in INI file
     $ini_file->spew("[foo]\n","baz = $data\n");
     # direct call to leaf's update
     $ini->update_from_file;
