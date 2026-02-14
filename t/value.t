@@ -292,14 +292,33 @@ $failed++ unless $v =~ /$item[1]/ ;
             type => 'leaf',
             value_type => 'dir'
         },
+    ],
+);
+
+$model->create_config_class(
+    name    => "IniLoad",
+    element => [
         data_from_ini_file => {
             type => 'leaf',
             value_type => 'uniline',
             update => [
                 { type => 'ini', file => $ini_file->stringify, subpath => "foo.bar"}
             ]
-        }
-    ],                          # dummy class
+        },
+    ],
+);
+
+$model->create_config_class(
+    name    => "JsonLoad",
+    element => [
+        data_from_json_file => {
+            type => 'leaf',
+            value_type => 'uniline',
+            update => [
+                { type => 'json', file => $json_file->stringify, subpath => "foo.bar"}
+            ]
+        },
+    ],
 );
 
 my $bad_inst = $model->instance(
@@ -1093,7 +1112,7 @@ subtest "load from ini file" => sub {
     $ini_file->remove;
 
     my $inst2 = $model->instance(
-        root_class_name => 'Master',
+        root_class_name => 'IniLoad',
         instance_name   => 'load_from_ini_test'
     );
     ok( $inst2, "created load_from_ini_test instance" );
@@ -1102,34 +1121,38 @@ subtest "load from ini file" => sub {
     my $ini = $inst2->config_root->fetch_element("data_from_ini_file");
     is($ini->fetch, undef,"test that parameter is empty before udpate");
 
-    my $xp = Test::Log::Log4perl->expect(
-        ['User',
-         warn => qr/does not exist/,
-         warn => qr/No data found/,
-         (info =>  qr/Updating Master data_from_ini_file from file/) x 2,
-     ]
-    );
+    {
+        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/does not exist/,]);
 
-    # first test missing file
-    $ini->update_from_file;
-    is($ini->fetch, undef,"test that parameter is still empty after missing file");
+        # first test missing file
+        $ini->update_from_file;
+        is($ini->fetch, undef,"test that parameter is still empty after missing file");
+    }
 
-    # test wrong path in INI file
-    $ini_file->spew("[foo]\n","baz = $data\n");
-    # direct call to leaf's update
-    $ini->update_from_file;
-    is($ini->fetch, undef,"test that parameter is still empty after error in path");
+    {
+        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/No data found/,]);
+        # test wrong path in INI file
+        $ini_file->spew("[foo]\n","baz = $data\n");
+        # direct call to leaf's update
+        $ini->update_from_file;
+        is($ini->fetch, undef,"test that parameter is still empty after error in path");
+    }
 
-    # set right path in INI file
-    $ini_file->spew("[foo]\n","bar = $data\n");
-    $ini->update_from_file;
-    is($ini->fetch, $data,"test that parameter is set after leaf udpate");
+    {
+        my $xp = Test::Log::Log4perl->expect(
+            ['User', (info =>  qr/Updating data_from_ini_file from file/) x 2,]
+        );
+        # set right path in INI file
+        $ini_file->spew("[foo]\n","bar = $data\n");
+        $ini->update_from_file;
+        is($ini->fetch, $data,"test that parameter is set after leaf udpate");
 
-    my $new_data = "new_data";
-    $ini_file->spew("[foo]\n","bar = $new_data\n");
-    # update via instance
-    $inst2->update;
-    is($ini->fetch, $new_data,"test that parameter is set after instance udpate");
+        my $new_data = "new_data";
+        $ini_file->spew("[foo]\n","bar = $new_data\n");
+        # update via instance
+        $inst2->update;
+        is($ini->fetch, $new_data,"test that parameter is set after instance udpate");
+    }
 };
 
 memory_cycle_ok( $model, "check memory cycles" );
