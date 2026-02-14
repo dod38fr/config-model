@@ -10,9 +10,6 @@ use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 
 use Parse::RecDescent 1.90.0;
-use Config::INI::Reader;
-use JSON;
-use YAML::PP qw/LoadFile/;
 
 use Data::Dumper ();
 use Config::Model::Exception;
@@ -648,10 +645,29 @@ sub __data_from_path ($self, $data, $path) {
     return;
 }
 
+sub _lazy_load ($type, $module) {
+    my $file = ($module =~ s!::!/!gr).".pm";
+    eval { require $file };
+    if ($@) {
+        die "Error: Value update from $type file requires $module module. Please install this module.\n"
+    }
+    return;
+}
+
 my %update_dispatch = (
-    ini => sub ($file)  { return Config::INI::Reader->read_file($file); },
-    json => sub ($file) { return decode_json(path($file)->slurp_utf8); },
-    yaml => sub ($file) { return LoadFile($file); },
+    ini => sub ($file)  {
+        _lazy_load("INI", "Config::INI::Reader");
+        return Config::INI::Reader->read_file($file);
+    },
+    json => sub ($file) {
+        _lazy_load("JSON", "JSON");
+        JSON->import();
+        return decode_json(path($file)->slurp_utf8);
+    },
+    yaml => sub ($file) {
+        _lazy_load("YAML", "YAML::PP");
+        return YAML::PP->new()-> load_file($file);
+    },
 );
 
 sub update_from_file ($self) {
