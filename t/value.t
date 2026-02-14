@@ -309,6 +309,21 @@ $model->create_config_class(
 );
 
 $model->create_config_class(
+    name    => "DistIniLoad",
+    element => [
+        data_from_ini_file => {
+            type => 'leaf',
+            value_type => 'uniline',
+            update => [{
+                type => 'ini',
+                file => $ini_file->stringify,
+                subpath => "MetaResources.bugtracker.web"
+            }]
+        },
+    ],
+);
+
+$model->create_config_class(
     name    => "JsonLoad",
     element => [
         data_from_json_file => {
@@ -1179,6 +1194,30 @@ subtest "load from ini file" => sub {
         $inst2->update;
         is($ini->fetch, $new_data,"test that parameter is set after instance udpate");
     }
+};
+
+subtest "load from ini file à la dist.ini" => sub {
+    # dist.ini contains keys with '.'
+    # cleanup;
+    $ini_file->remove;
+
+    my $inst2 = $model->instance(
+        root_class_name => 'DistIniLoad',
+        instance_name   => 'load_from_dist_ini_test'
+    );
+    my $ini = $inst2->config_root->fetch_element("data_from_ini_file");
+
+    my $xp = Test::Log::Log4perl->expect(
+            ['User', info =>  qr/Updating data_from_ini_file from file/]
+        );
+
+    # set right path in INI file
+    my $data = "https://github.com/dod38fr/config-model/issues";
+    $ini_file->spew("[MetaResources]\n",
+                    "bugtracker.web    = $data\n");
+    $ini->update_from_file;
+    is($ini->fetch, $data,"test that parameter is set after leaf udpate");
+
 };
 
 subtest "load from json file" => sub {

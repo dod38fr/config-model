@@ -636,8 +636,8 @@ sub set_update ( $self, $args ) {
     return;
 }
 
-sub __data_from_path ($self, $data, $path) {
-    foreach my $step (split /\./, $path) {
+sub __data_from_path ($self, $data, $path, $limit = 0) {
+    foreach my $step (split /\./, $path, $limit) {
         $data = (ref($data) eq 'HASH') ? $data->{$step} : $data->[$step];
         return $data if not ref $data;
     }
@@ -655,22 +655,27 @@ sub _lazy_load ($type, $module) {
 }
 
 my %update_dispatch = (
-    ini => sub ($file)  {
+    ini => sub ($self, $file, $subpath)  {
         _lazy_load("INI", "Config::INI::Reader");
-        return Config::INI::Reader->read_file($file);
+        my $data = Config::INI::Reader->read_file($file);
+        return $self->__data_from_path($data, $subpath, 2);
     },
-    json => sub ($file) {
+    json => sub ($self, $file, $subpath) {
         _lazy_load("JSON", "JSON");
         JSON->import();
-        return decode_json(path($file)->slurp_utf8);
+        # utf8 decode is done by JSON module, so slurp_raw must be used
+        my $data = decode_json(path($file)->slurp_raw);
+        return $self->__data_from_path($data, $subpath);
     },
-    yaml => sub ($file) {
+    yaml => sub ($self, $file, $subpath) {
         _lazy_load("YAML", "YAML::PP");
-        return YAML::PP->new()-> load_file($file);
+        my $data = YAML::PP->new()-> load_file($file);
+        return $self->__data_from_path($data, $subpath);
     },
-    toml => sub ($file) {
+    toml => sub ($self, $file, $subpath) {
         _lazy_load("TOML", "TOML::Tiny");
-        return TOML::Tiny->new()-> decode(path($file)->slurp_utf8);
+        my $data = TOML::Tiny->new()-> decode(path($file)->slurp_utf8);
+        return $self->__data_from_path($data, $subpath);
     },
 );
 
@@ -691,8 +696,7 @@ sub update_from_file ($self) {
                            join( ', ', keys %update_dispatch));
             next;
         }
-        my $data = $update_sub->($file);
-        my $v = $self->__data_from_path($data, $subpath);
+        my $v = $update_sub->($self, $file, $subpath);
         if (defined $v) {
             $user_logger->info("Updating ". $self->location. " from file $file path $subpath");
             $self->store($v);
