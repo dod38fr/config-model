@@ -653,6 +653,7 @@ my %update_dispatch = (
 sub update_from_file ($self) {
     return unless defined $self->update;
 
+    my @not_found ;
     foreach my $spec ($self->update->@*) {
         my ($type, $file, $subpath) = $spec->@{"type", "file", "subpath"};
         $logger->debug( "update called on type $type, file $file, path $subpath");
@@ -660,15 +661,26 @@ sub update_from_file ($self) {
             $user_logger->warn("Cannot update ", $self->name,": $file does not exist");
             return;
         }
-        my $data = $update_dispatch{$type}->($file);
+        my $update_sub = $update_dispatch{$type};
+        if (not defined $update_sub) {
+            $logger->error($self->name, ": Unexpected update type $type. Allowed values are ",
+                           join( ', ', keys %update_dispatch));
+            next;
+        }
+        my $data = $update_sub->($file);
         my $v = $self->__data_from_path($data, $subpath);
         if (defined $v) {
             $user_logger->info("Updating ". $self->location. " from file $file path $subpath");
             $self->store($v);
         }
         else {
-            $user_logger->warn("No data found in file $file with path $subpath");
+            push @not_found, "No data found in file $file with path $subpath";
         }
+    }
+
+    # warn when no data was found, e.g. each spec did not find data
+    if (@not_found == $self->update->@*) {
+        $user_logger->warn(join("\n", @not_found));
     }
 }
 
