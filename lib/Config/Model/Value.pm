@@ -2961,7 +2961,7 @@ A specific warning can be specified:
     warn_if_match => {
         '/A-Z/' => {
             fix  => '$_ = lc;',
-            mesg => 'NO UPPER CASE PLEASE'
+            msg => 'NO UPPER CASE PLEASE'
         }
     },
  },
