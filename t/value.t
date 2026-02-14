@@ -1095,18 +1095,31 @@ subtest "load from ini file" => sub {
     );
     ok( $inst2, "created load_from_ini_test instance" );
     my $data = "my_data";
-    $ini_file->spew("[foo]\n","bar = $data\n");
+
     my $ini = $inst2->config_root->fetch_element("data_from_ini_file");
     is($ini->fetch, undef,"test that parameter is empty before udpate");
 
     my $xp = Test::Log::Log4perl->expect(
-        ['User', (info =>  qr/Updating Master data_from_ini_file from file/) x 2 ]
+        ['User',
+         warn => qr/No data found/,
+         (info =>  qr/Updating Master data_from_ini_file from file/) x 2,
+     ]
     );
+
+    # first test wrong path in INI file
+    $ini_file->spew("[foo]\n","baz = $data\n");
+    # direct call to leaf's update
+    $ini->update_from_file;
+    is($ini->fetch, undef,"test that parameter is still empty after error in path");
+
+    # set right path in INI file
+    $ini_file->spew("[foo]\n","bar = $data\n");
     $ini->update_from_file;
     is($ini->fetch, $data,"test that parameter is set after leaf udpate");
 
     my $new_data = "new_data";
     $ini_file->spew("[foo]\n","bar = $new_data\n");
+    # update via instance
     $inst2->update;
     is($ini->fetch, $new_data,"test that parameter is set after instance udpate");
 };

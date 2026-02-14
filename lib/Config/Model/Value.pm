@@ -656,9 +656,13 @@ sub update_from_file ($self) {
         my ($type, $file, $subpath) = $spec->@{"type", "file", "subpath"};
         $logger->debug( "update called on type $type, file $file, path $subpath");
         my $v = $update_dispatch{$type}->($file, $subpath);
-        next unless defined $v;
-        $user_logger->info("Updating ". $self->name. " from file $file path $subpath");
-        $self->store($v);
+        if (defined $v) {
+            $user_logger->info("Updating ". $self->location. " from file $file path $subpath");
+            $self->store($v);
+        }
+        else {
+            $user_logger->warn("No data found in file $file with path $subpath");
+        }
     }
 }
 
