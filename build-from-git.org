@@ -22,10 +22,6 @@ $ dzil authordebs --install
 $ sudo apt build-dep libconfig-model-perl
 #+end_example
 
-The [[https://tracker.debian.org/pkg/libdist-zilla-app-command-authordebs-perl][libdist-zilla-app-command-authordebs-perl package]] is quite recent
-(uploaded on Dec 2016 in Debian/unstable) and may not be available yet
-on your favorite distribution.
-
 *** Other systems
 :PROPERTIES:
 :CUSTOM_ID: other-systems
@@ -42,6 +38,11 @@ $ dzil listdeps --missing | cpanm --notest
 NB: The author would welcome pull requests that explains how to install
 these tools and dependencies using native package of other
 distributions.
+
+The following dependencies are optional, but are required for tests:
+- =JSON=
+- =YAML::PP=
+- =Config::INI::Reader=
 
 ** Build Config::Model
 :PROPERTIES:

@@ -120,12 +120,18 @@ So, in the end:
 :PROPERTIES:
 :CUSTOM_ID: what-about-the-user-interface
 :END:
-[[https://metacpan.org/pod/Config::Model][Config::Model]] interface can be:
+[[https://metacpan.org/pod/Config::Model][Config::Model]] interface is launched with [[https://metacpan.org/pod/App::Cme::Command::edit][cme edit]] command. Cme
+provides the follwing interfaces:
 
-- a shell-like interface (plain or based on [[https://metacpan.org/pod/Term::ReadLine][Term::ReadLine]] with
-  [[https://metacpan.org/pod/Config::Model::TermUI][Config::Model::TermUI]]).
 - Graphical with [[https://metacpan.org/pod/Config::Model::TkUI][Config::Model::TkUI]] (Perl/Tk interface).
-- based on curses with [[https://metacpan.org/pod/Config::Model::CursesUI][Config::Model::CursesUI]].
+- a shell-like interface (plain or based on [[https://metacpan.org/pod/Term::ReadLine][Term::ReadLine]] with
+  [[https://metacpan.org/pod/Config::Model::TermUI][Config::Model::TermUI]]) with =cme edit --ui shell=
+- based on curses with [[https://metacpan.org/pod/Config::Model::CursesUI][Config::Model::CursesUI]] with =cme edit --ui
+  curses=
+
+There'a also a [[https://en.wikipedia.org/wiki/Filesystem_in_Userspace][FUSE]] interface provided by [[https://metacpan.org/pod/App::Cme::Command::fusefs][cme fusefs]]. This commands
+maps all configuration items to a file system. This can be used to
+edit long text value in YAML configuration or in Debian package files.
 
 All these interfaces are generated from the configuration model.
 
@@ -141,7 +147,8 @@ another, most people who want to use this framework will have to provide
 a dedicated parser/writer.
 
 Nevertheless, this project provides a writer/parser for some common
-format: ini style file and perl file.
+format: ini style file, JSON and perl file. These are called backends.
+Other backends are provided for [[https://metacpan.org/dist/Config-Model-Backend-Yaml][YAML]] and [[https://metacpan.org/dist/Config-Model-Backend-Augeas][Augeas]] by other modules.
 
 ** More information
 :PROPERTIES:
