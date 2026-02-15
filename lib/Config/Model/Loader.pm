@@ -8,7 +8,6 @@ use Mouse;
 
 use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
-use JSON;
 use Path::Tiny;
 use YAML::Tiny;
 use Config::IniFiles;
@@ -586,7 +585,18 @@ sub _remove_by_id {
     return 'ok';
 }
 
+sub _lazy_load ($function, $module) {
+    my $file = ($module =~ s!::!/!gr).".pm";
+    eval { require $file };
+    if ($@) {
+        die "Error: Loader function $function requires $module module. Please install this module.\n"
+    }
+    return;
+}
+
 sub __load_json_file ($file) {
+    _lazy_load(".json()", "JSON");
+    JSON->import();
     # utf8 decode is done by JSON module, so slurp_raw must be used
     return decode_json($file->slurp_raw);
 }
@@ -1395,6 +1405,8 @@ hash or list of values.
 You may store deep data structure. In this case, make sure that the
 structure of the loaded data matches the structure of the model. This
 won't happen by chance.
+
+Note that L<JSON> module must be installed to use this function.
 
 =item xxx:.clear
 
