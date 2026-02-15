@@ -651,9 +651,9 @@ subtest "test clear instruction" => sub {
 };
 
 subtest "test load data from file" => sub {
-    $root->load("a_string=.file(README.md)");
-    like( $root->grab_value('a_string'), qr/# What is Config-Model project/,
-          "slurp README.md file");
+    $root->load("a_string=.file(README.org)");
+    like( $root->grab_value('a_string'), qr/\* What is Config-Model project/,
+          "slurp README.org file");
 };
 
 subtest "test load data from JSON file" => sub {
