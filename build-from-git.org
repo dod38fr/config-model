@@ -1,0 +1,76 @@
+* How to build Config::Model from git repository
+:PROPERTIES:
+:CUSTOM_ID: how-to-build-configmodel-from-git-repository
+:END:
+=Config::Model= is build with [[http://dzil.org/][Dist::Zilla]]. This
+pages details how to install the tools and dependencies required to
+build this module.
+
+** Install tools and dependencies
+:PROPERTIES:
+:CUSTOM_ID: install-tools-and-dependencies
+:END:
+*** Debian, Ubuntu and derivatives
+:PROPERTIES:
+:CUSTOM_ID: debian-ubuntu-and-derivatives
+:END:
+Run
+
+#+begin_example
+$ sudo apt install libdist-zilla-perl libdist-zilla-app-command-authordebs-perl
+$ dzil authordebs --install
+$ sudo apt build-dep libconfig-model-perl
+#+end_example
+
+The [[https://tracker.debian.org/pkg/libdist-zilla-app-command-authordebs-perl][libdist-zilla-app-command-authordebs-perl package]] is quite recent
+(uploaded on Dec 2016 in Debian/unstable) and may not be available yet
+on your favorite distribution.
+
+*** Other systems
+:PROPERTIES:
+:CUSTOM_ID: other-systems
+:END:
+Run
+
+#+begin_example
+$ cpamn Dist::Zilla
+$ dzil authordeps -missing | cpanm --notest
+$ cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits
+$ dzil listdeps --missing | cpanm --notest
+#+end_example
+
+NB: The author would welcome pull requests that explains how to install
+these tools and dependencies using native package of other
+distributions.
+
+** Build Config::Model
+:PROPERTIES:
+:CUSTOM_ID: build-configmodel
+:END:
+Run
+
+#+begin_example
+dzil build 
+#+end_example
+
+or
+
+#+begin_example
+dzil test
+#+end_example
+
+=dzil= may complain about missing =EmailNotify= or =Twitter= plugin. You
+may ignore this or edit [[file:dist.ini]] to comment out the last 2
+sections. These are useful only to the author when releasing a new
+version.
+
+=dzil= may also return an error like =Cannot determine local time zone=.
+In this case, you should specify explicitely your timezone in a =TZ=
+environement variable. E.g run =dzil= this way:
+
+#+begin_example
+TZ="Europe/Paris" dzil test
+#+end_example
+
+The list of possible timezones is provided by
+[[https://metacpan.org/pod/DateTime::TimeZone::Catalog][DateTime::TimeZone::Catalog]] documentation.
