@@ -1069,14 +1069,15 @@ sub _store_yaml_vector_in_value {
 
 sub _store_ini_vector_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
+    _lazy_load(".ini()", "Config::INI::Reader");
+
     my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
     if (scalar @vector > 2) {
         die "$element calls .ini with too many elements in subpath @vector. Max is 2\n";
     }
-    my ($section, $parameter) = @vector;
-    my $data = Config::IniFiles->new( -file => $file->stringify);
+    my $data = Config::INI::Reader->read_file($file->stringify);
     $element->store(
-        value => $data->val($section, $parameter),
+        value => __data_from_vector($data, @vector),
         check => $check
     );
 }
@@ -1507,6 +1508,9 @@ For instance, if C<data.ini> contains:
 
 The instruction C<baz=.ini(data.ini/foo/bar)> stores C<42> in
 C<baz> element.
+
+Note that L<Config::INI::Reader> module must be installed to use this
+function.
 
 =item xxx=.env(yyy)
 
