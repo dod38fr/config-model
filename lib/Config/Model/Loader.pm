@@ -165,7 +165,22 @@ sub _split_cmd {
     my $cmd = shift;
     $logger->trace("split on: ->$cmd<-");
 
-    my $quoted_string = qr/(?:"(?: \\" | [^"] )* ")|(?:'(?: \\' | [^'] )* ')/x;    # quoted string
+    my $quoted_string = qr/
+                              (?: "(?: \\" | [^"] )* ") | # double quoted string
+                              (?: '(?: \\' | [^'] )* ')   # single quoted string
+                          /x;
+
+    # capture parameters between ( )
+    my $function_args = qr/(?:
+                               \(                          # opening (
+                               (
+                                   (?:
+                                       $quoted_string ,? | # quoted string, maybe with a comma
+                                       [^)"']+             # or any other char expect ) or a quoted string
+                                   )+                      # many times
+                               )
+                               \)                          # closing )
+                           )/x;
 
     # do a split on ' ' but take quoted string into account
     my @command = (
@@ -174,7 +189,7 @@ sub _split_cmd {
 	 (?:
             (:~|:-[=~]?|:=~|:\.\w+|:[=<>@]?|~)       # action
             (?:
-                  (?: \( ( $quoted_string | [^)]+ ) \) )  # capture parameters between ( )
+                  $function_args  # capture parameters between ( )
                 | (
                     /[^/]+/      # regexp
                     | (?:
@@ -187,7 +202,7 @@ sub _split_cmd {
 	 (?:
             (=~|\.=|=\.\w+|[=<>])          # apply regexp or assign or append
             (?:
-                  (?: \( ( $quoted_string | [^)]+ ) \) )  # capture parameters between ( )
+                  $function_args  # capture parameters between ( )
                 | (
                     (?:
                       $quoted_string

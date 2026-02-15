@@ -151,6 +151,8 @@ subtest "mega regexp" => sub {
         # function call
         [ 'a:.b("foo(a > b)")', [ 'a',  ':.b','"foo(a > b)"','x',            'x',  'x',      'x',        'x' ] ], # tricky value with ()
         [ q!a:.b('foo(a > b)')!,[ 'a',  ':.b',"'foo(a > b)'",'x',            'x',  'x',      'x',        'x' ] ], # tricky value with ()
+        [ 'a:.b("bar","foo(a > b)")', [ 'a',  ':.b','"bar","foo(a > b)"','x','x',  'x',      'x',        'x' ] ], # tricky value with ()
+        [ q!a:.b('bar','foo(a > b)')!,[ 'a',  ':.b',"'bar','foo(a > b)'",'x','x',  'x',      'x',        'x' ] ], # tricky value with ()
     );
 
     foreach my $subtest (@regexp_test) {
