@@ -8,7 +8,12 @@ use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
-use JSON;
+
+eval {require JSON;};
+if ($@) {
+    die "Error: Json backend requires JSON module. Please install this module.\n"
+}
+JSON->import();
 
 my $logger = get_logger("Backend::Json");
 
@@ -30,7 +35,7 @@ sub read {
     my $json = $args{file_path}->slurp_utf8;
 
     # convert to perl data
-    my $perl_data = decode_json $json ;
+    my $perl_data = decode_json($json) ;
     if ( not defined $perl_data ) {
         $logger->warn("No data found in Json file $args{file_path}");
         return 1;
@@ -129,6 +134,7 @@ Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure only
 contains C<'a','b'>.
 
+Note that you must install L<JSON> module to use this backend.
 
 =head1 CONSTRUCTOR
 
