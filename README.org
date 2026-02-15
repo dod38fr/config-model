@@ -4,8 +4,6 @@
 :END:
 Configuration schema on steroids.
 
-[[https://gitter.im/dod38fr/config-model?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge][[[https://badges.gitter.im/dod38fr/config-model.svg]]]]
-
 * What is Config-Model project
 :PROPERTIES:
 :CUSTOM_ID: what-is-config-model-project
