@@ -9,8 +9,6 @@ use Mouse;
 use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny;
-use YAML::Tiny;
-use Config::IniFiles;
 
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
@@ -1061,9 +1059,10 @@ sub _store_json_vector_in_value {
 sub _store_yaml_vector_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
-    my $data = YAML::Tiny->read($file->stringify);
+    _lazy_load(".yaml()", "YAML::PP");
+    my @data = YAML::PP->new()->load_file($file->stringify);
     $element->store(
-        value => __data_from_vector($data, @vector),
+        value => __data_from_vector(\@data, @vector),
         check => $check
     );
 }
@@ -1492,6 +1491,8 @@ For instance, if C<data.yaml> contains:
 
 The instruction C<baz=.yaml(data.yaml/0/foo/bar)> stores C<42> in
 C<baz> element.
+
+Note that L<YAML::PP> module must be installed to use this function.
 
 =item xxx=.ini(path/to/data.ini/foo/bar)
 
