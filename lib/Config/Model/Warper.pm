@@ -215,6 +215,7 @@ sub refresh_values_from_master {
 
         my $warper = $self->warped_object->grab(
             step => $warper_path,
+            grab_non_available => 1,
             mode => 'loose',
         );
 
