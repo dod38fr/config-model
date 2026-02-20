@@ -16,6 +16,8 @@ use Config::Model::Exception;
 use Config::Model::ValueComputer;
 use Config::Model::IdElementReference;
 use Config::Model::Warper;
+use Config::Model::Value::Update;
+
 use Log::Log4perl qw(get_logger :levels);
 use Scalar::Util qw/weaken/;
 use Carp;
@@ -62,11 +64,23 @@ has value_type => ( is => 'rw', isa => 'ValueType' );
 my @common_int_params = qw/min max mandatory /;
 has \@common_int_params => ( is => 'ro', isa => 'Maybe[Int]' );
 
-my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_if warn_unless help/;
+my @common_hash_params = qw/replace assert update warn_if_match warn_unless_match warn_if warn_unless help/;
 has \@common_hash_params => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
-my @common_list_params = qw/choice update/;
-has \@common_list_params => ( is => 'rw', isa => 'Maybe[ArrayRef]' );
+has update_obj => (
+    is => 'ro',
+    isa => 'Undef|Config::Model::Value::Update',
+    handles => [qw/get_update_value/],
+    lazy => 1,
+    builder => sub ($self) {
+        if (my $ref = $self->update) {
+            return Config::Model::Value::Update->new(%$ref, location => $self->location);
+        }
+    }
+);
+
+my @common_list_params = qw/choice/;
+has \@common_list_params => ( is => 'ro', isa => 'Maybe[ArrayRef]' );
 
 my @common_str_params = qw/default upstream_default convert match grammar warn/;
 has \@common_str_params => ( is => 'ro', isa => 'Maybe[Str]' );
@@ -597,121 +611,29 @@ sub set_properties ($self, @args) {
 }
 
 # simple but may be overridden
-sub set_help {
-    my ( $self, $args ) = @_;
+sub set_help ($self, $args) {
     return unless defined $args->{help};
     $self->{help} = delete $args->{help};
     return;
 }
 
-my @update_keys = qw/file type subpath/;
-sub set_update ( $self, $args ) {
+sub set_update ($self, $args) {
     return unless defined $args->{update};
-    $self->update(delete $args->{update});
-
-    foreach my $spec_ref ($self->update->@*) {
-        if (ref $spec_ref ne "HASH") {
-            Config::Model::Exception::Model->throw(
-                object => $self,
-                error  => "update parameter must be a hash, not $spec_ref"
-            );
-        }
-        my %spec = $spec_ref->%*;
-        foreach my $k (@update_keys) {
-            next if delete $spec{$k};
-            Config::Model::Exception::Model->throw(
-                object => $self,
-                error  => "update parameter: missing $k sub parameter"
-            );
-        }
-
-        if (keys %spec > 0) {
-            Config::Model::Exception::Model->throw(
-                object => $self,
-                error  => "update parameter: unexpected ".join(',',keys %spec)." sub parameter"
-            );
-        }
-    }
-
+    $self->{update} = delete $args->{update};
     return;
 }
-
-sub __data_from_path ($self, $data, $path, $limit = 0) {
-    # negative look behing assertion to skip \. in subpath
-    foreach my $step (split /(?<!\\)\./, $path, $limit) {
-        $step =~ s/\\\././g; # convert \. to .
-        $data = (ref($data) eq 'HASH') ? $data->{$step} : $data->[$step];
-        return $data if not ref $data;
-    }
-    $user_logger->warn("Did not get scalar value with $path: got $data");
-    return;
-}
-
-sub _lazy_load ($type, $module) {
-    my $file = ($module =~ s!::!/!gr).".pm";
-    eval { require $file };
-    if ($@) {
-        die "Error: Value update from $type file requires $module module. Please install this module.\n"
-    }
-    return;
-}
-
-my %update_dispatch = (
-    ini => sub ($self, $file, $subpath)  {
-        _lazy_load("INI", "Config::INI::Reader");
-        my $data = Config::INI::Reader->read_file($file);
-        return $self->__data_from_path($data, $subpath, 2);
-    },
-    json => sub ($self, $file, $subpath) {
-        _lazy_load("JSON", "JSON");
-        JSON->import();
-        # utf8 decode is done by JSON module, so slurp_raw must be used
-        my $data = decode_json(path($file)->slurp_raw);
-        return $self->__data_from_path($data, $subpath);
-    },
-    yaml => sub ($self, $file, $subpath) {
-        _lazy_load("YAML", "YAML::PP");
-        my $data = YAML::PP->new()-> load_file($file);
-        return $self->__data_from_path($data, $subpath);
-    },
-    toml => sub ($self, $file, $subpath) {
-        _lazy_load("TOML", "TOML::Tiny");
-        my $data = TOML::Tiny->new()-> decode(path($file)->slurp_utf8);
-        return $self->__data_from_path($data, $subpath);
-    },
-);
 
 sub update_from_file ($self) {
     return unless defined $self->update;
 
-    my @not_found ;
-    foreach my $spec ($self->update->@*) {
-        my ($type, $file, $subpath) = $spec->@{"type", "file", "subpath"};
-        $logger->debug( "update called on type $type, file $file, path $subpath");
-        if (! -e $file) {
-            $user_logger->warn("Cannot update ", $self->name,": $file does not exist");
-            return;
-        }
-        my $update_sub = $update_dispatch{$type};
-        if (not defined $update_sub) {
-            $logger->error($self->name, ": Unexpected update type $type. Allowed values are ",
-                           join( ', ', keys %update_dispatch));
-            next;
-        }
-        my $v = $update_sub->($self, $file, $subpath);
-        if (defined $v) {
-            $user_logger->info("Updating ". $self->location. " from file $file path $subpath");
-            $self->store($v);
-        }
-        else {
-            push @not_found, "No data found in file $file with path $subpath";
-        }
+    my $v = $self->get_update_value;
+    if (defined $v) {
+        $user_logger->info("Updating ". $self->location. " value from file");
+        $self->store($v);
+        # tell caller that something was done. User logger provides the details
+        return '';
     }
-
-    # warn when no data was found, e.g. each spec did not find data
-    if (@not_found == $self->update->@*) {
-        $user_logger->warn(join("\n", @not_found));
-    }
+    return;
 }
 
 # this code is somewhat dead as warping value_type is no longer supported
@@ -862,6 +784,10 @@ sub get_info {
     }
     elsif ( defined $self->computed_refer_to ) {
         push @items, "computed reference to: " . $self->computed_refer_to;
+    }
+
+    if ($self->update) {
+        push @items, "update value from " . $self->update_obj->get_info;
     }
 
     my $m = $self->mandatory;

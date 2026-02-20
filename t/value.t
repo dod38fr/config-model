@@ -301,9 +301,10 @@ $model->create_config_class(
         data_from_ini_file => {
             type => 'leaf',
             value_type => 'uniline',
-            update => [
-                { type => 'ini', file => $ini_file->stringify, subpath => "foo.bar"}
-            ]
+            update => {
+                when_missing => 'warn',
+                files => [{ type => 'ini', file => $ini_file->stringify, subpath => "foo.bar"}]
+            }
         },
     ],
 );
@@ -314,11 +315,14 @@ $model->create_config_class(
         data_from_ini_file => {
             type => 'leaf',
             value_type => 'uniline',
-            update => [{
-                type => 'ini',
-                file => $ini_file->stringify,
-                subpath => "MetaResources.bugtracker.web"
-            }]
+            update => {
+                when_missing => 'warn',
+                files => [{
+                    type => 'ini',
+                    file => $ini_file->stringify,
+                    subpath => "MetaResources.bugtracker.web"
+                }]
+            }
         },
     ],
 );
@@ -329,9 +333,12 @@ $model->create_config_class(
         data_from_json_file => {
             type => 'leaf',
             value_type => 'uniline',
-            update => [
-                { type => 'json', file => $json_file->stringify, subpath => "foo.bar"}
-            ]
+            update => {
+                when_missing => 'warn',
+                files => [
+                    { type => 'json', file => $json_file->stringify, subpath => "foo.bar"}
+                ]
+            }
         },
     ],
 );
@@ -342,9 +349,12 @@ $model->create_config_class(
         data_from_yaml_file => {
             type => 'leaf',
             value_type => 'uniline',
-            update => [
-                { type => 'yaml', file => $yaml_file->stringify, subpath => 'foo.bar\.baz'}
-            ]
+            update => {
+                when_missing => 'warn',
+                files => [
+                    { type => 'yaml', file => $yaml_file->stringify, subpath => 'foo.bar\.baz'}
+                ]
+            }
         },
     ],
 );
@@ -355,9 +365,11 @@ $model->create_config_class(
         data_from_toml_file => {
             type => 'leaf',
             value_type => 'uniline',
-            update => [
-                { type => 'toml', file => $toml_file->stringify, subpath => "foo.bar"}
-            ]
+            update => {
+                when_missing => 'warn',
+                files => [
+                    { type => 'toml', file => $toml_file->stringify, subpath => "foo.bar"}
+            ]}
         },
     ],
 );
@@ -1171,9 +1183,9 @@ subtest "load from ini file" => sub {
     }
 
     {
-        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/No data found/,]);
-        # test wrong path in INI file
-        $ini_file->spew("[foo]\n","baz = $data\n");
+        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/No value found/,]);
+        # test wrong subpath in INI file
+        $ini_file->spew("[foo]\n","bad_key = $data\n");
         # direct call to leaf's update
         $ini->update_from_file;
         is($ini->fetch, undef,"test that parameter is still empty after error in path");
@@ -1181,7 +1193,7 @@ subtest "load from ini file" => sub {
 
     {
         my $xp = Test::Log::Log4perl->expect(
-            ['User', (info =>  qr/Updating data_from_ini_file from file/) x 2,]
+            ['User', (info =>  qr/Updating data_from_ini_file value from file/) x 2,]
         );
         # set right path in INI file
         $ini_file->spew("[foo]\n","bar = $data\n");
@@ -1208,7 +1220,7 @@ subtest "load from ini file à la dist.ini" => sub {
     my $ini = $inst2->config_root->fetch_element("data_from_ini_file");
 
     my $xp = Test::Log::Log4perl->expect(
-            ['User', info =>  qr/Updating data_from_ini_file from file/]
+            ['User', info =>  qr/Updating data_from_ini_file value from file/]
         );
 
     # set right path in INI file
@@ -1234,8 +1246,11 @@ subtest "load from json file" => sub {
     my $json = $inst2->config_root->fetch_element("data_from_json_file");
 
     my $xp = Test::Log::Log4perl->expect(
-        ['User', info =>  qr/Updating data_from_json_file from file/]
+        ['User', info =>  qr/Updating data_from_json_file value from file/]
     );
+
+    my @info = $json->get_info();
+    is($info[1], "update value from ".$json_file.":foo.bar");
 
     # set right path in JSON file
     $json_file->spew(qq!{"foo": { "bar" : "$data" }}\n!);
@@ -1257,7 +1272,7 @@ subtest "load from yaml file" => sub {
     my $yaml = $inst2->config_root->fetch_element("data_from_yaml_file");
 
     my $xp = Test::Log::Log4perl->expect(
-        ['User', info =>  qr/Updating data_from_yaml_file from file/]
+        ['User', info =>  qr/Updating data_from_yaml_file value from file/]
     );
 
     # set right path in YAML file
@@ -1280,7 +1295,7 @@ subtest "load from toml file" => sub {
     my $toml = $inst2->config_root->fetch_element("data_from_toml_file");
 
     my $xp = Test::Log::Log4perl->expect(
-        ['User', info =>  qr/Updating data_from_toml_file from file/]
+        ['User', info =>  qr/Updating data_from_toml_file value from file/]
     );
 
     # set right path in TOML file

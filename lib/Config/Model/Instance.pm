@@ -613,22 +613,22 @@ sub save {
 sub update {
     my ($self, %args) = @_;
 
-    my @msgs ;
     my $hook = sub {
         my ($scanner, $data_ref,$node,@element_list) = @_;
         if ($node->can('update')) {
             my $loc = $node->location;
             say "Calling update on node '$loc'" if $loc and not $args{quiet};
-            push (@msgs, $node->update(%args))
+            push (@$data_ref, $node->update(%args))
         } ;
     };
 
     my $leaf_cb = sub ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) {
-        $leaf_object->update_from_file();
+        push @$data_ref, $leaf_object->update_from_file();
     };
 
     my $root = $self->config_root ;
 
+    my @msgs ;
     Config::Model::ObjTreeScanner->new(
         node_content_hook => $hook,
         check => ($args{quiet} ? 'no' : 'yes'),
