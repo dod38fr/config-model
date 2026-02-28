@@ -17,7 +17,7 @@ use strict;
 my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
-my $wr_root = setup_test_dir( stringify => 0 );
+my $wr_root = setup_test_dir();
 
 my $subdir = $wr_root->child('plain');
 $subdir->mkpath;

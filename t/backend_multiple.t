@@ -17,7 +17,7 @@ use lib 't/lib';
 my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
-my $wr_root = setup_test_dir( stringify => 1 );
+my $wr_root = setup_test_dir();
 
 $model->create_config_class(
     'rw_config' => {
@@ -102,7 +102,7 @@ $inst->write_back;
 
 #check written files
 foreach (qw!control.pl copyright.pl source/format meta/test.yml!) {
-    my $f = $wr_root . "debian/$_";
+    my $f = $wr_root->child("debian/$_");
     ok( -e $f, "check written file $f" );
 }
 
