@@ -26,6 +26,7 @@ has 'node' => (
 
 sub skip_open { return 0; }
 
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
 sub read {
     my $self = shift;
     my $err  = "Internal error: read not defined in backend $self->{name}.";
@@ -88,6 +89,7 @@ sub read_global_comments {
             last;
         }
     }
+    return;
 }
 
 sub associates_comments_with_data {

@@ -6,6 +6,10 @@ use Config::Model::Exception;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 use Config::Model::BackendTrackOrder;
+use 5.020;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 extends 'Config::Model::Backend::Any';
 
@@ -28,10 +32,8 @@ sub _build_tracker {
 
 sub annotation { return 1; }
 
-sub read {
-    my $self = shift;
-    my %args = @_;
-
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub read ($self, %args) {
     # args are:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -67,10 +69,7 @@ sub read {
     return 1;
 }
 
-sub write {
-    my $self = shift;
-    my %args = @_;
-
+sub write ($self, %args) {
     # args are:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
