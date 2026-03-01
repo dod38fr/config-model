@@ -374,7 +374,6 @@ sub auto_write_init {
     );
 
     # used bby C::M::Dumper and C::M::DumpAsData
-    # TODO: is this needed once multi backend are removed
     $self->{auto_write}{$backend} = 1;
 
     my $wb;
