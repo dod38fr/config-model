@@ -1,7 +1,10 @@
 package Config::Model::CheckList;
 
 use Mouse;
-use 5.010;
+use 5.020;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 use Config::Model::Exception;
 use Config::Model::IdElementReference;
@@ -17,6 +20,7 @@ with "Config::Model::Role::WarpMaster";
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
+with "Config::Model::Role::Utils";
 
 my $logger = get_logger("Tree.Element.CheckList");
 my $user_logger   = get_logger("User");
@@ -78,6 +82,7 @@ sub cl_init {
         );
         $self->{ref_object}->get_choice_from_referred_to if $level ne 'hidden';
     }
+    return;
 }
 
 sub name {
@@ -91,22 +96,20 @@ sub value_type { return 'check_list'; }
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too hard for the user.
-sub set_properties {
-    my $self = shift;
-
+sub set_properties ($self, @args) {
     # cleanup all parameters that are handled by warp
     for (@allowed_warp_params) {
-        delete $self->{$_},
+        delete $self->{$_};
     }
 
     if ( $logger->is_trace() ) {
-        my %h = @_;
+        my %h = @args;
         my $keys = join( ',', keys %h );
         $logger->trace("set_properties called on $self->{element_name} with $keys");
     }
 
     # merge data passed to the constructor with data passed to set
-    my %args = ( %{ $self->{backup} }, @_ );
+    my %args = ( %{ $self->{backup} }, @args );
 
     # these are handled by Node or Warper
     for (qw/level/) {
@@ -149,11 +152,11 @@ sub set_properties {
         my $hash = $self->get_checked_list_as_hash; # force scalar context
         $self->trigger_warp($hash, $self->fetch);
     }
+    return;
 }
 
-sub setup_choice {
-    my $self = shift;
-    my @choice = ref $_[0] ? @{ $_[0] } : @_;
+sub setup_choice ($self, @args) {
+    my @choice = ref $args[0] ? @{ $args[0] } : @args;
 
     $logger->trace("CheckList $self->{element_name}: setup_choice with @choice");
 
@@ -173,6 +176,7 @@ sub setup_choice {
             delete $self->{$field}{$item} unless defined $self->{choice_hash}{$item};
         }
     }
+    return;
 }
 
 # Need to extract Config::Model::Reference (used by Value, and maybe AnyId).
@@ -208,11 +212,11 @@ sub submit_to_refer_to {
     else {
         croak "checklist submit_to_refer_to: undefined refer_to or computed_refer_to";
     }
+    return;
 }
 
-sub setup_reference_choice {
-    my $self = shift;
-    $self->setup_choice(@_);
+sub setup_reference_choice ($self, @args) {
+    return $self->setup_choice(@args);
 }
 
 sub get_type {
@@ -228,14 +232,11 @@ sub cargo_type {
 }
 
 sub apply_fixes {
-
-    # no operation. THere's no check_value method because a check list
+    # no operation. There's no check_value method because a check list
     # supposed to be always correct. Hence apply_fixes is empty.
 }
 
-sub notify_change {
-    my $self       = shift;
-    my %args       = @_;
+sub notify_change ($self, %args) {
 
     return if $self->instance->initial_load and not $args{really};
 
@@ -247,14 +248,21 @@ sub notify_change {
             if $logger->is_debug;
         $s->needs_check(1);
     }
+    return;
 }
 
 
 # does not check the validity, but check the item of the check_list
-sub check {
-    my $self  = shift;
-    my @list  = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
-    my %args  = ref $_[0] eq 'ARRAY' ? @_[ 1, $#_ ] : ( check => 'yes' );
+sub check ($self, @raw_args) {
+    my (@list, %args);
+    if (ref $raw_args[0] eq 'ARRAY') {
+        @list = shift(@raw_args)->@*;
+        %args = @raw_args;
+    }
+    else {
+        @list = @raw_args;
+        %args =  (check => 'yes')
+    }
     my $check = $self->_check_check( $args{check} );
 
     if ( defined $self->{ref_object} ) {
@@ -268,6 +276,7 @@ sub check {
 
     $self->notify_change( note => "check @changed" )
         unless $self->instance->initial_load;
+    return;
 }
 
 sub clear_item {
@@ -321,6 +330,7 @@ sub _store {
             # no change notif when going from undef to 0 as the
             # logical value does not change
             {
+                ## no critic (TestingAndDebugging::ProhibitNoWarning)
                 no warnings qw/uninitialized/;
                 $changed = (!$old_v xor !$value);
             }
@@ -358,18 +368,22 @@ sub _store {
     return $changed;
 }
 
-sub get_arguments {
-    my $self = shift;
-    my $arg  = shift;
-    my @list  = ref $arg eq 'ARRAY' ? @$arg : ($arg, @_);
-    my %args  =  ref $arg eq 'ARRAY' ? ( check => 'yes', @_ ) : (check => 'yes');
+sub get_arguments ($self, @raw_args) {
+    my (@list, %args);
+    if (ref $raw_args[0] eq 'ARRAY') {
+        @list = shift(@raw_args)->@*;
+        %args = ( check => 'yes', @raw_args );
+    }
+    else {
+        @list = @raw_args;
+        %args =  (check => 'yes')
+    }
     my $check = $self->_check_check( $args{check} );
     return \@list, $check, \%args;
 }
 
-sub uncheck {
-    my $self  = shift;
-    my ($list, $check) = $self->get_arguments(@_);
+sub uncheck ($self, @args) {
+    my ($list, $check) = $self->get_arguments(@args);
 
     if ( defined $self->{ref_object} ) {
         $self->{ref_object}->get_choice_from_referred_to;
@@ -382,6 +396,7 @@ sub uncheck {
 
     $self->notify_change( note => "uncheck @changed" )
         unless $self->instance->initial_load;
+    return;
 }
 
 sub has_data {
@@ -403,10 +418,7 @@ sub has_data {
     }
 }
 
-sub is_checked {
-    my $self   = shift;
-    my $choice = shift;
-    my %args   = @_;
+sub is_checked ($self, $choice, %args) {
     my $mode   = $args{mode} || '';
     my $check  = $self->_check_check( $args{check} );
 
@@ -452,6 +464,7 @@ sub is_checked {
             object => $self
         );
     }
+    return;
 }
 
 # get_choice is always called when using check_list, so having a
@@ -520,6 +533,7 @@ sub clear {
     for ($self->get_choice) {
         $self->clear_item($_)
     }
+    return;
 }
 
 sub clear_values { goto &clear; }
@@ -527,13 +541,13 @@ sub clear_values { goto &clear; }
 sub clear_layered {
     my $self = shift;
     $self->{layered} = {};
+    return;
 }
 
 my %old_mode = ( built_in_list => 'upstream_default_list', );
 
-sub get_checked_list_as_hash {
-    my $self = shift;
-    my %args = @_ > 1 ? @_ : ( mode => $_[0] );
+sub get_checked_list_as_hash ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'mode');
     my $mode = $args{mode} || '';
 
     foreach my $k ( keys %old_mode ) {
@@ -582,18 +596,15 @@ sub get_checked_list_as_hash {
     return wantarray ? %result : \%result;
 }
 
-sub get_checked_list {
-    my $self = shift;
-
-    my %h          = $self->get_checked_list_as_hash(@_);
+sub get_checked_list ($self, @args) {
+    my %h          = $self->get_checked_list_as_hash(@args);
     my @good_order = $self->{ordered} ? @{ $self->{ordered_data} } : sort keys %h;
     my @res        = grep { $h{$_} } @good_order;
     return wantarray ? @res : \@res;
 }
 
-sub fetch {
-    my $self = shift;
-    return join( ',', $self->get_checked_list(@_) );
+sub fetch ($self, @args) {
+    return join( ',', $self->get_checked_list(@args) );
 }
 
 sub fetch_custom {
@@ -611,16 +622,14 @@ sub fetch_layered {
     return join( ',', $self->get_checked_list('layered') );
 }
 
-sub get {
-    my $self = shift;
-    my $path = shift;
+sub get ($self, $path, @args){
     if ($path) {
         Config::Model::Exception::User->throw(
             object  => $self,
             message => "get() called with a value with non-empty path: '$path'"
         );
     }
-    return $self->fetch(@_);
+    return $self->fetch(@args);
 }
 
 sub set {
@@ -642,24 +651,22 @@ sub load {
     goto &store;
 }
 
-sub store     {
-    my $self = shift;
+sub store ($self, @raw_args) {
     my %args =
-          @_ == 1 ? ( value => $_[0] )
-        : @_ == 3 ? ( 'value', @_ )
-        :           @_;
+          @raw_args == 1 ? ( value => $raw_args[0] )
+        : @raw_args == 3 ? ( 'value', @raw_args )
+        :                   @raw_args;
     my $check_validity = $self->_check_check( $args{check} );
 
     my @set = split /\s*,\s*/, $args{value};
     foreach (@set) { s/^"|"$//g; s/\\"/"/g; }
-    $self->set_checked_list(\@set, check => $check_validity);
+    return $self->set_checked_list(\@set, check => $check_validity);
 }
 
 sub store_set { goto &set_checked_list }
 
-sub set_checked_list {
-    my $self = shift;
-    my ($list, $check) = $self->get_arguments(@_);
+sub set_checked_list ($self, @args) {
+    my ($list, $check) = $self->get_arguments(@args);
 
     $logger->trace("called with @$list");
     my %set = map { $_ => 1 } @$list;
@@ -679,12 +686,20 @@ sub set_checked_list {
 
     $self->notify_change( note => "set_checked_list @changed" )
         if @changed and not $self->instance->initial_load;
+
+    return scalar @changed;
 }
 
-sub set_checked_list_as_hash {
-    my $self = shift;
-    my %check_list = ref $_[0] eq 'HASH' ? %{ $_[0] } : @_;
-    my %args  = ref $_[0] eq 'HASH' ? @_[ 1, $#_ ] : ( check => 'yes' );
+sub set_checked_list_as_hash ($self, @raw_args) {
+    my (%check_list, %args);
+    if (ref $raw_args[0] eq 'HASH') {
+        %check_list = shift(@raw_args)->%*;
+        %args = @raw_args;
+    } else {
+        %check_list = @raw_args;
+        %args =  ( check => 'yes' );
+    }
+
     my $check_validity = $self->_check_check( $args{check} );
 
     foreach my $c ( $self->get_choice ) {
@@ -695,37 +710,35 @@ sub set_checked_list_as_hash {
             $self->clear_item($c);
         }
     }
+    return 1;
 }
 
-sub load_data {
-    my $self = shift;
+sub load_data ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'data');
 
-    my %args  = @_ > 1 ? @_ : ( data => shift );
     my $data  = $args{data};
     my $check_validity = $self->_check_check( $args{check} );
 
     if ( ref($data) eq 'ARRAY' ) {
-        $self->set_checked_list($data, check => $check_validity);
+        return $self->set_checked_list($data, check => $check_validity);
     }
-    elsif ( ref($data) eq 'HASH' ) {
-        $self->set_checked_list_as_hash($data, check => $check_validity);
+    if ( ref($data) eq 'HASH' ) {
+        return $self->set_checked_list_as_hash($data, check => $check_validity);
     }
-    elsif ( not ref($data) ) {
-        $self->set_checked_list([$data], check => $check_validity );
+    if ( not ref($data) ) {
+        return $self->set_checked_list([$data], check => $check_validity );
     }
-    else {
-        Config::Model::Exception::LoadData->throw(
-            object     => $self,
-            message    => "check_list load_data called with unexpected type. ".
-                          "Expected plain scalar, array or hash ref",
-            wrong_data => $data,
-        );
-    }
+
+    Config::Model::Exception::LoadData->throw(
+        object     => $self,
+        message    => "check_list load_data called with unexpected type. "
+        . "Expected plain scalar, array or hash ref",
+        wrong_data => $data,
+    );
+    return 0;
 }
 
-sub swap {
-    my ( $self, $a, $b ) = @_;
-
+sub swap ( $self, $a, $b ) {
     foreach my $param ( $a, $b ) {
         unless ( $self->is_checked($param) ) {
             my $err_str = "swap: choice $param must be set";
@@ -745,11 +758,10 @@ sub swap {
             $_ = $a;
         }
     }
+    return;
 }
 
-sub move_up {
-    my ( $self, $c ) = @_;
-
+sub move_up ( $self, $c ) {
     unless ( $self->is_checked($c) ) {
         my $err_str = "swap: choice $c must be set";
         Config::Model::Exception::WrongValue->throw(
@@ -767,11 +779,10 @@ sub move_up {
             last;
         }
     }
+    return;
 }
 
-sub move_down {
-    my ( $self, $c ) = @_;
-
+sub move_down ( $self, $c ) {
     unless ( $self->is_checked($c) ) {
         my $err_str = "swap: choice $c must be set";
         Config::Model::Exception::WrongValue->throw(
@@ -789,10 +800,13 @@ sub move_down {
             last;
         }
     }
+    return;
 }
 
 # dummy to match Value call
-sub warning_msg { '' }
+sub warning_msg {
+    return '';
+}
 
 1;
 
