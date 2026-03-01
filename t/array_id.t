@@ -29,6 +29,7 @@ my @element = (
 # minimal set up to get things working
 $model->create_config_class(
     name    => "Master",
+    gist => '@{olist} olist elts, @{plain_list} plain_list elts',
     element => [
         bounded_list => {
             type       => 'list',
@@ -288,6 +289,9 @@ subtest "test move swap with node list" => sub {
     $ol->remove(0);
     print $root->dump_tree( ) if $trace;
     is( $ol->fetch_with_id(0)->fetch_element('X')->fetch, 'Bv', "check after move" );
+
+    # test gist with
+    is($root->fetch_gist, "4 olist elts, 0 plain_list elts", "gist with array size");
 
     # test node gist in an array display
     my $olgist = $ol->fetch_with_id(5);

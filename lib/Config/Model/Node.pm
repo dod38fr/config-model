@@ -83,6 +83,9 @@ has gist => (
 sub fetch_gist {
     my $self = shift;
     my $gist = $self->gist // '';
+    # handle hash or list element count
+    $gist =~ s!\@\{([\w -]+)}!$self->grab($1)->fetch_size!ge;
+    # handle element value
     $gist =~ s!{([\w -]+)}!$self->grab($1)->fetch // ''!ge;
     return $gist;
 }
@@ -1289,9 +1292,10 @@ See below for details on element declaration.
 String used to construct a summary of the content of a node. This
 parameter is used by user interface to show users the gist of the
 content of this node. This parameter has no other effect. This string
-may contain element values in the form "C<{foo} or {bar}>". When
-constructing the gist, C<{foo}> is replaced by the value of element
-C<foo>. Likewise for C<{bar}>.
+may contain element values in the form "C<{foo} and
+@{a_hash_or_list}>". When constructing the gist, C<{foo}> is replaced
+by the value of element C<foo>, and C<@{a_hash_of_list}> is replaced
+by the number of elements of the hash or list element.
 
 =item B<level>
 
