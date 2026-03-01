@@ -40,10 +40,10 @@ sub BUILD {
         ) if defined $self->{$wrong};
     }
 
-    if ( defined $self->{migrate_keys_from} ) {
+    if ( delete $self->{migrate_keys_from} ) {
         $user_logger->warn(
             $self->name, "Using migrate_keys_from with ",
-            "list element is deprecated. Use migrate_values_from"
+            "list element is obsolete and ignored. Use migrate_values_from"
         );
     }
 
@@ -91,15 +91,6 @@ sub _migrate {
             $self->fetch_with_id( $idx++ )->load_data($data);
         }
     }
-    elsif ( $self->{migrate_keys_from} ) {
-
-        # FIXME: remove this deprecated stuff
-        my $followed = $self->safe_typed_grab( param => 'migrate_keys_from', check => 'no' );
-        for ( $followed->fetch_all_indexes ) {
-            $self->_store( $_, undef ) unless $self->_defined($_);
-        }
-    }
-
 }
 
 sub get_type {
