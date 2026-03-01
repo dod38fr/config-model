@@ -874,10 +874,10 @@ sub fetch_all_indexes {
     return $self->_fetch_all_indexes;
 }
 
+# TODO: remove in 2027
 sub get_all_indexes {
     my $self = shift;
-    carp "get_all_indexes is deprecated. use fetch_all_indexes";
-    return $self->fetch_all_indexes;
+    croak "get_all_indexes is obsolete. use fetch_all_indexes";
 }
 
 sub children {
