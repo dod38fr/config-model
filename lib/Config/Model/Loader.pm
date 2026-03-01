@@ -11,7 +11,6 @@ use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny;
 
 use feature qw/postderef signatures/;
-no warnings qw/experimental::postderef experimental::signatures/;
 
 my $logger = get_logger("Loader");
 my $verbose_logger = get_logger("Verbose.Loader");
@@ -33,8 +32,8 @@ has instance => (
     lazy_build => 1,
 );
 
-sub _build_instance {
-    return $_[0]->start_node->instance;
+sub _build_instance ($self) {
+    return $self->start_node->instance;
 }
 
 my %log_dispatch = (
@@ -58,6 +57,7 @@ sub _log_cmd {
     my $str = ref $cmd eq 'ARRAY' ? "@$cmd"
         : ref $cmd ? $$cmd : $cmd;
     $verbose_logger->info("command '$str': $message");
+    return;
 }
 
 sub _split_string ($str) {
@@ -93,11 +93,7 @@ sub _split_string ($str) {
     );         #"asdf ;
 }
 
-sub load {
-    my $self = shift;
-
-    my %args = @_;
-
+sub load ($self, %args) {
     my $node = $self->start_node;
 
     my $steps = delete $args{steps} // delete $args{step};
@@ -400,6 +396,7 @@ sub _set_note {
     my ($self, $target, $cmd, $note) = @_;
     $self->_log_cmd($cmd, "Setting %name annotation to %qs", $target, $note);
     $target->annotation($note);
+    return;
 }
 
 
@@ -421,6 +418,7 @@ sub _load_note {
             );
         }
     }
+    return;
 }
 
 sub _walk_node {
@@ -446,6 +444,8 @@ sub _walk_node {
     return $self->_load( $new_node, $check, $cmdref );
 }
 
+# unquote modify the passed values
+## no critic (Subroutines::RequireArgUnpacking)
 sub unquote {
     for (@_) {
         if (defined $_) {
@@ -454,6 +454,7 @@ sub unquote {
             s/^"// && s/"$// && s!\\"!"!g;
         }
     }
+    return;
 }
 
 sub _load_check_list {
@@ -492,7 +493,7 @@ sub _load_check_list {
         command => join( '', map { $_ || '' } @$inst ),
         error   => "Wrong assignment with '$a_str' on check_list"
     );
-
+    return;
 }
 
 {
@@ -671,7 +672,7 @@ sub _substitute_value {
 
 sub _insort_hash_of_node {
     my ( $self, $element, $check, $inst, $cmdref, $id ) = @_;
-    my $node = $element->insort($_[5]);
+    my $node = $element->insort($id);
     $logger->debug("_insort_hash_of_node: calling _load on node id $id");
     return $self->_load( $node, $check, $cmdref );
 }
@@ -762,6 +763,7 @@ sub _load_list {
             . "element type: $elt_type, cargo_type: $cargo_type"
     );
 
+    return;
 }
 
 sub _load_hash {
@@ -876,6 +878,7 @@ sub _load_hash {
             error   => "Hash load with '$action' on unexpected " . "cargo_type: $cargo_type"
         );
     }
+    return;
 }
 
 sub _load_leaf {
@@ -931,6 +934,7 @@ sub _load_leaf {
             . "(element '"
             . $element->name . "')"
     );
+    return;
 }
 
 # sub is called with  ( $self, $element, $value, $check, $instructions )
@@ -963,7 +967,7 @@ sub _append_value {
         $cmd, 'Appending %qs to %leaf. Result is %qs.',
         $value, $element, $next
     );
-    $element->store( value => $next, check => $check );
+    return $element->store( value => $next, check => $check );
 }
 
 sub _apply_regexp_on_value {
@@ -987,33 +991,36 @@ sub _apply_regexp_on_value {
                     . $element->name . "' : $res"
                 );
         }
-        $element->store( value => $orig, check => $check );
+        return $element->store( value => $orig, check => $check );
     }
     else {
         $self->_log_cmd(
             $cmd, "Not applying regexp %qs on undefined value of %leaf.",
             $value, $element, $orig
         );
+        return;
     }
 }
 
 sub _set_to_standard_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     # check value is done by store
-    $element->store($element->_fetch_std_no_check);
+    return $element->store($element->_fetch_std_no_check);
 }
 
 sub _store_file_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
 
     if ($value eq '-') {
+        ## no critic (InputOutput::ProhibitExplicitStdin)
+        # user called a load function like .file(-), cannot use ARGV
         $element->store( value => join('',<STDIN>), check => $check );
         return 'ok';
     }
 
     my $path = $element->root_path->child($value);
     if ($path->is_file) {
-        $element->store( value => $path->slurp_utf8, check => $check );
+        return $element->store( value => $path->slurp_utf8, check => $check );
     }
     else {
         Config::Model::Exception::Load->throw(
@@ -1022,6 +1029,7 @@ sub _store_file_in_value {
             error => "cannot read file $value"
         );
     }
+    return;
 }
 
 sub __data_from_vector {
@@ -1065,7 +1073,7 @@ sub _store_json_vector_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
     my $data = __load_json_file($file);
-    $element->store(
+    return $element->store(
         value => __data_from_vector($data, @vector),
         check => $check
     );
@@ -1076,7 +1084,7 @@ sub _store_yaml_vector_in_value {
     my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
     _lazy_load(".yaml()", "YAML::PP");
     my @data = YAML::PP->new()->load_file($file->stringify);
-    $element->store(
+    return $element->store(
         value => __data_from_vector(\@data, @vector),
         check => $check
     );
@@ -1091,7 +1099,7 @@ sub _store_ini_vector_in_value {
         die "$element calls .ini with too many elements in subpath @vector. Max is 2\n";
     }
     my $data = Config::INI::Reader->read_file($file->stringify);
-    $element->store(
+    return $element->store(
         value => __data_from_vector($data, @vector),
         check => $check
     );
@@ -1472,7 +1480,7 @@ also accepted.
 
 Store the content of file C<yyy> in element C<xxx>.
 
-Store STDIn in value xxx when C<yyy> is '-'.
+Store STDIN in value xxx when C<yyy> is '-'.
 
 =item xxx=.json(path/to/data.json/foo/bar)
 
