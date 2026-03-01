@@ -5,7 +5,7 @@ use Mouse::Util::TypeConstraints;
 
 # used only for tests
 my $__test_home = '';
-sub _set_test_home { $__test_home = shift; }
+sub _set_test_home { return $__test_home = shift; }
 sub _get_test_home { return $__test_home ; }
 
 subtype 'Config::Model::TypeContraints::Path' => as 'Maybe[Path::Tiny]' ;
