@@ -811,6 +811,11 @@ sub fetch_all {
     return map { $self->fetch_with_id($_); } @keys;
 }
 
+sub fetch_size {
+    my $self = shift;
+    return scalar $self->fetch_all_indexes;
+}
+
 sub fetch ($self, @args) {
     return join(',', $self->fetch_all_values(@args) );
 }
@@ -1565,6 +1570,11 @@ copied from one node to another.
 =head2 fetch_all
 
 Returns an array containing all elements held by the hash or list.
+
+=head2 fetch_size
+
+Return the number of elements of the array or the number of keys of
+the hash. (from v2.157)
 
 =head2 fetch_value
 
