@@ -1,5 +1,8 @@
 package Config::Model::ObjTreeScanner;
 
+use 5.20.0;
+use feature qw/postderef signatures/;
+
 use strict;
 use Config::Model::Exception;
 use Scalar::Util qw/blessed/;
@@ -12,10 +15,7 @@ use Carp qw/croak confess cluck/;
 my @value_cb =
     map { $_ . '_value_cb' } qw/boolean dir enum file string uniline integer number reference/;
 
-sub new {
-    my $type = shift;
-    my %args = @_;
-
+sub new ($type, %args) {
     my $self = { auto_vivify => 1, check => 'yes' };
     bless $self, $type;
 
@@ -106,6 +106,7 @@ sub create_fallback {
     croak __PACKAGE__, "->new: Unexpected fallback value '$fallback'. ",
         "Expected 'node', 'leaf', 'all' or 'none'"
         if not $done;
+    return;
 }
 
 sub scan_node {
@@ -138,6 +139,7 @@ sub scan_node {
     $actual_cb->( $self, $data_r, $node, @element_list );
 
     $self->{up_cb}->( $self, $data_r, $node );
+    return;
 }
 
 sub scan_element {
@@ -204,6 +206,7 @@ sub scan_element {
     else {
         croak "Unexpected element_type: $element_type";
     }
+    return;
 }
 
 sub scan_hash {
@@ -232,6 +235,7 @@ sub scan_hash {
     else {
         croak "Unexpected cargo_type: $cargo_type";
     }
+    return;
 }
 
 sub scan_list {
@@ -253,6 +257,7 @@ sub get_keys {
         object => $node
     );
 
+    return;
 }
 
 1;
