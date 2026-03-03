@@ -1,5 +1,28 @@
 {{$NEXT}}
 
+2.157 2026-03-03
+
+  New feature:
+    * Value model: add update parameter to specify how to load
+      value from INI, YAML, JSON or TOML file when running "cme update"
+      comand
+    * Loader: add function to load data from INI files
+    * Node: can extract gist from a array element
+    * Warper: allow warping from hidden element
+    * AnyId: add fetch_size method
+
+  Bug fixes:
+    * Loader: fix bug with function call like .b("bar","foo(a > b)")
+    * ObjTreeScanner: add missing callbacks for file and dir value types
+
+  Doc update:
+    * Node: add filter parameter doc for apply_fixes()
+
+  Dependencies:
+    * switch from Config::IniFiles to Config::INI::Reader and make this dependency optional
+    * switch YAML::Tiny to YAML::PP and make this dependency optional
+    * make JSON and TOML::Tiny dependencies optional
+
 2.156 2026-02-02
 
   New feature:
