@@ -405,11 +405,6 @@ sub load ($self, @args) {
     return $self;
 }
 
-sub search_element {
-    my $self = shift;
-    $self->config_root->search_element(@_);
-}
-
 sub wizard_helper {
     carp __PACKAGE__, "::wizard_helper helped is deprecated. Call iterator instead";
     goto &iterator;
