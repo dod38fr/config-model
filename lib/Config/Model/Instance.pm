@@ -105,19 +105,7 @@ has changes => (
         clear_changes => 'clear',
     } );
 
-sub needs_save {
-    my $self = shift;
-    my $arg  = shift;
-    if ( defined $arg ) {
-        if ($arg) {
-            croak "replace needs_save(1) call with add_change";
-            $self->add_change();    # may not work
-        }
-        else {
-            croak "replace needs_save(0) call with clear_changes";
-            $self->clear_changes;
-        }
-    }
+sub needs_save ($self) {
     return $self->c_count;
 }
 
