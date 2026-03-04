@@ -8,6 +8,7 @@ use v5.20;
 use Carp;
 
 use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 # I don't like multiple packages in a file, but this is an Exception
 ## no critic (Modules::ProhibitMultiplePackages)

@@ -2,6 +2,7 @@ package Config::Model::ObjTreeScanner;
 
 use 5.20.0;
 use feature qw/postderef signatures/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 use strict;
 use Config::Model::Exception;

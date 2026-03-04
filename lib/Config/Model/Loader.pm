@@ -11,6 +11,7 @@ use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny;
 
 use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 my $logger = get_logger("Loader");
 my $verbose_logger = get_logger("Verbose.Loader");

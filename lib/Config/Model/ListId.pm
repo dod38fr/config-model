@@ -14,6 +14,7 @@ with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::Utils";
 
 use feature qw/postderef signatures/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 my $logger = get_logger("Tree::Element::Id::List");
 my $user_logger = get_logger("User");
