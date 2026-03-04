@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.158 2026-03-04
+
+  Bug fixes:
+    * add missing "no warnings" to fix tests broken on perl < 5.36
+
 2.157 2026-03-03
 
   New feature:
