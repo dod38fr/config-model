@@ -151,7 +151,7 @@ Return all files and subpaths used to extract data.
 =head2 get_update_value
 
 Try to get data from the external files. The files are tried in the same order as the
-C<files> parameter. Data is returned at the first succesful try.
+C<files> parameter. Data is returned at the first successful try.
 If no data can be found, either if all files are missing or all
 subpath do not yield data, this function either returns, warns or
 die, depending on the value of C<when_missing> parameter.
