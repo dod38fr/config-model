@@ -1,17 +1,16 @@
 package Config::Model::ObjTreeScanner;
 
 use 5.20.0;
-use feature qw/postderef signatures/;
-no warnings qw/experimental::signatures experimental::postderef/;
-
 use strict;
-use Config::Model::Exception;
-use Scalar::Util qw/blessed/;
-use Carp::Assert::More;
-use Carp;
 use warnings;
 
-use Carp qw/croak confess cluck/;
+use Config::Model::Exception;
+use Scalar::Util qw/blessed/;
+use Carp qw/carp croak confess cluck/;
+use Carp::Assert::More;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 my @value_cb =
     map { $_ . '_value_cb' } qw/boolean dir enum file string uniline integer number reference/;

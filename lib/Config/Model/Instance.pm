@@ -3,6 +3,7 @@ package Config::Model::Instance;
 use 5.20.0;
 
 use strict;
+use warnings ;
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
 
@@ -15,6 +16,7 @@ with "Config::Model::Role::Utils";
 use File::Path;
 use Path::Tiny;
 use Log::Log4perl qw(get_logger :levels);
+use Carp qw/carp croak confess cluck/;
 
 use Config::Model::TypeConstraints;
 use Config::Model::Exception;
@@ -23,10 +25,6 @@ use Config::Model::Loader;
 use Config::Model::SearchElement;
 use Config::Model::Iterator;
 use Config::Model::ObjTreeScanner;
-
-use warnings ;
-
-use Carp qw/carp croak confess cluck/;
 
 my $logger        = get_logger("Instance");
 my $change_logger = get_logger("Anything::Change");
