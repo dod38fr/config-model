@@ -7,7 +7,7 @@ use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::Value;
 use Test::Log::Log4perl;
-use Path::Tiny;
+use Path::Tiny 0.125; # for mkdir
 
 use strict;
 use warnings;
