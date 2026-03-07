@@ -1296,8 +1296,9 @@ real C<\n> (LF in Unix).
 
 =item xxx:.foreach_match(yy) or xxx:~yy
 
-Go down using C<xxx> element and loop over the ids that match the regex
-specified by C<yy>. (For C<hash>).
+Go down using C<xxx> element and loop over the ids that match the
+regex specified by C<yy>. (For C<hash> only. This does B<not> apply to
+C<list> elements).
 
 For instance, with C<OpenSsh> model, you could do
 
