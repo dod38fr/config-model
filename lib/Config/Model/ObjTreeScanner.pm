@@ -47,10 +47,6 @@ sub new ($type, %args) {
             unless defined $self->{$param};
     }
 
-    if (delete $args{experience}) {
-        carp "->new: experience parameter is deprecated";
-    }
-
     # this parameter is optional and does not need a fallback
     $self->{node_dispatch_cb} = delete $args{node_dispatch_cb} || {};
 
