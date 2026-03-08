@@ -134,7 +134,6 @@ sub describe {
     };
 
     my @scan_args = (
-        fallback => 'all',
         auto_vivify           => 0,
         list_element_cb       => $list_element_cb,
         check_list_element_cb => $check_list_element_cb,

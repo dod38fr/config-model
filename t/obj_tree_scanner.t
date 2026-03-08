@@ -116,8 +116,6 @@ my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
 ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
 my $scan = Config::Model::ObjTreeScanner->new(
-
-    #min_level => 'EXPERT',
     list_element_cb       => \&disp_hash,
     check_list_element_cb => \&disp_check_list,
     hash_element_cb       => \&disp_hash,
@@ -268,15 +266,14 @@ $result =~ s/\s+\n/\n/g;
 eq_or_diff( [ split /\n/, $result ], [ split /\n/, $expect ], "check result" );
 
 my $scan2 = Config::Model::ObjTreeScanner->new(
-    fallback => 'all',
     leaf_cb  => \&disp_leaf
 );
 
-ok( $scan2, 'set up ObjTreeScanner with fallback' );
+ok( $scan2, 'set up ObjTreeScanner' );
 
 $result = '';
 $scan2->scan_node( \$result, $root );
-ok( 1, 'performed scan with fallback' );
+ok( 1, 'performed scan' );
 print $result if $trace;
 
 $expect = << 'EOF' ;
@@ -346,7 +343,7 @@ eq_or_diff( [ split /\n/, $result ], [ split /\n/, $expect ], "check result" );
 
 # test dump of mandatory values
 
-my $model2 = Config::Model->new( legacy => 'ignore', );
+my $model2 = Config::Model->new();
 $model2->create_config_class(
     name    => "SomeRootClass",
     element => [

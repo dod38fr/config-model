@@ -6,11 +6,14 @@ use warnings;
 
 use Config::Model::Exception;
 use Scalar::Util qw/blessed/;
+use Log::Log4perl qw(get_logger :levels);
 use Carp qw/carp croak confess cluck/;
 use Carp::Assert::More;
 
 use feature qw/postderef signatures/;
 no warnings qw/experimental::signatures experimental::postderef/;
+
+my $logger = get_logger("ObjTreeScanner");
 
 my @value_cb =
     map { $_ . '_value_cb' } qw/boolean dir enum file string uniline integer number reference/;
@@ -22,8 +25,14 @@ sub new ($type, %args) {
     $self->{leaf_cb} = delete $args{leaf_cb}
         or croak __PACKAGE__, "->new: missing leaf_cb parameter";
 
+    # TODO: switch to warning in 2027
+    if (delete $args{fallback}) {
+        my ($package, $filename, $line) = caller;
+        $logger->info("fallback parameter is deprecated. Called from $filename:$line");
+    }
+
     # we may use leaf_cb
-    $self->create_fallback( delete $args{fallback} || 'all' );
+    $self->create_default_callbacks();
 
     # get all call_backs
     foreach my $param (
@@ -58,24 +67,15 @@ sub new ($type, %args) {
 }
 
 # internal
-sub create_fallback {
-    my $self     = shift;
-    my $fallback = shift;
-
+sub create_default_callbacks ($self) {
     foreach my $item (qw/node_content_hook hash_element_hook list_element_hook/) {
         $self->{$item} = sub { };
     }
 
-    return if not defined $fallback or $fallback eq 'none';
-
-    my $done = 0;
-
-    if ( $fallback eq 'node' or $fallback eq 'all' ) {
-        $done++;
-        my $node_content_cb = sub {
-            my ( $scanner, $data_r, $node, @elements ) = @_;
-            foreach my $item (@elements) { $scanner->scan_element( $data_r, $node, $item ) };
-        };
+    my $node_content_cb = sub {
+        my ( $scanner, $data_r, $node, @elements ) = @_;
+        foreach my $item (@elements) { $scanner->scan_element( $data_r, $node, $item ) };
+    };
 
         my $node_element_cb = sub {
             my ( $scanner, $data_r, $node, $element_name, $key, $next_node ) = @_;
@@ -92,20 +92,13 @@ sub create_fallback {
         $self->{node_element_cb} = $node_element_cb;
         $self->{node_content_cb} = $node_content_cb;
         $self->{up_cb}           = sub { };            # do nothing
-    }
 
-    if ( $fallback eq 'leaf' or $fallback eq 'all' ) {
-        $done++;
-        my $l = $self->{string_value_cb} ||= $self->{leaf_cb};
+    my $l = $self->{string_value_cb} ||= $self->{leaf_cb};
 
         foreach my $cb (@value_cb, "check_list_element_cb") {
             $self->{$cb} ||= $l;
-        }
     }
 
-    croak __PACKAGE__, "->new: Unexpected fallback value '$fallback'. ",
-        "Expected 'node', 'leaf', 'all' or 'none'"
-        if not $done;
     return;
 }
 
@@ -401,7 +394,7 @@ C<list_element_hook>, C<hash_element_hook>.
 
 =back
 
-The user may specify all of them by passing a sub ref to the
+The user may specify callbacks them by passing a sub ref to the
 constructor:
 
    $scan = Config::Model::ObjTreeScanner-> new
@@ -410,8 +403,7 @@ constructor:
    ...
   )
 
-Or use some default callback using the fallback parameter. Note that
-at least one callback must be provided: C<leaf_cb>.
+C<leaf_cb> callback is mandatory. Other callbacks are provided by default.
 
 Optional parameter:
 
@@ -419,14 +411,8 @@ Optional parameter:
 
 =item fallback
 
-If set to C<node>, the scanner provides default call-back for node
-items. If set to C<leaf>, the scanner sets all leaf callback (like
-enum_value_cb ...) to string_value_cb or to the mandatory leaf_cb
-value. "fallback" callback does not override callbacks provided by the
-user.
-
-If set to C<all> , the scanner provides fallbacks for leaf and node. 
-By default, all fallback are provided.
+Deprecated with version 2.159. This parameter is now ignored and
+default callbacks are always provided.
 
 =item auto_vivify
 

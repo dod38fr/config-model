@@ -73,7 +73,6 @@ sub new ($type, %args){
     # called indirectly through wizard-helper own call-backs
 
     $self->{scanner} = Config::Model::ObjTreeScanner->new(
-        fallback        => 'all',
         hash_element_cb => sub { $self->hash_element_cb(@_) },
         list_element_cb => sub { $self->hash_element_cb(@_) },
         node_content_cb => sub { $self->node_content_cb(@_) },

@@ -361,7 +361,6 @@ sub _stuff_clear {
     };
 
     my $wiper = Config::Model::ObjTreeScanner->new(
-        fallback        => 'all',
         auto_vivify     => 0,
         check           => 'skip',
         leaf_cb         => $leaf_cb,

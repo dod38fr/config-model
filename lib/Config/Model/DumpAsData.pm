@@ -117,7 +117,6 @@ sub dump_as_data {
 
     my @scan_args = (
         check      => delete $args{check}      || 'yes',
-        fallback   => 'all',
         auto_vivify           => $auto_v,
         list_element_cb       => $list_element_cb,
         check_list_element_cb => $check_list_element_cb,
@@ -208,7 +207,6 @@ sub dump_annotations_as_pod {
 
     my @scan_args = (
         check      => delete $args{check}      || 'yes',
-        fallback   => 'all',
         leaf_cb    => $std_cb,
         node_content_cb => $node_content_cb,
         hash_element_cb => $hash_element_cb,

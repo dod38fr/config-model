@@ -211,7 +211,6 @@ sub dump_tree {
     };
 
     my @scan_args = (
-        fallback => 'all',
         auto_vivify           => $auto_v,
         list_element_cb       => $list_element_cb,
         hash_element_cb       => $hash_element_cb,

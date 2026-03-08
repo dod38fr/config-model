@@ -61,7 +61,6 @@ sub get_annotation_hash {
         hash_element_cb => \&my_hash_element_cb,
         list_element_cb => \&my_list_element_cb,
         node_element_cb => \&my_node_element_cb,
-        fallback        => 'all',
     );
     my $root = $self->instance->config_root;
 
