@@ -870,7 +870,7 @@ file, according to the user's configuration model.
 
 The goal of the update method is to update configuration data from
 external data. For instance, update is called on
-C<Config::Model::Dpkg::Copyright> nodes to udpate copyright data from
+C<Config::Model::Dpkg::Copyright> nodes to update copyright data from
 sources files.
 
 =head2 grab
