@@ -12,4 +12,7 @@ on:
 
 jobs:
   build:
-    uses: PerlToolsTeam/github_workflows/.github/workflows/cpan-test.yml@main
+    uses: dod38fr/github_workflows/.github/workflows/cpan-dzil-test.yml@dzil
+    with:
+      os: '["ubuntu-latest"]'
+      listdeps_args: '--no-recommends --no-suggests'
