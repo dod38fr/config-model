@@ -4,14 +4,15 @@ use 5.20.0;
 
 use strict;
 use warnings ;
-use feature qw/postderef signatures/;
-no warnings qw/experimental::postderef experimental::signatures/;
 
 use Mouse;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 with "Config::Model::Role::NodeLoader";
 with "Config::Model::Role::Utils";
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 use File::Path;
 use Path::Tiny;
