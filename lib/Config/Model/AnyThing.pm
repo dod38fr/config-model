@@ -5,7 +5,6 @@ use Mouse;
 # FIXME: must cleanup warp mechanism to implement this
 # use MouseX::StrictConstructor;
 
-use Pod::POM;
 use Carp;
 use Log::Log4perl qw(get_logger :levels);
 use 5.10.1;
@@ -202,30 +201,6 @@ sub clear_annotation {
     $self->{annotation} = '';
 }
 
-# may be used (but not yet) to load annotation from perl data file
-sub load_pod_annotation {
-    my $self = shift;
-    my $pod  = shift;
-
-    my $parser = Pod::POM->new();
-    my $pom    = $parser->parse_text($pod)
-        || croak $parser->error();
-    my $sections = $pom->head1();
-
-    foreach my $s (@$sections) {
-        next unless $s->title eq 'Annotations';
-
-        foreach my $item ( $s->over->[0]->item ) {
-            my $path = $item->title . '';    # force string representation. Not understood why...
-            $path =~ s/^[\s\*]+//;
-            my $note = $item->text . '';
-            $note =~ s/\s+$//;
-            $logger->trace("load_pod_annotation: '$path' -> '$note'");
-            $self->grab( steps => $path )->annotation($note);
-        }
-    }
-}
-
 # fallback method for object that don't implement has_data
 sub has_data {
     my $self= shift;
@@ -403,21 +378,6 @@ an empty string).
 With several arguments, join the arguments with "\n", store the annotations
 and return the resulting string.
 
-=head2 load_pod_annotation
-
-Parameters: C<( pod_string )>
-
-Load annotations in configuration tree from a pod document. The pod must
-be in the form:
-
- =over
- 
- =item path
- 
- Annotation text
- 
- =back
- 
 =head2 clear_annotation
 
 Clear the annotation of an element

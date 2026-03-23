@@ -31,5 +31,4 @@ jobs:
         MouseX::StrictConstructor
         Parse::RecDescent
         Path::Tiny
-        Pod::POM
         Regexp::Common
