@@ -1135,17 +1135,15 @@ subtest "problems during initial load" => sub {
 
     my $s = $inst2->config_root->fetch_element('string');
     $s->store('foo');
+    is( $inst2->needs_save, 0, "no need to save after first initial value" );
+
     $s->store('foo');
+    is( $inst2->needs_save, 0, "no need to save after writing redundant data (idemtpotency)" );
 
-
-    is( $inst2->needs_save, 1, "verify instance needs_save status after redundant data" );
-
-    eq_or_diff([$inst2->list_changes],['string: removed redundant initial value'],"check change message for redundant data");
-    $inst2->clear_changes;
-    is( $inst2->needs_save, 0, "needs_save after clearing changes" );
-
+    # storing conflicting values during initial load is probably a bug
     $s->store('bar');
-    eq_or_diff([$inst2->list_changes],['string: \'foo\' -> \'bar\' # conflicting initial values'],"check change message for redundant data");
+    eq_or_diff([$inst2->list_changes],['string: \'foo\' -> \'bar\' # conflicting initial values'],
+               "check change message for redundant data");
     is( $inst2->needs_save, 1, "verify instance needs_save status after conflicting data" );
 
     $inst2->clear_changes;
