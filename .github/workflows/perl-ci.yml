@@ -16,3 +16,20 @@ jobs:
     with:
       os: '["ubuntu-latest"]'
       listdeps_args: '--no-recommends --no-suggests'
+      deplist: >-
+        Carp::Assert::More
+        File::HomeDir
+        Hash::Merge
+        List::MoreUtils
+        List::Util
+        Log::Log4perl
+        Mouse
+        Mouse::Role
+        Mouse::Util
+        Mouse::Util::TypeConstraints
+        MouseX::NativeTraits
+        MouseX::StrictConstructor
+        Parse::RecDescent
+        Path::Tiny
+        Pod::POM
+        Regexp::Common
