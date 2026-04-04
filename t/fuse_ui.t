@@ -1,4 +1,4 @@
-# -*- cperl -*-
+use v5.20;
 
 use ExtUtils::testlib;
 use List::MoreUtils qw/any/;
@@ -39,10 +39,10 @@ if ($@) {
     plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
 }
 else {
-    # the forked process prints an ok, hence done_testing cannot be used
-    plan tests => 17;
+    # the forked process prints an ok at the end, hence done_testing
+    # cannot be used
+    plan tests => 12;
 }
-
 
 # required to handle warnings in forked process
 #local $SIG{__WARN__} = sub { die $_[0] unless $_[0] =~ /deprecated/ };
@@ -87,7 +87,6 @@ ok( $ui, "Created ui (dir mockup is $dir_char_mockup)" );
 my $pid = fork;
 
 if ( defined $pid and $pid == 0 ) {
-
     # child process, just run fuse and wait for exit
     $ui->run_loop( debug => $args->{fuse_debug} );
     exit;
@@ -98,50 +97,66 @@ if ( defined $pid and $pid == 0 ) {
 
 # wait for fuse to do its job
 sleep 1;
+my @std_id_elements = sort $root->fetch_element('std_id')->fetch_all_indexes();
 
 # child process, continue tests
-my @content = sort map { $_->relative($fused); } $fused->children;
-is_deeply( \@content, [ sort $root->get_element_name() ], "check $fused content" );
+subtest "check fuse dir compared to root elements" => sub {
+    my @content = sort map { $_->relative($fused); } $fused->children;
+    is_deeply( \@content, [ sort $root->get_element_name() ], "check $fused content" );
+};
 
-my $std_id = $fused->child('std_id');
-@content = sort map { $_->relative($std_id); } $std_id->children;
-my @std_id_elements = sort $root->fetch_element('std_id')->fetch_all_indexes();
-for ( @std_id_elements ) { s(/){$dir_char_mockup}g; };
-is_deeply( \@content, \@std_id_elements, "check $std_id content (@content)" );
+subtest "check fuse dir compared to hash content" => sub {
+    my $std_id = $fused->child('std_id');
+    my @content = sort map { $_->relative($std_id); } $std_id->children;
+    for ( @std_id_elements ) { s(/){$dir_char_mockup}g; };
+    is_deeply( \@content, \@std_id_elements, "check $std_id content (@content)" );
+};
 
-is(
-    $fused->child('a_string')->slurp,
-    $root->grab_value('a_string') . "\n",
-    "check a_string content"
-);
-my $a_string_fhw = $fused->child('a_string')->openw;
-$a_string_fhw->print("foo bar");
-$a_string_fhw->close;
+subtest "check string read/write" => sub {
+    is($fused->child('a_string')->slurp, "toto tata\n", "check a_string content");
 
-is( $fused->child('a_string')->slurp, "foo bar\n", "check new a_string content" );
+    my $a_string_fhw = $fused->child('a_string')->openw;
+    $a_string_fhw->print("foo bar");
+    $a_string_fhw->close;
+    is( $fused->child('a_string')->slurp, "foo bar\n", "check new a_string content" );
+};
 
-$std_id->child('cd')->mkpath();
-ok( 1, "mkpath on cd dir done" );
-@content = sort map { $_->relative($std_id); } $std_id->children;
-is_deeply( \@content, [ @std_id_elements, 'cd' ], "check $std_id new content (@content)" );
+subtest "check hash key creation and deletion" => sub {
+    my $std_id = $fused->child('std_id');
 
-$std_id->child('cd')->remove_tree();
-ok( 1, "remove_tree on cd dir done" );
-@content = sort map { $_->relative($std_id); } $std_id->children;
-is_deeply( \@content, \@std_id_elements, "check $std_id content after rmdir (@content)" );
+my $a_string_fha = $fused->child('a_string')->opena; # append
+$a_string_fha->print("baz");
+$a_string_fha->close;
 
-is( $fused->child('a_boolean')->slurp, "0\n", "check new a_boolean content" );
-my $a_boolean_fhw = $fused->child('a_boolean')->openw;
-$a_boolean_fhw->print("1");
-$a_boolean_fhw->close;
-is( $fused->child('a_boolean')->slurp, "1\n", "check new a_boolean content (set to 1)" );
+is( $fused->child('a_string')->slurp, "foo bar\nbaz\n", "check new a_string content" );
 
-# cannot use Test::Log4perl because the warning comes from a forked process
-note("The test below shows a warning coming from a forked process, which is expected");
-$a_boolean_fhw = $fused->child('a_boolean')->openw;
-$a_boolean_fhw->print("a");
-$a_boolean_fhw->close;
-is( $fused->child('a_boolean')->slurp, "\n", "check new a_boolean content (blank after error)" );
+    $std_id->child('cd')->mkpath();
+    ok( 1, "mkpath on cd dir done" );
+    my @content = sort map { $_->relative($std_id); } $std_id->children;
+    is_deeply( \@content, [ @std_id_elements, 'cd' ], "check $std_id new content (@content)" );
+
+    $std_id->child('cd')->remove_tree();
+    ok( 1, "remove_tree on cd dir done" );
+    @content = sort map { $_->relative($std_id); } $std_id->children;
+    is_deeply( \@content, \@std_id_elements, "check $std_id content after rmdir (@content)" );
+};
+
+subtest "check boolean operation" => sub {
+    is( $fused->child('a_boolean')->slurp, "0\n", "check new a_boolean content" );
+    my $a_boolean_fhw = $fused->child('a_boolean')->openw;
+    $a_boolean_fhw->print("1");
+    $a_boolean_fhw->close;
+    is( $fused->child('a_boolean')->slurp, "1\n", "check new a_boolean content (set to 1)" );
+};
+
+subtest "check boolean operation error handling" => sub {
+    # cannot use Test::Log4perl because the warning comes from a forked process
+    note("The test below shows a warning coming from a forked process, which is expected");
+    my $a_boolean_fhw = $fused->child('a_boolean')->openw;
+    $a_boolean_fhw->print("a");
+    $a_boolean_fhw->close;
+    is( $fused->child('a_boolean')->slurp, "\n", "check a_boolean file (blank after error)" );
+};
 
 END {
     if ($pid) {
