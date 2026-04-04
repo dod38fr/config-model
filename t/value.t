@@ -564,7 +564,11 @@ subtest "boolean written with wrong value" => sub {
     my $bp = $root->fetch_element('boolean_plain');
 
     $bp->store(qw/value a check skip/);
-    is( $bp->fetch(qw/check no/), undef, "boolean_plain: get empty value after writing bad value" );
+    is( $bp->fetch(), undef, "boolean_plain: undef value is unchanged after writing bad value" );
+
+    $bp->store(qw/value 1/);
+    $bp->store(qw/value a check skip/);
+    is( $bp->fetch(), 1, "boolean_plain: true value is unchanged after writing bad value" );
 
     $bp->clear;
     is( $bp->fetch(), undef, "boolean_plain: get 'undef' after clear()" );
