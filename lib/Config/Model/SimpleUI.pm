@@ -133,10 +133,9 @@ my $cd_sub = sub {
 
 my %run_dispatch = (
     help => sub { return $syntax; },
-    set  => sub {
-        my $self = shift;
-        if (@_) {
-            $self->{current_node}->load(join('',@_));
+    set  => sub ($self, @args) {
+        if (@args) {
+            $self->{current_node}->load(join('',@args));
         }
         else {
             say "No command given.";
@@ -150,22 +149,21 @@ my %run_dispatch = (
         }
         return $self->{current_node}->grab_value(@args);
     },
-    info => sub {
-        my $self = shift;
+    info => sub ($self, @args) {
         my $cnode = $self->{current_node};
-        my $target = @_ ? $cnode->grab(steps => [@_]) : $cnode;
+        my $target = @args ? $cnode->grab(steps => [@args]) : $cnode;
         return join("\n", $target->get_info );
     },
-    ls => sub {
-        my $self = shift;
+    ls => sub ($self, @args) {
         my $target = $self->{current_node};
         my $pattern = '*';
-        for (@_) {
-            if (/\*/ and not /^["']/) {
-                $pattern = $_;
+        foreach my $item (@args) {
+            # added weird comment to avoid problem with cpan-mode syntax highlight
+            if ($item =~ /\*/ and not $item =~ /^["']/) { #") {
+                $pattern = $item;
                 last;
             }
-            $target = $target->grab(steps => $_);
+            $target = $target->grab(steps => $item);
         }
         $pattern =~ s/\*/.*/g;
 
@@ -173,18 +171,16 @@ my %run_dispatch = (
         my @res  = $target->can('children') ? grep {/^$pattern$/} $target->children : ();
         return join( ' ', @res );
     },
-    tree => sub {
-        my $self = shift;
+    tree => sub ($self, @args) {
         my $i    = $self->{current_node}->instance;
         my $cnode = $self->{current_node};
-        my $target = @_ ? $cnode->grab(steps => [@_]) : $cnode;
+        my $target = @args ? $cnode->grab(steps => [@args]) : $cnode;
         my @res  = $target->dump_tree( mode => 'user' );
         return join( ' ', @res );
     },
-    delete => sub {
-        my $self = shift;
-        if ($_[0]) {
-            my ( $elt_name, $key ) = split /\s*:\s*/, $_[0];
+    delete => sub ($self, $del = '') {
+        if ($del) {
+            my ( $elt_name, $key ) = split /\s*:\s*/, $del;
             my $elt = $self->{current_node}->fetch_element($elt_name);
             if ( length($key) ) {
                 $elt->delete($key);
@@ -198,8 +194,7 @@ my %run_dispatch = (
         }
         return '';
     },
-    clear => sub {
-        my ( $self, $elt_name ) = @_;
+    clear => sub ($self, $elt_name) {
         if ($elt_name) {
             $self->{current_node}->fetch_element($elt_name)->clear();
         }
@@ -209,8 +204,7 @@ my %run_dispatch = (
         }
         return '';
     },
-    check => sub {
-        my ( $self, $elt_name ) = @_;
+    check => sub ($self, $elt_name) {
         if ($elt_name) {
             $self->{current_node}->fetch_element($elt_name)->check();
         }
@@ -219,8 +213,7 @@ my %run_dispatch = (
         }
         return '';
     },
-    fix => sub {
-        my ( $self, $elt_name ) = @_;
+    fix => sub ($self, $elt_name) {
         if ($elt_name eq '!') {
             $self->{root}->instance->apply_fixes;
         }
@@ -232,13 +225,11 @@ my %run_dispatch = (
         }
         return '';
      },
-    save => sub {
-        my ($self) = @_;
+    save => sub ($self) {
         $self->{root}->instance->write_back();
         return "done";
     },
-    changes => sub {
-        my ( $self ) = @_;
+    changes => sub ($self) {
         return $self->{root}->instance->list_changes;
     },
     ll          => $ll_sub,
@@ -255,10 +246,7 @@ sub simple_ui_commands {
     return @cmds;
 }
 
-sub new {
-    my $type = shift;
-    my %args = @_;
-
+sub new ($type, %args) {
     my $self = {};
 
     foreach my $p (qw/root title prompt/) {
@@ -268,14 +256,14 @@ sub new {
 
     $self->{current_node} = $self->{root};
 
-    bless $self, $type;
+    return bless $self, $type;
 }
 
-sub run_loop {
-    my $self = shift;
+sub run_loop ($self) {
 
     my $user_cmd;
     print $self->prompt;
+    ## no critic (InputOutput::ProhibitExplicitStdin)
     while ( defined( $user_cmd = <STDIN> ) ) {
         chomp $user_cmd;
         last if $user_cmd eq 'exit' or $user_cmd eq 'quit';
@@ -290,24 +278,23 @@ sub run_loop {
         if ($instance->has_changes) {
             $instance->say_changes;
             print "write back data before exit ? (Y/n)";
+            ## no critic (InputOutput::ProhibitExplicitStdin)
             $user_cmd = <STDIN>;
             $instance->write_back unless $user_cmd =~ /n/i;
             print "\n";
         }
     }
-
+    return;
 }
 
-sub prompt {
-    my $self = shift;
+sub prompt ($self) {
     my $ret  = $self->{prompt} . ':';
     my $loc  = $self->{current_node}->location_short;
     $ret .= " $loc " if $loc;
     return $ret . '$ ';
 }
 
-sub run {
-    my ( $self, $user_cmd ) = @_;
+sub run ($self, $user_cmd) {
 
     return '' unless $user_cmd =~ /\w/;
 
@@ -328,8 +315,7 @@ sub run {
     }
 }
 
-sub list_cd_path {
-    my $self   = shift;
+sub list_cd_path ($self) {
     my $c_node = $self->{current_node};
 
     my @result;
