@@ -1927,9 +1927,8 @@ sub fetch_preset {
     return $self->map_write_as( $self->{preset} );
 }
 
-sub clear {
-    my $self = shift;
-    $self->store(undef);
+sub clear ($self, @args){
+    $self->store(value => undef, @args);
     return;
 }
 
@@ -2776,8 +2775,14 @@ Optional C<callback> is now deprecated.
 
 =head2 clear
 
-Clear the stored value. Further read returns the default value (or
-computed or migrated value).
+Clear the stored value. Further read returns the default value (which
+can be a computed or migrated value), or C<undef>.
+
+Parameters: C<< ( check => yes|no|skip , silent => 0|1 ) >>
+
+C<check> parameter can be used to skip validation check (default is
+'yes') for mandatory values.  C<silent> can be used to suppress
+warnings.
 
 =head2 load_data
 
