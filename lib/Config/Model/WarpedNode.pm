@@ -1,5 +1,6 @@
 package Config::Model::WarpedNode;
 
+use v5.20;
 use Mouse;
 
 use Carp qw(cluck croak);
@@ -98,10 +99,7 @@ sub get_actual_node ($self) {
     return $self->{data};    # might be undef
 }
 
-sub check {
-    my $self = shift;
-    my $check = shift || 'yes ';
-
+sub check ($self, $check = 'yes') {
     # must croak if element is not available
     if ( not defined $self->{data} ) {
 

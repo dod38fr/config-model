@@ -38,7 +38,8 @@ $model->create_config_class(
         fs_vfstype => {
             value_type => 'enum',
             type       => 'leaf',
-            choice     => [ 'auto', 'none', ]
+            choice     => [ 'auto', 'none' ],
+            default    => 'none',
         },
         fs_mntopts => {
             type   => 'warped_node',
