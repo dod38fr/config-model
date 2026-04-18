@@ -137,7 +137,7 @@ sub get_choice_from_referred_to {
 
     $logger->debug( "Setting choice to '", join( "','", @res ), "'" );
 
-    $config_elt->setup_reference_choice(@res);
+    return $config_elt->setup_reference_choice(@res);
 }
 
 sub reference_info {
