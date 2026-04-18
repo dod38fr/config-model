@@ -2765,7 +2765,7 @@ L<Config::Model::Dumper> or L<Config::Model::DumpAsData>)
 =head2 store
 
 Parameters: C<< ( $value ) >>
-or C<< value => ...,	check => yes|no|skip ), silent => 0|1 >>
+or C<< (value => ...,	check => yes|no|skip , silent => 0|1 ) >>
 
 Store value in leaf element. C<check> parameter can be used to
 skip validation check (default is 'yes').
