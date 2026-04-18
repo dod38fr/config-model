@@ -530,8 +530,8 @@ sub get_info {
 sub clear {
     my $self = shift;
     # also triggers notify changes
-    for ($self->get_choice) {
-        $self->clear_item($_)
+    for my $item ($self->get_choice) {
+        $self->clear_item($item);
     }
     return;
 }
