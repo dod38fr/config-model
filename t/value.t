@@ -501,6 +501,9 @@ subtest "mandatory string" => sub {
     $toto_str =~ s/text/string/;
     $ms->store($toto_str);
 
+    $ms->clear(check => 'no');
+    throws_ok { my $v = $ms->fetch; } 'Config::Model::Exception::User', "mandatory string: undef error after clear";
+
     print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
     $inst->clear_changes;
 };

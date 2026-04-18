@@ -1550,7 +1550,7 @@ sub check_stored_value ($self, %args) {
     my ( $value, $check, $silent ) =
         @args{qw/value check silent/};
 
-    $self->needs_check(0) unless $self->has_error or $self->has_warning;
+    $self->needs_check(0) unless $self->has_error or $self->has_warning or $check eq 'no';
 
     # must always warn when storing a value, hence clearing the list
     # of already issued warnings
