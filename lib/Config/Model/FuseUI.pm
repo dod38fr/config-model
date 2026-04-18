@@ -2,10 +2,14 @@ package Config::Model::FuseUI;
 
 # there's no Singleton with Mouse
 use Mouse;
+use v5.20;
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
-use Fuse qw(fuse_get_context);
+
+use Filesys::Fuse3 qw(fuse_get_context);
 use Fcntl ':mode';
-use POSIX qw(ENOENT EISDIR EINVAL);
+use POSIX qw(ENOENT EISDIR EINVAL O_TRUNC O_CREAT O_APPEND);
 use Log::Log4perl qw(get_logger :levels);
 use English qw( -no_match_vars );
 
@@ -29,16 +33,16 @@ sub BUILD {
 }
 
 # nodes, list and hashes are directories
-sub getdir {
+sub readdir {
     my $name = shift;
-    $logger->trace("FuseUI getdir called with $name");
+    $logger->trace("FuseUI readdir called with $name");
 
     my $obj = get_object($name);
     return -EINVAL() unless ( ref $obj and $obj->can('children') );
 
     my @c = ( '..', '.', $obj->children );
     for (@c) { s(/)($dir_char_mockup)g };
-    $logger->debug( "FuseUI getdir return @c , wantarray is " . ( wantarray ? 1 : 0 ) );
+    $logger->debug( "FuseUI readdir return @c , wantarray is " . ( wantarray ? 1 : 0 ) );
     return ( @c, 0 );
 }
 
@@ -120,21 +124,28 @@ sub getattr {
         $dev,  $ino,   $mode,  $nlink, $uid,     $gid, $rdev,
         $size, $atime, $mtime, $ctime, $blksize, $blocks
     );
+
     $logger->trace( "FuseUI getattr returns '" . join( "','", @r ) . "'" );
 
     return @r;
 }
 
-sub open {
-
-    # VFS sanity check; it keeps all the necessary state, not much to do here.
-    my $name = shift;
+sub open ($name, $flags, $info) {
     $logger->trace("FuseUI open called on $name");
     my $obj = $fuseui->root->get( path => $name, check => 'skip', get_obj => 1 );
-    my $type = $obj->get_type;
-
     return -ENOENT() unless defined $obj;
+
+    my $type = $obj->get_type;
     return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
+
+    if ($flags & O_TRUNC) {
+        # must be able to clear a mandatory value
+        $obj->clear(check => 'no');
+
+        $logger->debug("FuseUI open with truncate on $name ok");
+        return 0;
+    }
+
     $logger->debug("FuseUI open on $name ok");
     return 0;
 }
@@ -198,6 +209,7 @@ sub write {
     my $v = fetch_as_line($obj);
     $logger->debug("FuseUI write starts with '$v'");
 
+    # replace or insert buffer
     substr $v, $off, length($buf), $buf;
     chomp $v unless ( $type eq 'leaf' and $obj->value_type eq 'string' );
     $logger->debug("FuseUI write stores '$v'");
@@ -278,7 +290,7 @@ sub unlink {
 sub statfs { return 255, 1, 1, 1, 1, 2 }
 
 my @methods = map { ( $_ => __PACKAGE__ . "::$_" ) }
-    qw/getattr getdir open read write statfs truncate unlink mkdir rmdir/;
+    qw/getattr readdir open read write statfs truncate unlink mkdir rmdir/;
 
 # FIXME: flush release
 # maybe also: readlink mknod symlink rename link chmod chown utime
@@ -287,7 +299,7 @@ sub run_loop {
     my ( $self, %args ) = @_;
     my $debug = $args{debug} || 0;
 
-    Fuse::main(
+    Filesys::Fuse3::main(
         mountpoint => $self->mountpoint,
         @methods,
         debug => $debug || 0,

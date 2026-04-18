@@ -36,7 +36,7 @@ if ( $umount_v + 0 < 2.18 ) {
 
 eval { require Config::Model::FuseUI; };
 if ($@) {
-    plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
+    plan skip_all => "Config::Model::FuseUI or Filesys::Fuse3 is not installed";
 }
 else {
     # the forked process prints an ok at the end, hence done_testing
@@ -62,7 +62,7 @@ $model->load( Master => 'Config/Model/models/Master.pl' );
 $model->augment_config_class(
     name    => 'Master',
     element => [
-        'a_boolean' => { type => 'leaf', value_type => 'boolean', default => 0 },
+        'a_boolean' => { type => 'leaf', value_type => 'boolean' },
     ],
 );
 
@@ -142,7 +142,7 @@ is( $fused->child('a_string')->slurp, "foo bar\nbaz\n", "check new a_string cont
 };
 
 subtest "check boolean operation" => sub {
-    is( $fused->child('a_boolean')->slurp, "0\n", "check new a_boolean content" );
+    is( $fused->child('a_boolean')->slurp, "\n", "check new a_boolean content, undef -> empty file" );
     my $a_boolean_fhw = $fused->child('a_boolean')->openw;
     $a_boolean_fhw->print("1");
     $a_boolean_fhw->close;
@@ -155,7 +155,7 @@ subtest "check boolean operation error handling" => sub {
     my $a_boolean_fhw = $fused->child('a_boolean')->openw;
     $a_boolean_fhw->print("a");
     $a_boolean_fhw->close;
-    is( $fused->child('a_boolean')->slurp, "\n", "check a_boolean file (blank after error)" );
+    is( $fused->child('a_boolean')->slurp, "\n", "check a_boolean file (cleared by openw)" );
 };
 
 END {
