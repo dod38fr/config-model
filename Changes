@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+2.161 2026-04-18
+
+  Bug fix:
+    * WarpedNode: really check by default
+    * Value: resets needs_check when store(check => 'no') is used
+    * Value: don't notify when loading redundant values.
+
+  Features:
+    * FuseUI: replace Fuse with Filesys::Fuse3
+    * Value: add check and silent parameters to clear()
+    * remove support for annotation as pod
+
+  Misc:
+    * Build.PL: cleanup and use v5.20
+    * add missing entry in Changes
+
 2.160 2026-03-21
 
   Bug fix:
