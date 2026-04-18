@@ -62,7 +62,7 @@ subtest "load and check for duplicate values" => sub {
             ignore_priority => "info",
             ['User', warn =>  qr/Duplicated value/]
         );
-    # so # TODO: hat list_with_warn_duplicates comes with '/!\'
+        # so that list_with_warn_duplicates comes with '/!\'
         $root->deep_check;
     }
 };
