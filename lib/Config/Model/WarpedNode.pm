@@ -16,6 +16,9 @@ extends qw/Config::Model::AnyThing/;
 with "Config::Model::Role::NodeLoader";
 with "Config::Model::Role::Grab";
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my $logger = get_logger("Tree::Node::Warped");
 
 # don't authorize to warp 'morph' parameter as it may lead to
@@ -35,17 +38,12 @@ has warper => ( is => 'rw', isa => 'Config::Model::Warper' );
 
 my @backup_list = @allowed_warp_params;
 
-around BUILDARGS => sub {
-    my $orig  = shift;
-    my $class = shift;
-    my %args  = @_;
+around BUILDARGS => sub ($orig, $class, %args) {
     my %h     = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @backup_list;
-    return $class->$orig( backup => dclone( \%h ), @_ );
+    return $class->$orig( backup => dclone( \%h ), %args );
 };
 
-sub BUILD {
-    my $self = shift;
-
+sub BUILD ($self, $) {
     # WarpedNode registers this object in a Value object (the
     # warper).  When the warper gets a new value, it modifies the
     # WarpedNode according to the data passed by the user.
@@ -63,8 +61,7 @@ sub BUILD {
     return $self;
 }
 
-sub config_model {
-    my $self = shift;
+sub config_model ($self) {
     return $self->parent->config_model;
 }
 
@@ -78,11 +75,9 @@ foreach my $method (
     # to register new methods in package
     no strict "refs"; ## no critic TestingAndDebugging::ProhibitNoStrict
 
-    *$method = sub {
-        my $self = shift;
-
+    *$method = sub ($self,@args) {
         if ($self->check) {
-            return $self->{data}->$method(@_);
+            return $self->{data}->$method(@args);
         }
 
         # return undef if no class was warped in
@@ -90,18 +85,15 @@ foreach my $method (
     };
 }
 
-sub name {
-    my $self = shift;
+sub name ($self) {
     return $self->location;
 }
 
-sub is_accessible {
-    my $self = shift;
+sub is_accessible ($self) {
     return defined $self->{data} ? 1 : 0;
 }
 
-sub get_actual_node {
-    my $self = shift;
+sub get_actual_node ($self) {
     $self->check;
     return $self->{data};    # might be undef
 }
@@ -129,13 +121,13 @@ sub check {
     return 1;
 }
 
-sub set_properties {
-    my $self = shift;
-
-    my %args = ( %{ $self->backup }, @_ );
+sub set_properties ($self, @args) {
+    my %args = ( %{ $self->backup }, @args );
 
     # mega cleanup
-    for (@allowed_warp_params) { delete $self->{$_} }
+    foreach my $awp (@allowed_warp_params) {
+        delete $self->{$awp}
+    }
 
     $logger->trace( $self->name . " set_properties called with ",
         Data::Dumper->Dump( [ \%args ], ['set_properties_args'] ) );
@@ -163,8 +155,8 @@ sub set_properties {
         return;
     }
 
-    my @args;
-    ( $config_class_name, @args ) = @$config_class_name
+    my @class_args;
+    ( $config_class_name, @class_args ) = @$config_class_name
         if ref $config_class_name;
 
     # check if some action is needed (ie. create or morph node)
@@ -176,7 +168,7 @@ sub set_properties {
     my $old_config_class_name = $self->{config_class_name};
 
     # create a new object from scratch
-    my $new_object = $self->create_node( $config_class_name, @args );
+    my $new_object = $self->create_node( $config_class_name, @class_args );
 
     $self->{config_class_name} = $config_class_name;
     $self->{data}              = $new_object;
@@ -203,12 +195,11 @@ sub set_properties {
 
     # need to call trigger on all registered objects only after all is setup
     $self->trigger_warp;
+
+    return;
 }
 
-sub create_node {
-    my $self              = shift;
-    my $config_class_name = shift;
-
+sub create_node ($self, $config_class_name) {
     my @args = (
         config_class_name => $config_class_name,
         instance          => $self->{instance},
@@ -222,14 +213,13 @@ sub create_node {
     return $self->load_node(@args);
 }
 
-sub clear {
-    my $self = shift;
+sub clear ($self) {
     delete $self->{data};
+    return;
 }
 
-sub load_data {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( data => shift );
+sub load_data ($self, @args) {
+    my %args = @args > 1 ? @args : ( data => $args[0] );
     my $data  = $args{data};
     my $check = $self->_check_check( $args{check} );
 
@@ -241,19 +231,16 @@ sub load_data {
         );
     }
 
-    $self->get_actual_node->load_data(%args);
-
+    return $self->get_actual_node->load_data(%args);
 }
 
-sub is_auto_write_for_type {
-    my $self = shift;
-    $self->get_actual_node->is_auto_write_for_type(@_);
+sub is_auto_write_for_type ($self, @args) {
+    $self->get_actual_node->is_auto_write_for_type(@args);
+    return;
 }
 
 # register warper that goes through this path when looking for warp master value
-sub register {
-    my ( $self, $warped, $w_idx ) = @_;
-
+sub register ($self, $warped, $w_idx) {
     $logger->debug( "WarpedNode: " . $self->name, " registered " . $warped->name );
 
     # weaken only applies to the passed reference, and there's no way
@@ -262,11 +249,10 @@ sub register {
     my @tmp = ( $warped, $w_idx );
     weaken( $tmp[0] );
     push @{ $self->{warp_these_objects} }, \@tmp;
+    return;
 }
 
-sub trigger_warp {
-    my $self = shift;
-
+sub trigger_warp ($self) {
     # warp_these_objects is modified by the calls below, so this copy
     # must be done before the loop
     my @list = @{ $self->{warp_these_objects} || [] };
@@ -287,6 +273,7 @@ sub trigger_warp {
         $logger->debug( "node trigger_warp: from '",
             $self->name, "' warping '", $warped->name, "' done" );
     }
+    return;
 }
 
 # FIXME: should we un-register ???
