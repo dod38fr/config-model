@@ -84,6 +84,25 @@ $model->create_config_class(
                 ]
             }
         },
+        # test a rule with embedded call (&get_type)
+        'hash_of_warped_nodes' => {
+            type => 'hash',
+            ordered => 1,
+            index_type => 'string',
+            cargo => {
+                type => 'warped_node',
+                warp => {
+                    rules => [
+                        '&get_type =~ /hash|list/' => {
+                            config_class_name => 'Fstab::CommonOptions'
+                        },
+                        '&get_type !~ /hash|list/' => {
+                            config_class_name => 'Fstab::NoneOptions' ,
+                        }
+                    ]
+                }
+            },
+        }
     ]
 );
 
@@ -137,6 +156,11 @@ $root->load('fs_passno=0 fs_mntopts bind=1');
 is( $pass->fetch, '0', "check pass nb at 2 after setting bind" );
 
 ok( $root->load('type=hash cargo atime=1'), "check warping in of a node" );
+
+subtest "get function call in rule" => sub {
+    my $hown = $root->grab('hash_of_warped_nodes:foo');
+    ok ($hown, "got node from hash_of_warped_nodes");
+}; 
 
 memory_cycle_ok($model, "memory cycle");
 

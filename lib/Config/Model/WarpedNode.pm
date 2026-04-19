@@ -37,6 +37,17 @@ has 'morph' => ( is => 'ro', isa => 'Bool', default => 0 );
 
 has warper => ( is => 'rw', isa => 'Config::Model::Warper' );
 
+has is_building => (
+    is => 'ro',
+    isa     => 'Bool',
+    traits  => ['Bool'],
+    default => 0,
+    handles => {
+        building  => 'set',
+        build_done => 'unset',
+    },
+);
+
 my @backup_list = @allowed_warp_params;
 
 around BUILDARGS => sub ($orig, $class, %args) {
@@ -49,6 +60,7 @@ sub BUILD ($self, $) {
     # warper).  When the warper gets a new value, it modifies the
     # WarpedNode according to the data passed by the user.
 
+    $self->building;
     my $warp_info = $self->warp;
     $warp_info->{follow} //= {};
     $warp_info->{rules}  //= [];
@@ -59,6 +71,7 @@ sub BUILD ($self, $) {
     );
 
     $self->warper($w);
+    $self->build_done;
     return $self;
 }
 
@@ -105,7 +118,7 @@ sub check ($self, $check = 'yes') {
 
         # a node can be retrieved either for a store operation or for
         # a fetch.
-        if ( $check eq 'yes' ) {
+        if ( $check eq 'yes' and not $self->building) {
             Config::Model::Exception::User->throw(
                 object  => $self,
                 message => "Object '$self->{element_name}' is not accessible.\n\t"
