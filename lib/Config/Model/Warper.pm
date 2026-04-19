@@ -9,6 +9,9 @@ use Config::Model::Exception;
 use List::MoreUtils qw/any/;
 use Carp;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 has 'follow' => ( is => 'ro', isa => 'HashRef[Str]', required => 1 );
 has 'rules'  => ( is => 'ro', isa => 'ArrayRef',     required => 1 );
 
@@ -53,21 +56,18 @@ has morph   => ( is => 'ro', isa => 'Bool' );
 my $logger = get_logger("Warper");
 
 # create the object, check args, but don't do anything else
-sub BUILD {
-    my $self = shift;
-
+sub BUILD ($self,$) {
     $logger->trace( "Warper new: created for " . $self->name );
     $self->check_warp_args;
 
     $self->register_to_all_warp_masters;
     $self->refresh_values_from_master;
     $self->do_warp;
+    return;
 }
 
 # should be called only at startup
-sub register_to_all_warp_masters {
-    my $self = shift;
-
+sub register_to_all_warp_masters ($self) {
     my $follow = $self->follow;
 
     # now, follow is only { w1 => 'warp1', w2 => 'warp2'}
@@ -75,12 +75,10 @@ sub register_to_all_warp_masters {
         $self->register_to_one_warp_master($warper_name);
     }
 
+    return;
 }
 
-sub register_to_one_warp_master {
-    my $self = shift;
-    my $warper_name = shift || die "register_to_one_warp_master: missing warper_name";
-
+sub register_to_one_warp_master ($self, $warper_name) {
     my $follow      = $self->follow;
     my $warper_path = $follow->{$warper_name};
     $logger->debug( "Warper register_to_one_warp_master: '", $self->name, "' follows '$warper_name'" );
@@ -168,17 +166,15 @@ sub register_to_one_warp_master {
     if ( $type eq 'computed' ) {
         $self->_computed_masters->{$warper_name} = $warper;
     }
+
+    return;
 }
 
-sub refresh_affected_registrations {
-    my ( $self, $warped_node_location ) = @_;
-
+sub refresh_affected_registrations ($self, $warped_node_location) {
     my $wnref = $self->_warped_nodes;
 
     $logger->debug( "Warper refresh_affected_registrations: called on",
         $self->name, " from $warped_node_location'" );
-
-    #return unless defined $wnref ;
 
     # remove and unregister obj affected by this warped node
     my $ref = delete $wnref->{$warped_node_location};
@@ -192,15 +188,12 @@ sub refresh_affected_registrations {
 
     $self->register_to_all_warp_masters;
 
-    #map {  $self->register_to_one_warp_master($_) } keys %$ref;
+    return;
 }
 
 # should be called only at startup
-sub refresh_values_from_master {
-    my $self = shift;
-
+sub refresh_values_from_master ($self) {
     # should get new value from warp master
-
     my $follow = $self->follow;
 
     # now, follow is only { w1 => 'warp1', w2 => 'warp2'}
@@ -248,22 +241,17 @@ sub refresh_values_from_master {
         }
     }
 
+    return;
 }
 
-sub name {
-    my $self = shift;
+sub name ($self) {
     return "Warper of " . $self->warped_object->name;
 }
 
 # And I'm going to warp them ...
-sub warp_them {
-    my $self = shift;
-
+sub warp_them ($self, @args) {
     # retrieve current value if not provided
-    my $value =
-          @_
-        ? $_[0]
-        : $self->fetch_no_check;
+    my $value = @args ? $args[0] : $self->fetch_no_check;
 
     foreach my $ref ( @{ $self->{warp_these_objects} } ) {
         my ( $warped, $warp_index ) = @$ref;
@@ -278,11 +266,10 @@ sub warp_them {
         );
         $warped->warp( $value, $warp_index );
     }
+    return;
 }
 
-sub check_warp_args {
-    my $self = shift;
-
+sub check_warp_args ($self) {
     # check that rules element are array ref and store them for
     # error checking
     my $rules_ref = $self->rules;
@@ -317,18 +304,17 @@ sub check_warp_args {
             ) unless any {$pkey eq $_}  @$allowed ;
         }
     }
+    return;
 }
 
-sub _dclone_key {
-    return map { ref $_ ? [@$_] : $_ } @_;
+sub _dclone_key (@args) {
+    return map { ref $_ ? [$_->@*] : $_ } @args;
 }
 
 # Internal. This method will change element properties (like level) according to the warp effect.
 # For instance, if a warp rule make a node no longer available in a model, its level must change to
 # 'hidden'
-sub set_parent_element_property {
-    my ( $self, $arg_ref ) = @_;
-
+sub set_parent_element_property ($self, $arg_ref) {
     my $warped_object = $self->warped_object;
 
     my @properties = qw/level/;
@@ -361,16 +347,15 @@ sub set_parent_element_property {
             );
         }
     }
+    return;
 }
 
 # try to actually warp (change properties) of a warped object.
-sub trigger {
-    my $self = shift;
-
+sub trigger ($self, @args) {
     my %old_value_set = %{ $self->_values };
 
-    if (@_) {
-        my ( $value, $warp_name ) = @_;
+    if (@args) {
+        my ( $value, $warp_name ) = @args;
         $logger->debug(
             "Warper: trigger called on ",
             $self->name,
@@ -398,6 +383,7 @@ sub trigger {
     }
 
     if ($same) {
+        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings "uninitialized";
         if ( $logger->is_debug ) {
             $logger->debug(
@@ -410,14 +396,12 @@ sub trigger {
     }
 
     $self->do_warp;
+    return;
 }
 
 # undef values are changed to '' so compute_bool no longer returns
 # undef. It returns either 1 or 0
-sub compute_bool {
-    my $self = shift;
-    my $expr = shift;
-
+sub compute_bool ($self, $expr) {
     $logger->trace("Warper compute_bool: called for '$expr'");
 
     #    my $warp_value_set = $self->_values   ;
@@ -426,7 +410,7 @@ sub compute_bool {
 
     # checklist: $stuff.is_set(&index)
     # get_value of a checklist gives { 'val1' => 1, 'val2' => 0,...}
-    $expr =~ s/(\$\w+)\.is_set\(([&$"'\w]+)\)/$1.'->{'.$2.'}'/eg;
+    $expr =~ s/(\$\w+)\.is_set\(([&$"'\w]+)\)/$1.'->{'.$2.'}'/eg; #'
 
     $expr =~ s/&(\w+)/\$warped_obj->$1/g;
 
@@ -443,6 +427,7 @@ sub compute_bool {
     my $ret;
     {
         my $warped_obj = $self->warped_object ;
+        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings "uninitialized";
         $ret = eval($perl_code); ## no critic (ProhibitStringyEval)
     }
@@ -458,9 +443,7 @@ sub compute_bool {
     return $ret;
 }
 
-sub do_warp {
-    my $self = shift;
-
+sub do_warp ($self) {
     my $warp_value_set = $self->_values;
     my $rules          = dclone( $self->rules );
     my %rule_hash      = @$rules;
@@ -520,6 +503,7 @@ sub do_warp {
                 . $msg
         );
     }
+    return;
 }
 
 # Usually a warp error occurs when the item is not actually available
@@ -529,9 +513,7 @@ sub do_warp {
 # But sometime, the user wants to remove and item. In this case it
 # must be warped out by setting a warp master value that has not rule
 # attached. This case is indicated when $want_remove is set to 1
-sub warp_error {
-    my ($self) = @_;
-
+sub warp_error ($self) {
     return '' unless defined $self->{warp};
     my $follow = $self->{warp}{follow};
     my @rules  = @{ $self->{warp}{rules} };
