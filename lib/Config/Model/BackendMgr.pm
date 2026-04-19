@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Carp;
-use 5.10.1;
+use v5.20;
 
 use Config::Model::Exception;
 use Data::Dumper;
@@ -13,6 +13,9 @@ use Storable qw/dclone/;
 use Scalar::Util qw/weaken reftype/;
 use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny 0.070;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 my $logger = get_logger('BackendMgr');
 my $user_logger = get_logger('User');
@@ -69,10 +72,7 @@ with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::FileHandler";
 
 # check if dir is present. May create it in auto_create write mode
-sub get_cfg_dir_path {
-    my $self = shift;
-    my %args = @_;
-
+sub get_cfg_dir_path ($self, %args) {
     my $w = $args{write} || 0;
     my $dir = $self->get_tuned_config_dir(%args);
 
@@ -94,10 +94,7 @@ sub get_cfg_dir_path {
 
 # return (1, config file path) constructed from arguments or return
 # (0). May create directory in auto_create write mode.
-sub get_cfg_file_path {
-    my $self = shift;
-    my %args = @_;
-
+sub get_cfg_file_path ($self, %args) {
     my $w = $args{write} || 0;
 
     # config file override
@@ -126,9 +123,7 @@ sub get_cfg_file_path {
     return 0;
 }
 
-sub open_read_file {
-    my ($self, $file_path) = @_;
-
+sub open_read_file ($self, $file_path) {
     if ( $file_path->is_file ) {
         $logger->debug("open_read_file: open $file_path for read");
         # store a backup in memory in case there's a problem
@@ -141,14 +136,7 @@ sub open_read_file {
 }
 
 # called at configuration node creation
-#
-# New subroutine "load_backend_class" extracted - Thu Aug 12 18:32:37 2010.
-#
-sub load_backend_class {
-    my $self = shift;
-    my $backend  = shift;
-    my $function = shift;
-
+sub load_backend_class ($self, $backend, $function) {
     $logger->trace("load_backend_class: called with backend $backend, function $function");
     my %c;
 
@@ -198,9 +186,7 @@ sub load_backend_class {
     return $class_to_load;
 }
 
-sub read_config_data {
-    my ( $self, %args ) = @_;
-
+sub read_config_data ($self, %args) {
     $logger->trace( "called for node ", $self->node->location );
 
     my $check                = delete $args{check};
@@ -232,10 +218,10 @@ sub read_config_data {
         object => $self->node,
     ) unless $res or $auto_create_override or $auto_create;
 
+    return;
 }
 
-sub read_config_sub_layer {
-    my ( $self, $rw_config, $root_dir, $config_file_override, $check, $backend ) = @_;
+sub read_config_sub_layer ($self, $rw_config, $root_dir, $config_file_override, $check, $backend) {
 
     my $layered_config = delete $rw_config->{default_layer};
     my $layered_read   = dclone $rw_config ;
@@ -265,20 +251,11 @@ sub read_config_sub_layer {
     if ( not $already_in_layered ) {
         $i->layered_stop;
     }
+    return;
 }
 
 # called at configuration node creation, NOT when writing
-#
-# New subroutine "try_read_backend" extracted - Sun Jul 14 11:52:58 2013.
-#
-sub try_read_backend {
-    my $self                 = shift;
-    my $rw_config            = shift;
-    my $root_dir             = shift;
-    my $config_file_override = shift;
-    my $check                = shift;
-    my $backend              = shift;
-
+sub try_read_backend ($self, $rw_config, $root_dir, $config_file_override, $check, $backend) {
     my $read_dir = $self->get_tuned_config_dir(%$rw_config);
 
     my @read_args = (
@@ -347,12 +324,7 @@ sub try_read_backend {
     return ( $res, $file_path );
 }
 
-sub auto_write_init {
-    my ( $self, %args ) = @_;
-
-    croak "auto_write_init: unexpected args " . join( ' ', sort keys %args ) . "\n"
-        if %args;
-
+sub auto_write_init ($self) {
     my $rw_config = dclone $self->rw_config ;
 
     my $instance = $self->node->instance();
@@ -383,9 +355,7 @@ sub auto_write_init {
     my $node = $self->node;     # closure
 
     # provide a proper write back function
-    $wb = sub {
-        my %cb_args = @_;
-
+    $wb = sub (%cb_args) {
         my $force_delete = delete $cb_args{force_delete} ;
         $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
         my $backend_obj = $self->backend_obj();
@@ -429,10 +399,10 @@ sub auto_write_init {
     $logger->trace( "registering write $backend in node " . $self->node->name );
 
     $instance->register_write_back(  $self->node->location, $backend, $wb  );
+    return;
 }
 
-sub auto_delete {
-    my ($self, $file_path, $args) = @_;
+sub auto_delete ($self, $file_path, $args) {
 
     return unless $file_path;
 
@@ -447,12 +417,11 @@ sub auto_delete {
         $logger->info( "Removing $file_path (no data to store)" );
         unlink($file_path);
     }
+    return;
 }
 
 
-sub open_file_to_write {
-    my ( $self, $backend, $file_path, $backup ) = @_;
-
+sub open_file_to_write ($self, $backend, $file_path, $backup) {
     my $do_backup = defined $backup;
     $backup ||= 'old';    # use old only if defined
     $backup = '.' . $backup unless $backup =~ /^\./;
@@ -468,8 +437,7 @@ sub open_file_to_write {
     return $file_path->filehandle(">",":utf8");
 }
 
-sub close_file_to_write {
-    my ( $self, $error, $file_path, $file_mode ) = @_;
+sub close_file_to_write ($self, $error, $file_path, $file_mode) {
 
     return unless defined $file_path;
 
@@ -487,11 +455,11 @@ sub close_file_to_write {
     # TODO: move in a backend role
     # check file size and remove empty files
     $file_path->remove if -z $file_path and not -l $file_path;
+
+    return;
 }
 
-sub is_auto_write_for_type {
-    my $self = shift;
-    my $type = shift;
+sub is_auto_write_for_type ($self, $type) {
     return $self->{auto_write}{$type} || 0;
 }
 
