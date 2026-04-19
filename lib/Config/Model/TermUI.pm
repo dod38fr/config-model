@@ -2,7 +2,7 @@ package Config::Model::TermUI;
 
 use Carp;
 use utf8;      # so literals and identifiers can be in UTF-8
-use v5.12;     # or later to get "unicode_strings" feature
+use v5.20;     # to get "unicode_strings" feature
 use strict;
 use warnings;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
@@ -12,34 +12,29 @@ use Term::ReadLine;
 
 use base qw/Config::Model::SimpleUI/;
 
-my $completion_sub = sub {
-    my ( $self, $text, $line, $start ) = @_;
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
+my $completion_sub = sub ($self, $text, $line, $start) {
     my @choice = $self->{current_node}->get_element_name;
     my @ret = grep { /^$text/ } @choice ;
     return @ret;
 };
 
-my $leaf_completion_sub = sub {
-    my ( $self, $text, $line, $start ) = @_;
-
+my $leaf_completion_sub = sub ($self, $text, $line, $start) {
     my @choice = $self->{current_node}->get_element_name( cargo_type => 'leaf' );
     my @ret = grep { /^$text/ } @choice ;
     return @ret;
 };
 
-my $fix_completion_sub = sub {
-    my ( $self, $text, $line, $start ) = @_;
-
+my $fix_completion_sub = sub ($self, $text, $line, $start) {
     my @choice = $self->{current_node}->get_element_name;
     push @choice, '!';
     my @ret = grep { /^$text/ } @choice ;
     return @ret;
 };
 
-my $ll_completion_sub = sub {
-    my ( $self, $text, $line, $start ) = @_;
-
+my $ll_completion_sub = sub ($self, $text, $line, $start) {
     my @choice = $self->{current_node}->get_element_name;
     push @choice, '-nz';
     my @ret = grep { /^$text/ } @choice ;
@@ -49,16 +44,14 @@ my $ll_completion_sub = sub {
 # BUG: autocompletion does not really work on a hash element with an index
 # containing white space (i.e. something like std_id:"abc def",
 
-my $cd_completion_sub = sub {
-    my ( $self, $text, $line, $start ) = @_;
-
+my $cd_completion_sub = sub ($self, $text, $line, $start) {
     # we know that text begins with 'cd '
     my $cmd = $line;
     $cmd =~ s/cd\s+//;
 
     # convert usual cd_ism ( '..' '/foo') to grab syntax ( '-' '! foo')
     #$text =~ s(^/)  (! );
-    $cmd =~ s(^\.\.$)(-)g;
+    $cmd =~ s/^\.\.$/-/g;
     #$text =~ s(/)   ( )g;
 
     my $new_item;
@@ -67,7 +60,9 @@ my $cd_completion_sub = sub {
         # grab in tolerant mode
         #print "Grabbing $cmd\n";
         eval {
-            $new_item = $self->{current_node}->grab( step => $cmd, type => 'node', mode => 'strict', autoadd => 0 );
+            $new_item = $self->{current_node}->grab(
+                step => $cmd, type => 'node', mode => 'strict', autoadd => 0
+            );
         };
         chop $cmd;
     }
@@ -98,9 +93,8 @@ my $cd_completion_sub = sub {
     return @ret;
 };
 
-my $path_completion_sub = sub {
-    my ( $self, $text, $line, $start, $node_only ) = @_;
-
+# TODO: node_only is always false, check if it may be useful
+my $path_completion_sub = sub ($self, $text, $line, $start, $node_only = 0) {
     # we know that text begins with a command
     my $cmd = $line;
     $cmd =~ s/^\w+\s+//;
@@ -110,7 +104,9 @@ my $path_completion_sub = sub {
         # grab in tolerant mode
         # print "Grabbing $cmd\n";
         eval {
-            $new_item = $self->{current_node}->grab( step => $cmd, type => 'node', mode => 'strict', autoadd => 0 );
+            $new_item = $self->{current_node}->grab(
+                step => $cmd, type => 'node', mode => 'strict', autoadd => 0
+            );
         };
         chop $cmd;
     }
@@ -144,8 +140,8 @@ my $path_completion_sub = sub {
 };
 
 # like path completion, but allow only completion on a node
-my $node_completion_sub = sub {
-    return $path_completion_sub->(@_, 1);
+my $node_completion_sub = sub (@args) {
+    return $path_completion_sub->(@args, 1);
 };
 
 my %completion_dispatch = (
@@ -164,9 +160,7 @@ my %completion_dispatch = (
     reset   => $completion_sub,
 );
 
-sub completion {
-    my ( $self, $text, $line, $start ) = @_;
-
+sub completion ($self, $text, $line, $start) {
     my $space_idx = index $line, ' ';
     my ( $main, $cmd ) = split m/\s+/, $line, 2;    # /;
             #warn " comp main cmd is '$main' (space_idx $space_idx)\n";
@@ -186,10 +180,7 @@ sub completion {
     return ();
 }
 
-sub new {
-    my $type = shift;
-    my %args = @_;
-
+sub new ($type, %args) {
     my $self = {};
 
     foreach my $p (qw/root title prompt/) {
@@ -201,7 +192,7 @@ sub new {
 
     my $term = Term::ReadLine->new( $self->{title} );
 
-    my $sub_ref = sub { $self->completion(@_); };
+    my $sub_ref = sub (@args) { $self->completion(@args); };
 
     my $word_break_string = "\\\t\n' `\@\$><;|&{(";
 
@@ -215,6 +206,7 @@ sub new {
         $term->enableUTF8 if $term->can('enableUTF8');
     }
     elsif ( $term->ReadLine eq "Term::ReadLine::Perl" ) {
+        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings "once";
         warn "utf-8 support has not beed tested with Term::ReadLine::Perl. ",
             "You should install Term::ReadLine::Gnu.\n";
@@ -233,12 +225,10 @@ sub new {
         $self->{$p} = delete $args{$p} if defined $args{$p};
     }
 
-    bless $self, $type;
+    return bless $self, $type;
 }
 
-sub run_loop {
-    my $self = shift;
-
+sub run_loop ($self) {
     my $term = $self->{term};
 
     my $OUT = $term->OUT || \*STDOUT;
@@ -262,6 +252,7 @@ sub run_loop {
             print "\n";
         }
     }
+    return;
 }
 
 1;
