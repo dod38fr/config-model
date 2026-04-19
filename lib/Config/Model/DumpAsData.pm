@@ -8,21 +8,21 @@ use 5.10.1;
 use Config::Model::Exception;
 use Config::Model::ObjTreeScanner;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 sub new {
-    bless {}, shift;
+    return bless {}, shift;
 }
 
-sub dump_as_data {
-    my $self = shift;
-
-    my %args      = @_;
+sub dump_as_data ($self, %args) {
     my $dump_node = delete $args{node}
         || croak "dump_as_data: missing 'node' parameter";
     my $mode = delete $args{mode} // '';
     my $skip_aw = delete $args{skip_auto_write} || '';
     my $auto_v  = delete $args{auto_vivify}     || 0;
     my $ordered_hash_as_list = delete $args{ordered_hash_as_list};
-    my $to_boolean = delete $args{to_boolean} // sub {return $_[0] };
+    my $to_boolean = delete $args{to_boolean} // sub ($input) {return $input;};
     $ordered_hash_as_list = 1 unless defined $ordered_hash_as_list;
 
     # mode and full_dump params are both accepted
@@ -36,24 +36,22 @@ sub dump_as_data {
         : $mode           ? $mode
         :                   'custom';
 
-    my $std_cb = sub {
-        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
+    my $std_cb = sub ($scanner, $data_r, $obj, $element, $index, $value_obj) {
         my $v = $value_obj->fetch(mode => $fetch_mode);
         # transform boolean type in boolean object
         $$data_r = $value_obj->value_type eq 'boolean' ? $to_boolean->($v) : $v;
+        return;
     };
 
-    my $check_list_element_cb = sub {
-        my ( $scanner, $data_r, $node, $element_name, @check_items ) = @_;
+    my $check_list_element_cb = sub ($scanner, $data_r, $node, $element_name, @check_items) {
         my $a_ref = $node->fetch_element($element_name)->get_checked_list;
 
         # don't store empty checklist
         $$data_r = $a_ref if @$a_ref;
+        return;
     };
 
-    my $hash_element_cb = sub {
-        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
-
+    my $hash_element_cb = sub ($scanner, $data_ref, $node, $element_name, @keys) {
         my $force_write = $node->fetch_element($element_name)->write_empty_value;
 
         # resume exploration but pass a ref on $data_ref hash element
@@ -80,11 +78,10 @@ sub dump_as_data {
             $h{'__'.$element_name.'_order'} = \@keys if $ordered_hash and @keys;
             $$data_ref = \%h if scalar %h;
         }
+        return;
     };
 
-    my $list_element_cb = sub {
-        my ( $scanner, $data_ref, $node, $element_name, @idx ) = @_;
-
+    my $list_element_cb = sub ($scanner, $data_ref, $node, $element_name, @idx) {
         # resume exploration but pass a ref on $data_ref hash element
         # instead of data_ref
         my @a;
@@ -94,10 +91,10 @@ sub dump_as_data {
             push @a, $v if defined $v;
         }
         $$data_ref = \@a if scalar @a;
+        return;
     };
 
-    my $node_content_cb = sub {
-        my ( $scanner, $data_ref, $node, @element ) = @_;
+    my $node_content_cb = sub ($scanner, $data_ref, $node, @element) {
         my %h;
         foreach my $e (@element) {
             my $v;
@@ -105,14 +102,14 @@ sub dump_as_data {
             $h{$e} = $v if defined $v;
         }
         $$data_ref = \%h if scalar %h;
+        return;
     };
 
-    my $node_element_cb = sub {
-        my ( $scanner, $data_ref, $node, $element_name, $key, $next ) = @_;
-
+    my $node_element_cb = sub ($scanner, $data_ref, $node, $element_name, $key, $next) {
         return if $skip_aw and $next->is_auto_write_for_type($skip_aw);
 
         $scanner->scan_node( $data_ref, $next );
+        return;
     };
 
     my @scan_args = (
@@ -157,16 +154,11 @@ sub dump_as_data {
     return $result;
 }
 
-sub dump_annotations_as_pod {
-    my $self = shift;
-
-    my %args      = @_;
+sub dump_annotations_as_pod ($self, %args) {
     my $dump_node = delete $args{node}
         || croak "dump_annotations_as_pod: missing 'node' parameter";
 
-    my $annotation_to_pod = sub {
-        my $obj  = shift;
-        my $path = shift || $obj->location;
+    my $annotation_to_pod = sub ($obj, $path = $obj->location) {
         my $a    = $obj->annotation;
         if ($a) {
             chomp $a;
@@ -177,23 +169,22 @@ sub dump_annotations_as_pod {
         }
     };
 
-    my $std_cb = sub {
-        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
+    my $std_cb = sub ($scanner, $data_r, $obj, $element, $index, $value_obj) {
         $$data_r .= $annotation_to_pod->($value_obj);
+        return;
     };
 
-    my $hash_element_cb = sub {
-        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+    my $hash_element_cb = sub ($scanner, $data_ref, $node, $element_name, @keys) {
         my $h      = $node->fetch_element($element_name);
         my $h_path = $h->location . ':';
         foreach (@keys) {
             $$data_ref .= $annotation_to_pod->( $h->fetch_with_id($_), $h_path . $_ );
             $scanner->scan_hash( $data_ref, $node, $element_name, $_ );
         }
+        return;
     };
 
-    my $node_content_cb = sub {
-        my ( $scanner, $data_ref, $node, @element ) = @_;
+    my $node_content_cb = sub ($scanner, $data_ref, $node, @element) {
         my $node_path = $node->location;
         $node_path .= ' ' if $node_path;
         foreach (@element) {
@@ -203,6 +194,7 @@ sub dump_annotations_as_pod {
             );
             $scanner->scan_element( $data_ref, $node, $_ );
         }
+        return;
     };
 
     my @scan_args = (
