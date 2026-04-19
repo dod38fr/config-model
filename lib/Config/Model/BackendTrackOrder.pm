@@ -3,6 +3,7 @@ package Config::Model::BackendTrackOrder;
 # ABSTRACT: Track read order of elements from configuration
 
 use Mouse;
+use Mouse::Util;
 use strict;
 use warnings;
 use Carp;
@@ -11,7 +12,6 @@ use v5.20;
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
 
-use Mouse::Util;
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("BackendTrackOrder");
