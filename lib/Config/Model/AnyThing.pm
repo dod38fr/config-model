@@ -7,7 +7,10 @@ use Mouse;
 
 use Carp;
 use Log::Log4perl qw(get_logger :levels);
-use 5.10.1;
+use v5.20;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 my $logger        = get_logger("Anything");
 my $change_logger = get_logger("ChangeTracker");
@@ -30,15 +33,14 @@ has needs_check => ( is => 'rw', isa => 'Bool', default => 1 );
 has index_value => (
     is      => 'rw',
     isa     => 'Str',
-    trigger => sub { my $self = shift; $self->{location} = $self->_location; },
+    trigger => sub ($self, @) { $self->{location} = $self->_location; },
 );
 
 has container => ( is => 'ro', isa => 'Ref', required => 1, weak_ref => 1 );
 
 has container_type => ( is => 'ro', isa => 'Str', builder => '_container_type', lazy => 1 );
 
-sub _container_type {
-    my $self = shift;
+sub _container_type ($self) {
     my $p    = $self->parent;
     return defined $p
         ? $p->element_type( $self->element_name )
@@ -54,9 +56,7 @@ has root => (
     lazy     => 1
 );
 
-sub _root {
-    my $self = shift;
-
+sub _root ($self) {
     return $self->parent || $self;
 }
 
@@ -70,21 +70,19 @@ has backend_support_annotation => (
     lazy     => 1
 );
 
-sub _backend_support_annotation {
-    my $self = shift;
+sub _backend_support_annotation ($self) {
     # this method is overridden in Config::Model::Node
     return $self->parent->backend_support_annotation;
 };
 
-sub notify_change {
-    my $self = shift;
-    my %args = @_;
+sub notify_change ($self, %args) {
 
     return if $self->instance->initial_load and not $args{really};
 
     if ($change_logger->is_trace) {
         my @with = map { "'$_' -> '". ($args{$_} // '<undef>') ."'"  } sort keys %args;
-        $change_logger->trace("called for ", $self->name, " from ", join( ' ', caller ), " with ", join( ' ', @with ));
+        $change_logger->trace("called for ", $self->name, " from ",
+                              join( ' ', caller ), " with ", join( ' ', @with ));
     }
 
     # needs_save may be overridden by caller
@@ -95,11 +93,10 @@ sub notify_change {
 
     # better use %args instead of @_ to forward arguments. %args eliminates duplicated keys
     $self->container->notify_change(%args);
+    return;
 }
 
-sub _location {
-    my $self = shift;
-
+sub _location ($self) {
     my $str = '';
     $str .= $self->parent->location if defined $self->parent;
 
@@ -110,9 +107,7 @@ sub _location {
     return $str;
 }
 
-sub _location_short {
-    my $self = shift;
-
+sub _location_short ($self) {
     my $str = '';
     $str .= $self->parent->location_short if defined $self->parent;
 
@@ -125,9 +120,7 @@ sub _location_short {
 
 #has composite_name => (is => 'ro', isa => 'Str' , builder => '_composite_name', lazy => 1);
 
-sub composite_name {
-    my $self = shift;
-
+sub composite_name ($self) {
     my $element = $self->element_name;
     $element = '' unless defined $element;
 
@@ -138,12 +131,9 @@ sub composite_name {
     return "$element:$idx";
 }
 
-sub composite_name_short {
-    my $self = shift;
-
+sub composite_name_short ($self) {
     my $element = $self->element_name;
     $element = '' unless defined $element;
-
 
     my $idx = $self->shorten_idx($self->index_value);
     return $element unless length $idx;
@@ -151,10 +141,7 @@ sub composite_name_short {
     return "$element:$idx";
 }
 
-sub shorten_idx {
-    my $self = shift;
-    my $long_index = shift ;
-
+sub shorten_idx ($self, $long_index) {
     my @idx = split /\n/, $long_index // '' ;
     my $idx = shift @idx;
     $idx .= '[...]' if @idx;
@@ -162,11 +149,8 @@ sub shorten_idx {
     return $idx // ''; # may be undef on freebsd with perl 5.10.1 ...
 }
 
-
 ## Fixme: not yet tested
-sub xpath {
-    my $self = shift;
-
+sub xpath ($self) {
     $logger->trace("xpath called on $self");
 
     my $element = $self->element_name;
@@ -184,34 +168,28 @@ sub xpath {
     return $str;
 }
 
-sub annotation {
-    my $self = shift;
+sub annotation ($self, @args) {
     my $old_note = $self->{annotation} || '';
-    if (@_ and not $self->instance->preset and not $self->instance->layered) {
-        my $new = $self->{annotation} = join( "\n", grep { defined $_} @_ );
+    if (@args and not $self->instance->preset and not $self->instance->layered) {
+        my $new = $self->{annotation} = join( "\n", grep { defined $_} @args );
         $self->notify_change(note => 'updated annotation') unless $new eq $old_note;
     }
 
     return $self->{annotation} || '';
 }
 
-sub clear_annotation {
-    my $self = shift;
+sub clear_annotation ($self) {
     $self->notify_change(note => 'deleted annotation') if $self->{annotation};
-    $self->{annotation} = '';
+    return $self->{annotation} = '';
 }
 
 # fallback method for object that don't implement has_data
-sub has_data {
-    my $self= shift;
+sub has_data ($self) {
     $logger->trace("called fall-back has_data for element", $self->name) if $logger->is_trace;
     return 1;
 }
 
-sub model_searcher {
-    my $self = shift;
-    my %args = @_;
-
+sub model_searcher ($self, %args) {
     my $model = $self->instance->config_model;
     return Config::Model::SearchElement->new( model => $model, node => $self, %args );
 }
@@ -221,23 +199,18 @@ sub searcher {
     goto &model_searcher;
 }
 
-sub dump_as_data {
-    my $self   = shift;
-    my %args = @_;
+sub dump_as_data ($self, %args) {
     my $full = delete $args{full_dump} || 0;
     if ($full) {
         carp "dump_as_data: full_dump parameter is deprecated. Please use 'mode => user' instead";
         $args{mode} //= 'user';
     }
     my $dumper = Config::Model::DumpAsData->new;
-    $dumper->dump_as_data( node => $self, %args );
+    return $dumper->dump_as_data( node => $self, %args );
 }
 
 # hum, check if the check information is valid
-sub _check_check {
-    my $self = shift;
-    my $p    = shift;
-
+sub _check_check ($self, $p) {
     return 'yes' if not defined $p or $p eq '1' or $p eq 'yes';
     return 'no'  if $p eq '0'      or $p eq 'no';
     return $p    if $p eq 'skip';
@@ -245,40 +218,36 @@ sub _check_check {
     croak "Internal error: Unvalid check value: $p";
 }
 
-sub has_fixes {
-    my $self = shift;
+sub has_fixes ($self) {
     $logger->trace( "dummy has_fixes called on " . $self->name );
     return 0;
 }
 
-sub has_warning {
-    my $self = shift;
+sub has_warning ($self) {
     $logger->trace( "dummy has_warning called on " . $self->name );
     return 0;
 }
 
-sub warp_error {
-    my $self = shift;
+sub warp_error ($self) {
     return '' unless defined $self->{warper};
     return $self->{warper}->warp_error;
 }
 
 # used by Value and AnyId
-sub set_convert {
-    my ( $self, $arg_ref ) = @_;
-
+sub set_convert ($self, $arg_ref) {
     my $convert = delete $arg_ref->{convert};
 
     # convert_sub keeps a subroutine reference
     $self->{convert_sub} =
-          $convert eq 'uc' ? sub { uc(shift) }
-        : $convert eq 'lc' ? sub { lc(shift) }
+          $convert eq 'uc' ? sub ($input) { uc($input); }
+        : $convert eq 'lc' ? sub ($input) { lc($input); }
         :                    undef;
 
     Config::Model::Exception::Model->throw(
         object => $self,
         error  => "Unexpected convert value: $convert, " . "expected lc or uc"
     ) unless defined $self->{convert_sub};
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;
