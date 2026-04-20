@@ -3,14 +3,16 @@ package Config::Model::Lister;
 use strict;
 use warnings;
 use Exporter;
+use v5.20;
 
 use vars qw/@EXPORT/;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 @EXPORT = qw(applications models);
 
-sub available_models {
-    my $test = shift || 0;
-
+sub available_models ($test = 0) {
     my ( %categories, %appli_info, %applications );
     my %done_cat;
     my @dir_to_scan = $test ? qw/lib/ : @INC;
@@ -36,12 +38,12 @@ sub available_models {
             $appli_info{$appli}{_file} = $file;
             $appli_info{$appli}{_category} = $cat;
             open my $fh, '<', $file || die "Can't open file $file:$!";
-            while (<$fh>) {
-                chomp;
-                s/^\s+//;
-                s/\s+$//;
-                s/#.*//;
-                my ( $k, $v ) = split /\s*=\s*/;
+            while (my $line = <$fh>) {
+                chomp($line);
+                $line =~ s/^\s+//;
+                $line =~ s/\s+$//;
+                $line =~ s/#.*//;
+                my ( $k, $v ) = split /\s*=\s*/, $line;
                 next unless $v;
                 if ( $k =~ /model/i ) {
                     push @{ $categories{$cat} }, $appli unless $done_cat{$cat}{$appli};
@@ -57,13 +59,13 @@ sub available_models {
     return \%categories, \%appli_info, \%applications;
 }
 
-sub models {
-    my @i = available_models(@_);
+sub models ($test = 0) {
+    my @i = available_models($test);
     return join( ' ', sort values %{ $i[2] } ) . "\n";
 }
 
-sub applications {
-    my @i = available_models(@_);
+sub applications ($test = 0) {
+    my @i = available_models($test);
     return join( ' ', sort keys %{ $i[2] } ) . "\n";
 }
 
