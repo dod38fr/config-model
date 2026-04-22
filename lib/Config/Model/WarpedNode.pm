@@ -37,17 +37,6 @@ has 'morph' => ( is => 'ro', isa => 'Bool', default => 0 );
 
 has warper => ( is => 'rw', isa => 'Config::Model::Warper' );
 
-has is_building => (
-    is => 'ro',
-    isa     => 'Bool',
-    traits  => ['Bool'],
-    default => 0,
-    handles => {
-        building  => 'set',
-        build_done => 'unset',
-    },
-);
-
 my @backup_list = @allowed_warp_params;
 
 around BUILDARGS => sub ($orig, $class, %args) {
@@ -60,7 +49,6 @@ sub BUILD ($self, $) {
     # warper).  When the warper gets a new value, it modifies the
     # WarpedNode according to the data passed by the user.
 
-    $self->building;
     my $warp_info = $self->warp;
     $warp_info->{follow} //= {};
     $warp_info->{rules}  //= [];
@@ -71,7 +59,6 @@ sub BUILD ($self, $) {
     );
 
     $self->warper($w);
-    $self->build_done;
     return $self;
 }
 
@@ -79,11 +66,21 @@ sub config_model ($self) {
     return $self->parent->config_model;
 }
 
+# get_type and get_cargo_type are duplicated from Node, because these
+# methods can be called before the actual node is set up.
+sub get_type {
+    return 'node';
+}
+
+sub get_cargo_type {
+    return 'node';
+}
+
 # Forward selected methods (See man perltootc)
 foreach my $method (
     qw/fetch_element config_class_name copy_from get_element_name
     get_info fetch_gist has_element is_element_available element_type load
-    fetch_element_value get_type get_cargo_type dump_tree needs_save
+    fetch_element_value dump_tree needs_save
     describe get_help get_help_as_text children get set accept_regexp/
     ) {
     # to register new methods in package
@@ -118,7 +115,7 @@ sub check ($self, $check = 'yes') {
 
         # a node can be retrieved either for a store operation or for
         # a fetch.
-        if ( $check eq 'yes' and not $self->building) {
+        if ($check eq 'yes') {
             Config::Model::Exception::User->throw(
                 object  => $self,
                 message => "Object '$self->{element_name}' is not accessible.\n\t"
