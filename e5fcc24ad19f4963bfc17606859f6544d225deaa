@@ -1,0 +1,4 @@
+This change is not good.
+
+A proper fix for the use case (a call to get_type() during object
+creation) should be handled by adding said method to WarpedNode.
