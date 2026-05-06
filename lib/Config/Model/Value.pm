@@ -1374,9 +1374,6 @@ sub store ($self, @args) {
     return $ok || ($check eq 'no');
 }
 
-#
-# New subroutine "_store_value" extracted - Wed Jan 16 18:46:22 2013.
-#
 sub _store_value {
     my $self          = shift;
     my $value         = shift;
@@ -1455,9 +1452,6 @@ sub _store ($self, %args) {
     return;
 }
 
-#
-# New subroutine "transform_boolean" extracted - Thu Sep 19 18:58:21 2013.
-#
 sub transform_boolean {
     my $self  = shift;
     my $v_ref = shift;

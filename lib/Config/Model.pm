@@ -1392,8 +1392,6 @@ sub load {
     return @loaded_classes;
 }
 
-# New subroutine "_load_model_in_hash" extracted - Fri Apr 12 17:29:56 2013.
-#
 sub _merge_model_in_hash {
     my ( $self, $hash_ref, $model, $load_file ) = @_;
 
@@ -1625,9 +1623,6 @@ sub get_model_doc {
     return \%result;
 }
 
-#
-# New subroutine "get_migrate_doc" extracted - Tue Jun  5 13:31:20 2012.
-#
 sub get_migrate_doc {
     my ( $self, $elt_name, $desc, $migr ) = @_;
 
