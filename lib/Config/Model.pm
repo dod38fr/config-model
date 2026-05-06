@@ -429,17 +429,6 @@ sub normalize_class_parameters {
         push @element_list, ref($item) ? @$item : ($item);
     }
 
-    if ( defined $normalized_model->{inherit_after} ) {
-        $self->show_legacy_issue([ "Model $config_class_name: inherit_after is deprecated ",
-            "in favor of include_after" ]);
-        $normalized_model->{include_after} = delete $normalized_model->{inherit_after};
-    }
-    if ( defined $normalized_model->{inherit} ) {
-        $self->show_legacy_issue(
-            "Model $config_class_name: inherit is deprecated in favor of include");
-        $normalized_model->{include} = delete $normalized_model->{inherit};
-    }
-
     foreach my $info (@legal_params_to_move) {
         next unless defined $normalized_model->{$info};
         $model->{$info} = delete $normalized_model->{$info};
