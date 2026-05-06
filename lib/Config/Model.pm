@@ -404,11 +404,7 @@ sub include_backend {
     return;
 }
 
-sub normalize_class_parameters {
-    my $self              = shift;
-    my $config_class_name = shift || die;
-    my $normalized_model  = shift || die;
-
+sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
     my $model = {};
 
     # sanity check
@@ -473,7 +469,25 @@ sub normalize_class_parameters {
     $self->handle_experience_permission( $config_class_name, $normalized_model );
 
     # element is handled first
-    foreach my $info_name (qw/element status description summary level/) {
+    if (my $elt_info = delete $normalized_model->{element}) {
+        my @raw_info = $elt_info->@*;
+        while (@raw_info) {
+            my ( $item, $info ) = splice @raw_info, 0, 2;
+            my @element_names = ref($item) ? @$item : ($item);
+
+            # warp can be found only in element item
+            $self->translate_legacy_info( $config_class_name, $element_names[0], $info );
+
+            $self->handle_experience_permission( $config_class_name, $info );
+
+            # copy in element data *after* legacy translation
+            foreach (@element_names) {
+                $model->{element}{$_} = dclone($info);
+            }
+        }
+    }
+
+    foreach my $info_name (qw/status description summary level/) {
         my $raw_compact_info = delete $normalized_model->{$info_name};
 
         next unless defined $raw_compact_info;
@@ -488,20 +502,8 @@ sub normalize_class_parameters {
             my ( $item, $info ) = splice @raw_info, 0, 2;
             my @element_names = ref($item) ? @$item : ($item);
 
-            # move element informations (handled first)
-            if ( $info_name eq 'element' ) {
-
-                # warp can be found only in element item
-                $self->translate_legacy_info( $config_class_name, $element_names[0], $info );
-
-                $self->handle_experience_permission( $config_class_name, $info );
-
-                # copy in element data *after* legacy translation
-                foreach (@element_names) { $model->{element}{$_} = dclone($info); };
-            }
-
             # move some information into element declaration (without clobberring)
-            elsif ( $info_name =~ /description|level|summary|status/ ) {
+            if ( $info_name =~ /^description|level|summary|status$/ ) {
                 foreach (@element_names) {
                     Config::Model::Exception::ModelDeclaration->throw(
                         error => "create class $config_class_name: '$info_name' "
@@ -514,7 +516,6 @@ sub normalize_class_parameters {
             else {
                 die "Unexpected element $item in $config_class_name model";
             }
-
         }
     }
 
