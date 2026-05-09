@@ -460,16 +460,7 @@ sub copy_element_properties ($self, $model, $normalized_model, $config_class_nam
     return;
 }
 
-sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
-    my $model = {};
-
-    # sanity check
-    my $raw_name = delete $normalized_model->{name};
-    if ( defined $raw_name and $config_class_name ne $raw_name ) {
-        my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
-        Config::Model::Exception::ModelDeclaration->throw( error => $e );
-    }
-
+sub extract_element_list ($self, $normalized_model) {
     my @element_list;
 
     # first construct the element list
@@ -480,6 +471,20 @@ sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
         # store the order of element as declared in 'element'
         push @element_list, ref($item) ? @$item : ($item);
     }
+    return @element_list;
+}
+
+sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
+    my $model = {};
+
+    # sanity check
+    my $raw_name = delete $normalized_model->{name};
+    if ( defined $raw_name and $config_class_name ne $raw_name ) {
+        my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
+        Config::Model::Exception::ModelDeclaration->throw( error => $e );
+    }
+
+    my @element_list = $self->extract_element_list($normalized_model);
 
     foreach my $info (@legal_params_to_move) {
         next unless defined $normalized_model->{$info};
