@@ -499,6 +499,22 @@ sub extract_accept_parameter ($self, $config_class_name, $model, $normalized_mod
     return;
 }
 
+sub check_element_duplicates ($self, $config_class_name, $element_list) {
+    # check for duplicate in @element_list.
+    my %check_list;
+    foreach my $name ($element_list->@*) {
+        $check_list{$name}++
+    };
+
+    my @extra = grep { $check_list{$_} > 1 } keys %check_list;
+    if (@extra) {
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "class $config_class_name: @extra element "
+                . "is declared more than once. Check the included parts" );
+    }
+    return;
+}
+
 sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
     my $model = {};
 
@@ -522,15 +538,7 @@ sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
     # handle accept parameter
     $self->extract_accept_parameter($config_class_name, $model, $normalized_model);
 
-    # check for duplicate in @element_list.
-    my %check_list;
-    foreach (@element_list) { $check_list{$_}++ };
-    my @extra = grep { $check_list{$_} > 1 } keys %check_list;
-    if (@extra) {
-        Config::Model::Exception::ModelDeclaration->throw(
-            error => "class $config_class_name: @extra element "
-                . "is declared more than once. Check the included parts" );
-    }
+    $self->check_element_duplicates($config_class_name, \@element_list);
 
     $self->handle_experience_permission( $config_class_name, $normalized_model );
 
