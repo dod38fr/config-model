@@ -474,27 +474,7 @@ sub extract_element_list ($self, $normalized_model) {
     return @element_list;
 }
 
-sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
-    my $model = {};
-
-    # sanity check
-    my $raw_name = delete $normalized_model->{name};
-    if ( defined $raw_name and $config_class_name ne $raw_name ) {
-        my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
-        Config::Model::Exception::ModelDeclaration->throw( error => $e );
-    }
-
-    my @element_list = $self->extract_element_list($normalized_model);
-
-    foreach my $info (@legal_params_to_move) {
-        next unless defined $normalized_model->{$info};
-        $model->{$info} = delete $normalized_model->{$info};
-    }
-
-    # first deal with perl file and cds_file backend
-    $self->translate_legacy_backend_info( $config_class_name, $model );
-
-    # handle accept parameter
+sub extract_accept_parameter ($self, $config_class_name, $model, $normalized_model) {
     my @accept_list;
     my %accept_hash;
     my $accept_info = delete $normalized_model->{'accept'} || [];
@@ -516,6 +496,31 @@ sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
 
     $model->{accept}      = \%accept_hash;
     $model->{accept_list} = \@accept_list;
+    return;
+}
+
+sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
+    my $model = {};
+
+    # sanity check
+    my $raw_name = delete $normalized_model->{name};
+    if ( defined $raw_name and $config_class_name ne $raw_name ) {
+        my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
+        Config::Model::Exception::ModelDeclaration->throw( error => $e );
+    }
+
+    my @element_list = $self->extract_element_list($normalized_model);
+
+    foreach my $info (@legal_params_to_move) {
+        next unless defined $normalized_model->{$info};
+        $model->{$info} = delete $normalized_model->{$info};
+    }
+
+    # first deal with perl file and cds_file backend
+    $self->translate_legacy_backend_info( $config_class_name, $model );
+
+    # handle accept parameter
+    $self->extract_accept_parameter($config_class_name, $model, $normalized_model);
 
     # check for duplicate in @element_list.
     my %check_list;
