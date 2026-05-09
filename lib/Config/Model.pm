@@ -425,6 +425,41 @@ sub copy_element_information ($self, $model, $normalized_model, $config_class_na
     return;
 }
 
+sub copy_element_properties ($self, $model, $normalized_model, $config_class_name) {
+    foreach my $info_name (qw/status description summary level/) {
+        my $raw_compact_info = delete $normalized_model->{$info_name};
+
+        next unless defined $raw_compact_info;
+
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "Data for parameter $info_name of $config_class_name"
+                . " is not an array ref" )
+            unless ref($raw_compact_info) eq 'ARRAY';
+
+        my @raw_info = @$raw_compact_info;
+        while (@raw_info) {
+            my ( $item, $info ) = splice @raw_info, 0, 2;
+            my @element_names = ref($item) ? @$item : ($item);
+
+            # move some information into element declaration (without clobberring)
+            if ( $info_name =~ /^description|level|summary|status$/ ) {
+                foreach (@element_names) {
+                    Config::Model::Exception::ModelDeclaration->throw(
+                        error => "create class $config_class_name: '$info_name' "
+                            . "declaration for non declared element '$_'" )
+                        unless defined $model->{element}{$_};
+
+                    $model->{element}{$_}{$info_name} ||= $info;
+                }
+            }
+            else {
+                die "Unexpected element $item in $config_class_name model";
+            }
+        }
+    }
+    return;
+}
+
 sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
     my $model = {};
 
@@ -492,38 +527,7 @@ sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
     # element is handled first
     $self->copy_element_information ($model, $normalized_model, $config_class_name);
 
-
-    foreach my $info_name (qw/status description summary level/) {
-        my $raw_compact_info = delete $normalized_model->{$info_name};
-
-        next unless defined $raw_compact_info;
-
-        Config::Model::Exception::ModelDeclaration->throw(
-            error => "Data for parameter $info_name of $config_class_name"
-                . " is not an array ref" )
-            unless ref($raw_compact_info) eq 'ARRAY';
-
-        my @raw_info = @$raw_compact_info;
-        while (@raw_info) {
-            my ( $item, $info ) = splice @raw_info, 0, 2;
-            my @element_names = ref($item) ? @$item : ($item);
-
-            # move some information into element declaration (without clobberring)
-            if ( $info_name =~ /^description|level|summary|status$/ ) {
-                foreach (@element_names) {
-                    Config::Model::Exception::ModelDeclaration->throw(
-                        error => "create class $config_class_name: '$info_name' "
-                            . "declaration for non declared element '$_'" )
-                        unless defined $model->{element}{$_};
-
-                    $model->{element}{$_}{$info_name} ||= $info;
-                }
-            }
-            else {
-                die "Unexpected element $item in $config_class_name model";
-            }
-        }
-    }
+    $self->copy_element_properties ($model, $normalized_model, $config_class_name);
 
     Config::Model::Exception::ModelDeclaration->throw(
               error => "create class $config_class_name: unexpected "
