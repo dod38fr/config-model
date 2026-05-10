@@ -944,13 +944,11 @@ sub translate_id_min_max {
     foreach my $bad (qw/min max/) {
         next unless defined $info->{$bad};
 
-        $legacy_logger->debug( "translate_id_min_max $elt_name $bad:")
-            if $legacy_logger->is_debug;
-
         my $good = $bad . '_index';
         my $warn = "$config_class_name->$elt_name: '$bad' parameter for list or "
             . "hash element is deprecated. Use '$good'";
 
+        $self->show_legacy_issue( $warn);
         $info->{$good} = delete $info->{$bad};
     }
     return;
