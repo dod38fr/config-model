@@ -1062,7 +1062,7 @@ sub translate_rules_arg {
         # transform the hash { foo => { ...} }
         # into array ref [ '$f1 eq foo' => { ... } ]
         my $h = $raw_rules;
-        @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : keys %$h;
+        @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : %$h;
         $self->show_legacy_issue(
             "$config_class_name $elt_name: using a hash for warp rule is deprecated. ".
             qq!Please use a array ref [ when => "$rules[0]{when}", apply => ...].!
