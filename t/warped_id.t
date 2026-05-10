@@ -1,6 +1,6 @@
-# -*- cperl -*-
 use ExtUtils::testlib;
 use Test::More;
+use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
@@ -59,7 +59,7 @@ $model->create_config_class(
                 follow  => [ '- version', '- macro' ],
                 'rules' => [
                     [ '2', 'C' ] => { max => 7, default_keys => [ 0 .. 7 ] },
-                    [ '2', 'A' ] => { max => 7, default_keys => [ 0 .. 7 ] } ]
+                    [ '2', 'A' ] => { max_index => 7, default_keys => [ 0 .. 7 ] } ]
             },
             cargo => {
                 type        => 'node',
@@ -102,8 +102,8 @@ $model->create_config_class(
             'warp'      => {
                 follow  => [ '- version', '- macro' ],
                 'rules' => [
-                    [ '2', 'C' ] => { max => 7, auto_create_keys => [ 0 .. 7 ] },
-                    [ '2', 'A' ] => { max => 7, auto_create_keys => [ 0 .. 7 ] }
+                    [ '2', 'C' ] => { max_index => 7, auto_create_keys => [ 0 .. 7 ] },
+                    [ '2', 'A' ] => { max_index => 7, auto_create_keys => [ 0 .. 7 ] }
                 ],
             },
             cargo => {
@@ -170,6 +170,8 @@ is_deeply( [ $warped_hash->fetch_all_indexes ], [qw/1 2/], "check reduced key se
 
 my $multi_warp = $root->fetch_element('multi_warp');
 
+is( $macro->fetch, 'B', "check macro value");
+is ($root->fetch_element_value('version'), 1, "check version value");
 is( $multi_warp->max_index, 3, "check multi_warp default max_index" );
 
 my $multi_auto_create = $root->fetch_element('multi_auto_create');
@@ -178,8 +180,8 @@ is( $multi_auto_create->max_index, 3, "check multi_auto_create default max_index
 is( $root->fetch_element('version')->store(2), 1, 'set version to 2' );
 is( $macro->store('C'),                        1, 'set macro to C' );
 
-is_deeply( $multi_warp->default_keys, [ 0 .. 7 ], "check multi_warp default_keys index parameter" );
-is_deeply(
+eq_or_diff( $multi_warp->default_keys, [ 0 .. 7 ], "check multi_warp default_keys index parameter" );
+eq_or_diff(
     [ sort $multi_warp->fetch_all_indexes ],
     [ 0 .. 7 ],
     "check multi_warp default key set with different warp master"
