@@ -1013,56 +1013,6 @@ sub translate_warp_info {
     return;
 }
 
-# internal
-sub translate_multi_follow_legacy_rules {
-    my ( $self, $config_class_name, $elt_name, $warper_items, $raw_rules ) = @_;
-    my @rules;
-
-    # we have more than one warper_items
-
-    for ( my $r_idx = 0 ; $r_idx < $#$raw_rules ; $r_idx += 2 ) {
-        my $key_set = $raw_rules->[$r_idx];
-        my @keys = ref($key_set) ? @$key_set : ($key_set);
-
-        # legacy: check the number of keys in the @rules set
-        if ( @keys != @$warper_items and $key_set !~ /\$\w+/ ) {
-            Config::Model::Exception::ModelDeclaration->throw( error => "Warp rule error in "
-                    . "'$config_class_name->$elt_name'"
-                    . ": Wrong nb of keys in set '@keys',"
-                    . " Expected "
-                    . scalar @$warper_items
-                    . " keys" );
-        }
-
-        # legacy:
-        # if a key of a rule (e.g. f1 or b1) is an array ref, all the
-        # values passed in the array are considered as valid.
-        # i.e. [ [ f1a, f1b] , b1 ] => { ... }
-        # is equivalent to
-        # [ f1a, b1 ] => { ... }, [  f1b , b1 ] => { ... }
-
-        # now translate [ [ f1a, f1b] , b1 ] => { ... }
-        # into "( $f1 eq f1a or $f1 eq f1b ) and $f2 eq b1)" => { ... }
-        my @bool_expr;
-        my $b_idx = 0;
-        foreach my $key (@keys) {
-            if ( ref $key ) {
-                my @expr = map { "\$f$b_idx eq '$_'" } @$key;
-                push @bool_expr, "(" . join( " or ", @expr ) . ")";
-            }
-            elsif ( $key !~ /\$\w+/ ) {
-                push @bool_expr, "\$f$b_idx eq '$key'";
-            }
-            else {
-                push @bool_expr, $key;
-            }
-            $b_idx++;
-        }
-        push @rules, join( ' and ', @bool_expr ), $raw_rules->[ $r_idx + 1 ];
-    }
-    return @rules;
-}
-
 sub translate_follow_arg {
     my $self              = shift;
     my $config_class_name = shift;
@@ -1095,7 +1045,6 @@ sub translate_follow_arg {
 sub translate_rules_arg {
     my ( $self, $config_class_name, $elt_name, $type, $warper_items, $raw_rules ) = @_;
 
-    my $multi_follow = @$warper_items > 1 ? 1 : 0;
     my $follow = @$warper_items;
 
     # $rules is either:
@@ -1113,21 +1062,14 @@ sub translate_rules_arg {
         @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : keys %$h;
     }
     elsif ( ref($raw_rules) eq 'ARRAY' ) {
-        if ($multi_follow) {
-            push @rules,
-                $self->translate_multi_follow_legacy_rules( $config_class_name, $elt_name,
-                $warper_items, $raw_rules );
-        }
-        else {
-            # now translate [ f1a, f1b]  => { ... }
-            # into "$f1 eq f1a or $f1 eq f1b " => { ... }
-            my @raw_rules = @{$raw_rules};
-            for ( my $r_idx = 0 ; $r_idx < $#raw_rules ; $r_idx += 2 ) {
-                my $key_set   = $raw_rules[$r_idx];
-                my @keys      = ref($key_set) ? @$key_set : ($key_set);
-                my @bool_expr = $follow ? map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys : @keys;
-                push @rules, join( ' or ', @bool_expr ), $raw_rules[ $r_idx + 1 ];
-            }
+        # now translate [ f1a, f1b]  => { ... }
+        # into "$f1 eq f1a or $f1 eq f1b " => { ... }
+        my @raw_rules = @{$raw_rules};
+        for ( my $r_idx = 0 ; $r_idx < $#raw_rules ; $r_idx += 2 ) {
+            my $key_set   = $raw_rules[$r_idx];
+            my @keys      = ref($key_set) ? @$key_set : ($key_set);
+            my @bool_expr = $follow ? map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys : @keys;
+            push @rules, join( ' or ', @bool_expr ), $raw_rules[ $r_idx + 1 ];
         }
     }
     elsif ( defined $raw_rules ) {

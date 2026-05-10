@@ -21,7 +21,11 @@ my @rules;
 foreach my $c1 (@m1) {
     foreach my $c2 (@m2) {
         foreach my $c3 (@m3) {
-            push @rules, [ $c1, $c2, $c3 ], { default => "m$c1$c2$c3" };
+            my $test = sprintf(
+                '$m1 eq "%s" and $m2 eq "%s" and $m3 eq "%s"',
+                $c1,$c2,$c3
+            );
+            push @rules, $test, { default => "m$c1$c2$c3" };
         }
     }
 }
@@ -49,21 +53,13 @@ my $model_data = {
             type       => 'leaf',
             value_type => 'string',
             'warp'     => {
-                follow => [ '- macro1', ' - macro2', '- macro3' ],
+                follow => {
+                    m1 => '- macro1',
+                    m2 => ' - macro2',
+                    m3 => '- macro3'
+                },
                 rules  => \@rules
             }
-        },
-        'm2' => {
-            type       => 'leaf',
-            value_type => 'string',
-            default    => 'unsatisfied',
-            'warp'     => {
-                follow  => [ '- macro1', ' - macro2', '- macro3' ],
-                'rules' => [
-                    [ 'A1', 'A2', 'A3' ] => { default => '3xA' },
-                    [ 'B1', [ 'B2', 'C2' ], 'B3' ] => { default => '3x[BC]' },
-                ]
-            },
         },
         'm3' => {
             type       => 'leaf',
@@ -132,7 +128,6 @@ foreach my $c1 (@m1) {
                   $index eq 'A1A2A3'    ? '3xA'
                 : $index =~ /B1[BC]2B3/ ? '3x[BC]'
                 :                         'unsatisfied';
-            is( $root->grab_value('m2'), $m2_val, "Reading Root slot m2" );
             is( $root->grab_value('m4'), $m2_val, "Reading Root slot m4" );
         }
     }

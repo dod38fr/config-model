@@ -63,12 +63,12 @@ $model->create_config_class(
                 type    => 'warped_node',
                 morph   => 1,
                 warp => {
-                    follow  => [ '! macro1', '- macro2' ],
+                    follow  => { m1 => '! macro1', m2 => '- macro2' },
                     'rules' => [
-                        [qw/A C/] => { 'config_class_name' => 'SlaveY' },
-                        [qw/A D/] => { 'config_class_name' => 'SlaveY' },
-                        [qw/B C/] => { 'config_class_name' => 'SlaveZ' },
-                        [qw/B D/] => { 'config_class_name' => 'SlaveZ' },
+                        '$m1 eq "A" and $m2 eq "C"' => { 'config_class_name' => 'SlaveY' },
+                        '$m1 eq "A" and $m2 eq "D"' => { 'config_class_name' => 'SlaveY' },
+                        '$m1 eq "B" and $m2 eq "C"' => { 'config_class_name' => 'SlaveZ' },
+                        '$m1 eq "B" and $m2 eq "D"' => { 'config_class_name' => 'SlaveZ' },
                     ]
                 }
             }
