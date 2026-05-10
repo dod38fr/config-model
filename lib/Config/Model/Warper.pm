@@ -593,7 +593,8 @@ __END__
 
 =head1 DESCRIPTION
 
-Depending on the value of a warp master (In fact a L<Config::Model::Value> or a L<Config::Model::CheckList> object),
+Depending on the value of a warp master (In fact a L<Config::Model::Value>
+or a L<Config::Model::CheckList> object),
 this class changes the properties of a node (L<Config::Model::WarpedNode>),
 a hash (L<Config::Model::HashId>), a list (L<Config::Model::ListId>), 
 a checklist (L<Config::Model::CheckList>) or another value.
@@ -624,12 +625,9 @@ C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
 
  follow => '! tree_macro' 
 
-In case of several warp master, C<follow> is set to an array ref
-of several L<grab string|Config::Model::Role::Grab/grab>:
-
- follow => [ '! macro1', '- macro2' ]
-
-You can also use named parameters:
+In case of several warp master, C<follow> is a hash of named
+parameters. The values are several
+ L<grab string|Config::Model::Role::Grab/grab>:
 
  follow => { m1 => '! macro1', m2 => '- macro2' }
 
@@ -659,7 +657,6 @@ is applied. In this case, rules is a list ref:
   rules => [ '$m eq "A"'               => { <effect for macro1 == A> },
              '$m eq "B" or $m eq"C "'  => { <effect for macro1 == B|C > }
            ]
-
 
 In case of several warp masters, C<follow> must use named parameters, and
 rules must use boolean expression:

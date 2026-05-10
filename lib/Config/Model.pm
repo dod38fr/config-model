@@ -1025,6 +1025,9 @@ sub translate_follow_arg {
         return $raw_follow;
     }
     elsif ( ref($raw_follow) eq 'ARRAY' ) {
+        # TODO: remove in 2028
+        $self->show_legacy_issue("$config_class_name $elt_name: using follow with array is deprecated. "
+                                 . "Please use hash with named parameters.");
 
         # translate legacy follow arguments ['warp1','warp2',...]
         my $follow = {};
@@ -1048,18 +1051,22 @@ sub translate_rules_arg {
     my $follow = @$warper_items;
 
     # $rules is either:
-    # { f1 => { ... } }  (  may be [ f1 => { ... } ] ?? )
     # [ 'boolean expr' => { ... } ]
     # legacy:
+    # { follow_value => { ... } }
     # [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
     # foo => {...} , bar => {...}
     my @rules;
     if ( ref($raw_rules) eq 'HASH' ) {
-
+        # TODO: remove in 2028
         # transform the hash { foo => { ...} }
         # into array ref [ '$f1 eq foo' => { ... } ]
         my $h = $raw_rules;
         @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : keys %$h;
+        $self->show_legacy_issue(
+            "$config_class_name $elt_name: using a hash for warp rule is deprecated. ".
+            qq!Please use a array ref [ when => "$rules[0]{when}", apply => ...].!
+        );
     }
     elsif ( ref($raw_rules) eq 'ARRAY' ) {
         # now translate [ f1a, f1b]  => { ... }
@@ -1067,9 +1074,14 @@ sub translate_rules_arg {
         my @raw_rules = @{$raw_rules};
         for ( my $r_idx = 0 ; $r_idx < $#raw_rules ; $r_idx += 2 ) {
             my $key_set   = $raw_rules[$r_idx];
+            # TODO: remove $key_set as array ref in 2028
             my @keys      = ref($key_set) ? @$key_set : ($key_set);
             my @bool_expr = $follow ? map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys : @keys;
             push @rules, join( ' or ', @bool_expr ), $raw_rules[ $r_idx + 1 ];
+            $self->show_legacy_issue(
+                "$config_class_name $elt_name: using an array for warp rule test is deprecated. ".
+                "Please use a string with named parameters like «$rules[0]»."
+            ) if @keys > 1;
         }
     }
     elsif ( defined $raw_rules ) {
