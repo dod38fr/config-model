@@ -272,33 +272,35 @@ sub warp_them ($self, @args) {
 sub check_warp_args ($self) {
     # check that rules element are array ref and store them for
     # error checking
-    my $rules_ref = $self->rules;
+    my $rules_ref = dclone $self->rules;
 
-    my @rules =
-          ref $rules_ref eq 'HASH'  ? %$rules_ref
-        : ref $rules_ref eq 'ARRAY' ? @$rules_ref
-        : Config::Model::Exception::Model->throw(
-        error  => "warp error: warp 'rules' parameter " . "is not a ref ($rules_ref)",
-        object => $self->warped_object
+    if (ref $rules_ref ne 'ARRAY') {
+        Config::Model::Exception::Model->throw(
+            error  => "warp error: warp 'rules' parameter is not an array ref ($rules_ref)",
+            object => $self->warped_object
         );
+    }
 
     my $allowed = $self->allowed;
 
-    for ( my $r_idx = 0 ; $r_idx < $#rules ; $r_idx += 2 ) {
-        my $key_set = $rules[$r_idx];
-        my @keys = ref($key_set) ? @$key_set : ($key_set);
-
-        my $v = $rules[ $r_idx + 1 ];
+    foreach my $rule ($rules_ref->@*) {
+        my $bool_expr = delete $rule->{when};
         Config::Model::Exception::Model->throw(
             object => $self->warped_object,
-            error  => "rules value for @keys is not a hash ref ($v)"
-        ) unless ref($v) eq 'HASH';
+            error  => "Warp rules error: no 'when' parameter found."
+        ) unless defined $bool_expr;
 
-        foreach my $pkey ( keys %$v ) {
+        my $apply = delete $rule->{apply};
+        Config::Model::Exception::Model->throw(
+            object => $self->warped_object,
+            error  => "Warp rules error: no 'apply' parameter found."
+        ) unless defined $apply;
+
+        foreach my $pkey ( keys $apply->%* ) {
             Config::Model::Exception::Model->throw(
                 object => $self->warped_object,
-                error  => "Warp rules error for '@keys': '$pkey' "
-                    . "parameter is not allowed, "
+                error  => "Warp rules error: "
+                    . "parameter «$pkey» is not allowed, "
                     . "expected '"
                     . join( "' or '", @$allowed ) . "'"
             ) unless any {$pkey eq $_}  @$allowed ;
@@ -445,24 +447,34 @@ sub compute_bool ($self, $expr) {
 
 sub do_warp ($self) {
     my $warp_value_set = $self->_values;
-    my $rules          = dclone( $self->rules );
-    my %rule_hash      = @$rules;
+    my $rules          = $self->rules;
 
     # try all boolean expression with warp_value_set to get the
     # correct rule
 
-    my $found_rule = {};
+    my $found_apply = {};
     my $found_bool = '';    # this variable may be used later in error message
 
-    foreach my $bool_expr (@$rules) {
-        next if ref($bool_expr);    # it's a rule not a bool expr
+    foreach my $rule (@$rules) {
+        foreach my $param (qw/when apply/) {
+            unless ($rule->{$param}) {
+                my $dump = Data::Dumper->Dump( [$rule], ['rule']);
+                Config::Model::Exception::Model->throw(
+                    object => $self->warped_object,
+                    error  => "Warp failed: missing '$param' parameter in $dump"
+                );
+            }
+        }
+
+        my $bool_expr = $rule->{when};
         my $res = $self->compute_bool($bool_expr);
         next unless $res;
+
         $found_bool = $bool_expr;
-        $found_rule = $rule_hash{$bool_expr} || {};
+        $found_apply = $rule->{apply};
         $logger->trace(
             "do_warp found rule for '$bool_expr':\n",
-            Data::Dumper->Dump( [$found_rule], ['found_rule'] ) );
+            Data::Dumper->Dump( [$found_apply], ['found_apply'] ) );
         last;
     }
 
@@ -475,21 +487,21 @@ sub do_warp ($self) {
             "' with elements '",
             join( "','", @warp_str ),
             "', warp rule is ",
-            ( scalar %$found_rule ? "" : 'not ' ),
+            ( scalar %$found_apply ? "" : 'not ' ),
             "found"
         );
     }
 
     $logger->trace( "do_warp: call set_parent_element_property on '",
-        $self->name, "' with ", Data::Dumper->Dump( [$found_rule], ['found_rule'] ) );
+        $self->name, "' with ", Data::Dumper->Dump( [$found_apply], ['found_apply'] ) );
 
-    $self->set_parent_element_property($found_rule);
+    $self->set_parent_element_property($found_apply);
 
     $logger->debug(
         "do_warp: call set_properties on '",
         $self->warped_object->name,
-        "' with ", Data::Dumper->Dump( [$found_rule], ['found_rule'] ) );
-    eval { $self->warped_object->set_properties(%$found_rule); };
+        "' with ", Data::Dumper->Dump( [$found_apply], ['found_apply'] ) );
+    eval { $self->warped_object->set_properties(%$found_apply); };
 
     if ($@) {
         my @warp_str = map { defined $_ ? $_ : 'undef' } keys %$warp_value_set;
@@ -627,7 +639,7 @@ C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
 
 In case of several warp master, C<follow> is a hash of named
 parameters. The values are several
- L<grab string|Config::Model::Role::Grab/grab>:
+L<grab|Config::Model::Role::Grab/grab> strings:
 
  follow => { m1 => '! macro1', m2 => '- macro2' }
 
@@ -638,56 +650,49 @@ L<there|Config::Model::ValueComputer/"Compute variables">
 
 =head2 Warp rules argument
 
-String, hash ref or array ref that specify the warped object property
+C<rules> argument is a  list of hash refs that specify the warped object property
 changes.  These rules specifies the actual property changes for the
 warped object depending on the value(s) of the warp master(s). 
 
-E.g. for a simple case (rules is a hash ref) :
-
- follow => '! macro1' ,
- rules => { A => { <effect when macro1 is A> },
-            B => { <effect when macro1 is B> }
-          }
-
-In case of similar effects, you can use named parameters and
-a boolean expression to specify the effect. The first match
-is applied. In this case, rules is a list ref:
+Use named parameters and a boolean expression to specify the
+effect. The first match is applied. In this case, rules is an array
+ref:
 
   follow => { m => '! macro1' } ,
-  rules => [ '$m eq "A"'               => { <effect for macro1 == A> },
-             '$m eq "B" or $m eq"C "'  => { <effect for macro1 == B|C > }
-           ]
+  rules => [
+    { when => '$m eq "A"'              , apply => { <effect for macro1 == A> } },
+    { when => '$m eq "B" or $m eq"C "' , apply => { <effect for macro1 == B|C> } }
+  ]
 
-In case of several warp masters, C<follow> must use named parameters, and
-rules must use boolean expression:
+In case of several warp masters, C<follow> must use several named parameters:
 
  follow => { m1 => '! macro1', m2 => '- macro2' } ,
  rules => [
-           '$m1 eq "A" && $m2 eq "C"' => { <effect for A C> },
-           '$m1 eq "A" && $m2 eq "D"' => { <effect for A D> },
-           '$m1 eq "B" && $m2 eq "C"' => { <effect for B C> },
-           '$m1 eq "B" && $m2 eq "D"' => { <effect for B D> },
-          ]
+   { when => '$m1 eq "A" && $m2 eq "C"', apply => { <effect for A C> } },
+   { when => '$m1 eq "A" && $m2 eq "D"', apply => { <effect for A D> } },
+   { when => '$m1 eq "B" && $m2 eq "C"', apply => { <effect for B C> } },
+   { when => '$m1 eq "B" && $m2 eq "D"', apply => { <effect for B D> } },
+ ]
 
 Of course some combinations of warp master values can have the same
 effect:
 
  follow => { m1 => '! macro1', m2 => '- macro2' } ,
  rules => [
-           '$m1 eq "A" && $m2 eq "C"' => { <effect X> },
-           '$m1 eq "A" && $m2 eq "D"' => { <effect Y> },
-           '$m1 eq "B" && $m2 eq "C"' => { <effect Y> },
-           '$m1 eq "B" && $m2 eq "D"' => { <effect Y> },
-          ]
+   { when => '$m1 eq "A" && $m2 eq "C"', apply => { <effect X> } },
+   { when => '$m1 eq "A" && $m2 eq "D"', apply => { <effect Y> } },
+   { when => '$m1 eq "B" && $m2 eq "C"', apply => { <effect Y> } },
+   { when => '$m1 eq "B" && $m2 eq "D"', apply => { <effect Y> } },
+ ]
 
-In this case, you can use different boolean expression to save typing:
+In this case, you can use different boolean expressions to save typing:
 
  follow => { m1 => '! macro1', m2 => '- macro2' } ,
  rules => [
-           '$m1 eq "A" && $m2 eq "C"' => { <effect X> },
-           '$m1 eq "A" && $m2 eq "D"' => { <effect Y> },
-           '$m1 eq "B" && ( $m2 eq "C" or $m2 eq "D") ' => { <effect Y> },
-          ]
+   { when => '$m1 eq "A" && $m2 eq "C"', apply => { <effect X> } },
+   { when => '$m1 eq "A" && $m2 eq "D"', apply => { <effect Y> } },
+   { when => '$m1 eq "B" && ( $m2 eq "C" or $m2 eq "D") ', apply => { <effect Y> } },
+ ]
 
 Note that the boolean expression is sanitized and used in a Perl
 eval, so you can use most Perl syntax and regular expressions.
@@ -703,51 +708,53 @@ all the possible items of a check list.
 For example, let's say that C<$cl> in the rule below point to a check list whose
 items are C<A> and C<B>. The rule must verify if the item is set or not:
 
-  rules => [
-       '$cl.is_set(A)' =>  { <effect when A is set> },
-       '$cl.is_set(B)' =>  { <effect when B is set> },
-       # can be combined
-       '$cl.is_set(B) and $cl.is_set(A)' =>  { <effect when A and B are set> },
-   ],
+ rules => [
+   { when => '$cl.is_set(A)', apply => { <effect when A is set> } },
+   { when => '$cl.is_set(B)', apply => { <effect when B is set> } },
+   # can be combined
+   { when => '$cl.is_set(B) and $cl.is_set(A)', apply => { <effect when A and B are set> } },
+ ],
 
 With this feature, you can control with a check list whether some element must
 be shown or not (assuming C<FooClass> and C<BarClass> classes are declared):
 
-    element => [
-        # warp master
-        my_check_list => {
-            type       => 'check_list',
-            choice     => ['has_foo','has_bar']
-        },
-        # controlled element that show up only when has_foo is set
-        foo => {
-            type => 'warped_node',
-            level => 'hidden',
-            config_class_name => 'FooClass',
-            follow => {
-                selected => '- my_check_list'
-            },
-            'rules' => [
-                '$selected.is_set(has_foo)' => {
-                    level => 'normal'
-                }
-            ]
-        },
-        # controlled element that show up only when has_bar is set
-        bar => {
-            type => 'warped_node',
-            level => 'hidden',
-            config_class_name => 'BarClass',
-            follow => {
-                selected => '- my_check_list'
-            },
-            'rules' => [
-                '$selected.is_set(has_bar)' => {
-                    level => 'normal'
-                }
-            ]
-        }
-    ]
+ element => [
+   # warp master
+   my_check_list => {
+     type       => 'check_list',
+     choice     => ['has_foo','has_bar']
+   },
+   # controlled element that show up only when has_foo is set
+   foo => {
+     type => 'warped_node',
+     level => 'hidden',
+     config_class_name => 'FooClass',
+     follow => {
+       selected => '- my_check_list'
+     },
+     rules => [
+       {
+         when => '$selected.is_set(has_foo)',
+         apply => { level => 'normal' }
+       }
+     ]
+   },
+   # controlled element that show up only when has_bar is set
+   bar => {
+     type => 'warped_node',
+     level => 'hidden',
+     config_class_name => 'BarClass',
+     follow => {
+         selected => '- my_check_list'
+     },
+     rules => [
+       {
+         when => '$selected.is_set(has_bar)',
+         apply => { level => 'normal' }
+       }
+     ]
+   }
+ ]
 
 
 =head1 Methods

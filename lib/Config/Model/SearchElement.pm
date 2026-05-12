@@ -79,11 +79,9 @@ sub _sniff_class ($self, $class, $found_ref) {
 
 sub _sniff_warped_node ($self, $element_model, $found_ref) {
     my %warp_tmp;
-    my $ref = $element_model->{warp}{rules};
-    my @rules = ref $ref eq 'HASH' ? %$ref : @$ref;
 
-    for ( my $r_idx = 0 ; $r_idx < $#rules ; $r_idx += 2 ) {
-        my $res = $rules[ $r_idx + 1 ]{config_class_name};
+    foreach my $apply ( map { $_->{apply} } $element_model->{warp}{rules}->@* ) {
+        my $res = $apply->{config_class_name};
         my $sub_class = ref $res ? $res->[0] : $res;
 
         # sniff all classes mentionned in warped node rules

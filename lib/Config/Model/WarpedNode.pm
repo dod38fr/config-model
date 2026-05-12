@@ -315,7 +315,7 @@ __END__
 
         'a_warped_node' => {
             type   => 'warped_node',
-            warp => }
+            warp => {
                follow => { ms => '! master_switch' },
                rules  => [
                    '$ms eq "cX"' => { config_class_name => 'ClassX' },
@@ -470,21 +470,32 @@ the available elements of the node carried by the warped node.
   (
    element =>
     [
-     tree_macro => { type => 'leaf',
-                     value_type => 'enum',
-                     choice     => [qw/XX XY XZ ZZ/]
-                   },
+     tree_macro => {
+       type => 'leaf',
+       value_type => 'enum',
+       choice     => [qw/XX XY XZ ZZ/]
+     },
      bar =>  {
-               type => 'warped_node',
-               follow => '! tree_macro', 
-               morph => 1,
-               rules => [
-                         XX => { config_class_name 
-                                   => [ 'ClassX', 'foo' ,'bar' ]}
-                         XY => { config_class_name => 'ClassY'},
-                         XZ => { config_class_name => 'ClassZ'}
-                        ]
-             }
+       'type' => 'warped_node'
+       'morph' => 1,
+       'follow' => {
+         'f1' => '! tree_macro'
+       },
+       'rules' => [
+         {
+           'when' => '$f1 eq \'XX\'',
+           'apply' => {'config_class_name' => ['ClassX', 'foo', 'bar']}
+         },
+         {
+           'when' => '$f1 eq \'XY\''
+           'apply' => {'config_class_name' => 'ClassY'},
+         },
+         {
+           'when' => '$f1 eq \'XZ\''
+           'apply' => {'config_class_name' => 'ClassZ'},
+         }
+       ],
+     }
     ]
   );
 

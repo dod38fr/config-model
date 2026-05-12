@@ -1,5 +1,3 @@
-# -*- cperl -*-
-
 use Test::More;
 use Test::Memory::Cycle;
 use Test::Differences;
@@ -41,12 +39,18 @@ $model->create_config_class(
             warp => {
                 follow => { 'f1' => '- fs_vfstype' },
                 rules  => [
-                    '$f1 eq \'auto\'',
-                    { 'config_class_name' => 'Fstab::CommonOptions' },
-                    '$f1 eq \'ext2\'',
-                    { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                    '$f1 eq \'ext3\'',
-                    { 'config_class_name' => 'Fstab::Ext3FsOpt' },
+                    {
+                        when => '$f1 eq \'auto\'',
+                        apply => { 'config_class_name' => 'Fstab::CommonOptions' }
+                    },
+                    {
+                        when => '$f1 eq \'ext2\'',
+                        apply => { 'config_class_name' => 'Fstab::Ext2FsOpt' }
+                    },
+                    {
+                        when => '$f1 eq \'ext3\'',
+                        apply => { 'config_class_name' => 'Fstab::Ext3FsOpt' }
+                    },
                 ],
             }
         }
@@ -120,14 +124,22 @@ eq_or_diff( \@fs_choices, [qw/auto ext2 ext3 ext4/], "check augmented choices" )
 eq_or_diff(
     $augmented_model->{element}{fs_mntopts}{warp}{rules},
     [
-        '$f1 eq \'auto\'',
-        { 'config_class_name' => 'Fstab::CommonOptions' },
-        '$f1 eq \'ext2\'',
-        { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-        '$f1 eq \'ext3\'',
-        { 'config_class_name' => 'Fstab::Ext3FsOpt' },
-        '$f1 eq \'ext4\'',
-        { 'config_class_name' => 'Fstab::Ext4FsOpt' }
+        {
+            when => '$f1 eq \'auto\'',
+            apply => { 'config_class_name' => 'Fstab::CommonOptions' }
+        },
+        {
+            when => '$f1 eq \'ext2\'',
+            apply => { 'config_class_name' => 'Fstab::Ext2FsOpt' }
+        },
+        {
+            when => '$f1 eq \'ext3\'',
+            apply => { 'config_class_name' => 'Fstab::Ext3FsOpt' }
+        },
+        {
+            when => '$f1 eq \'ext4\'',
+            apply => { 'config_class_name' => 'Fstab::Ext4FsOpt' }
+        }
     ],
     "test augmented rules"
 );

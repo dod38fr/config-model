@@ -50,8 +50,14 @@ For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
             type => 'warped_node',
             follow => { 'f1' => '- fs_vfstype' },
             rules => [
-                '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' },
+                {
+                    when => '$f1 eq \'ext2\'',
+                    apply => { 'config_class_name' => 'Fstab::Ext2FsOpt' },
+                },
+                {
+                    when => '$f1 eq \'ext3\'',
+                    apply => { 'config_class_name' => 'Fstab::Ext3FsOpt' },
+                }
             ],
         }
     ]
@@ -65,7 +71,10 @@ can be augmented with the content of C<.../Config/Model/models/Fstab/Fsline.d/ad
 	fs_vfstype => { choice => [ qw/ext4/ ], },
         fs_mntopts => {
             rules => [
-                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' },
+                {
+                    when => q!$f1 eq 'ext4'!,
+                    apply =>{ 'config_class_name' => 'Fstab::Ext4FsOpt' },
+                }
             ],
         },
     ]
@@ -148,14 +157,22 @@ value properties:
          size_type => '- size'         # size_type: go 1 level above and fetch
                                        #            size value
        },
-       rules  => {                     # how to apply change
-         '$size_type eq "small"' => {  # set max to 10 when size is small
-            max => 10 
+       rules  => [
+         {   # how to apply change
+             when => '$size_type eq "small"',
+             apply => {
+                 # set max to 10 when size is small
+                 max => 10 
+             }
          },
-         '$size_type eq "big" ' => {   # set max to 50 when size is big
-             max => 50 },
+         {
+             when => '$size_type eq "big"',
+             apply => {
+                 # set max to 50 when size is big
+                 max => 50
+             },
          },
-       },
+       ],
      }
   ]
 
@@ -207,9 +224,12 @@ instructions:
                                   #     fetch GatewayPorts value
      },
      rules => [                   # specify how to apply the change triggered by gp
-       '$gp' => {                 # apply change when $gp is true
-           level => 'normal'      # set level to normal (instead of 'hidden'). This change
+       {
+          when => '$gp',          # apply change when $gp is true
+          apply => {
+              level => 'normal'   # set level to normal (instead of 'hidden'). This change
                                   #     will show this parameter in the UI
+          }
        }
      ]
    },
@@ -245,11 +265,11 @@ that uses C<fs_vfstype> to swap one config class with another:
    rules => [
      # condition     => effect: config class to swap in
 
-     "$f1 eq 'proc'" => { config_class_name => 'Fstab::CommonOptions' },
-     "$f1 eq 'auto'" => { config_class_name => 'Fstab::CommonOptions' },
-     "$f1 eq 'vfat'" => { config_class_name => 'Fstab::CommonOptions' },
-     "$f1 eq 'swap'" => { config_class_name => 'Fstab::SwapOptions'   },
-     "$f1 eq 'ext3'" => { config_class_name => 'Fstab::Ext3FsOpt'     },
+     { when => "$f1 eq 'proc'", apply => { config_class_name => 'Fstab::CommonOptions' }},
+     { when => "$f1 eq 'auto'", apply => { config_class_name => 'Fstab::CommonOptions' }},
+     { when => "$f1 eq 'vfat'", apply => { config_class_name => 'Fstab::CommonOptions' }},
+     { when => "$f1 eq 'swap'", apply => { config_class_name => 'Fstab::SwapOptions'   }},
+     { when => "$f1 eq 'ext3'", apply => { config_class_name => 'Fstab::Ext3FsOpt'     }},
      # etc ...
    ]
   }

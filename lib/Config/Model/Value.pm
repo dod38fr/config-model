@@ -2527,22 +2527,26 @@ For instance if you declare 2 C<Value> element this way:
                      # this points to the warp master
                      c => '- country'
                  },
-                 rules => {
-                     '$c eq "US"' => {
-                          default => 'NTSC'
+                 rules => [
+                      {
+                          when => '$c eq "US"',
+                          apply => { default => 'NTSC' }
                       },
-                     '$c eq "France"' => {
-                          default => 'SECAM'
+                      {
+                          when => '$c eq "France"',
+                          apply => { default => 'SECAM' }
                       },
-                     '$c eq "Japan"' => {
-                          default => 'NTSC'
+                      {
+                          when => '$c eq "Japan"',
+                          apply => { default => 'NTSC' }
                       },
-                     '$c eq "Europe"' => {
-                          default => 'PAL'
-                     },
-                 }
+                      {
+                          when => '$c eq "Europe"',
+                          apply => { default => 'PAL' }
+                      },
+                 ]
              }
-         } ,
+         }
      ]
  );
 
@@ -2559,17 +2563,20 @@ possible values of an enum element:
          follow => {
              c => '- country'
          },
-         rules => {
-             '$c eq "US"'	 => {
-                  choice => ['Kansas', 'Texas' ]
-              },
-             '$c eq "Europe"' => {
-                  choice => ['France', 'Spain' ]
+         rules => [
+             {
+                  when => '$c eq "US"',
+                  apply => { choice => ['Kansas', 'Texas' ] }
              },
-             '$c eq "Japan"' => {
-                  choice => ['Honshu', 'Hokkaido' ]
+             {
+                  when => '$c eq "Europe"',
+                  apply => { choice => ['France', 'Spain' ] }
+             },
+             {
+                  when => '$c eq "Japan"',
+                  apply => { choice => ['Honshu', 'Hokkaido' ] }
              }
-         }
+         ]
      }
  }
 

@@ -84,10 +84,12 @@ $model->create_config_class(
             value_type => 'enum',
             choice     => [qw/Av Bv Cv/],
             warp       => {
-                follow => '- - macro',
-                rules  => {
-                    A => { default => 'Av' },
-                    B => { default => 'Bv' } } }
+                follow => { m => '- - macro' },
+                rules  => [
+                    { when => '$m eq "A"', apply => { default => 'Av' }},
+                    { when => '$m eq "B"', apply => { default => 'Bv' }},
+                ]
+            }
         },
         'recursive_slave' => {
             type       => 'hash',

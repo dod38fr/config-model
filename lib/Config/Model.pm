@@ -637,9 +637,7 @@ sub translate_legacy_info {
         $self->translate_id_min_max( $config_class_name, $elt_name, $info );
         $self->translate_id_names( $config_class_name, $elt_name, $info );
         if ( defined $info->{warp} ) {
-            my $rules_a = $info->{warp}{rules};
-            my %h       = @$rules_a;
-            foreach my $rule_effect ( values %h ) {
+            foreach my $rule_effect ( map { $_->{apply} } $info->{warp}{rules}->@*) {
                 $self->translate_id_names( $config_class_name, $elt_name, $rule_effect );
                 $self->translate_id_min_max( $config_class_name, $elt_name, $rule_effect );
                 next unless defined $rule_effect->{default};
@@ -1048,37 +1046,64 @@ sub translate_rules_arg {
 
     my $follow = @$warper_items;
 
-    # $rules is either:
-    # [ 'boolean expr' => { ... } ]
+    # $rules is translated to:
+    # [ { if => <boolean expr>, ...} , ... ]
     # legacy:
+    # [ 'boolean expr' => { ... } ]
     # { follow_value => { ... } }
-    # [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
     # foo => {...} , bar => {...}
+    # older legacy:
+    # [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
     my @rules;
     if ( ref($raw_rules) eq 'HASH' ) {
         # TODO: remove in 2028
         # transform the hash { foo => { ...} }
-        # into array ref [ '$f1 eq foo' => { ... } ]
-        my $h = $raw_rules;
-        @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : %$h;
+        # into array ref [ { if => '$f1 eq foo', ... } ]
+        foreach my $key (keys $raw_rules->%*) {
+            my %h = (
+                when  => $follow ? "\$f1 eq '$key'" : $key,
+                apply => $raw_rules->{$key},
+            );
+            push @rules, \%h;
+        }
         $self->show_legacy_issue(
             "$config_class_name $elt_name: using a hash for warp rule is deprecated. ".
             qq!Please use a array ref [ when => "$rules[0]{when}", apply => ...].!
         );
     }
-    elsif ( ref($raw_rules) eq 'ARRAY' ) {
+    elsif ( ref($raw_rules) eq 'ARRAY' and ref $raw_rules->[0] eq 'HASH') {
+        # no translation needed
+        @rules = $raw_rules->@*;
+    }
+    elsif ( ref($raw_rules) eq 'ARRAY') {
         # now translate [ f1a, f1b]  => { ... }
-        # into "$f1 eq f1a or $f1 eq f1b " => { ... }
+        # into { when => "$f1 eq f1a or $f1 eq f1b ", ... }
         my @raw_rules = @{$raw_rules};
         for ( my $r_idx = 0 ; $r_idx < $#raw_rules ; $r_idx += 2 ) {
             my $key_set   = $raw_rules[$r_idx];
             # TODO: remove $key_set as array ref in 2028
             my @keys      = ref($key_set) ? @$key_set : ($key_set);
-            my @bool_expr = $follow ? map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys : @keys;
-            push @rules, join( ' or ', @bool_expr ), $raw_rules[ $r_idx + 1 ];
+            my @bool_expr;
+            foreach my $key (@keys) {
+                my $expr = sprintf(q!$f1 eq '%s'!, $key);
+                push @bool_expr, ($follow and $key !~ /\$/) ? $expr : $key;
+            }
+            my $rule_ref = $raw_rules[ $r_idx + 1 ];
+            if (ref $rule_ref ne 'HASH') {
+                Config::Model::Exception::ModelDeclaration->throw(
+                    error => "Warp rule error in element "
+                    . "'$config_class_name->$elt_name': "
+                    . "rule effect must be a hash ref. Got '$rule_ref'" );
+            }
+            
+            my %new_rule = (
+                when => join( ' or ', @bool_expr ),
+                apply => $rule_ref,
+            );
+            push @rules, \%new_rule;
             $self->show_legacy_issue(
                 "$config_class_name $elt_name: using an array for warp rule test is deprecated. ".
-                "Please use a string with named parameters like «$rules[0]»."
+                "Please use a string with named parameters like «$new_rule{when}»."
             ) if @keys > 1;
         }
     }
@@ -1086,14 +1111,13 @@ sub translate_rules_arg {
         Config::Model::Exception::ModelDeclaration->throw(
                   error => "Warp rule error in element "
                 . "'$config_class_name->$elt_name': "
-                . "rules must be a hash ref. Got '$raw_rules'" );
+                . "rules must be an array ref. Got '$raw_rules'" );
     }
 
-    for ( my $idx = 1 ; $idx < @rules ; $idx += 2 ) {
-        next unless ( ref $rules[$idx] eq 'HASH' );    # other cases are illegal and trapped later
-        $self->handle_experience_permission( $config_class_name, $rules[$idx] );
+    for my $rule (@rules) {
+        $self->handle_experience_permission( $config_class_name, $rule );
         next unless defined $type and $type eq 'leaf';
-        $self->translate_legacy_builtin( $config_class_name, $rules[$idx], $rules[$idx] );
+        $self->translate_legacy_builtin( $config_class_name, $rule, $rule );
     }
 
     return \@rules;

@@ -958,14 +958,20 @@ the value of the C<macro> parameter:
  warped_choice_list => {
      type => 'check_list',
      warp => {
-         follow => '- macro',
-         rules  => {
-             AD => {
+         follow => { m => '- macro'},
+         rules  => [
+          {
+             when => '$m eq "AD"',
+             apply => {
                  choice => [ 'A' .. 'D' ],
                  default_list => ['A', 'B' ]
              },
-             AH => { choice => [ 'A' .. 'H' ] },
-         }
+          },
+          {
+             when => '$m eq "AH"',
+             apply => { choice => [ 'A' .. 'H' ] },
+          }
+        ]
      }
  },
 
