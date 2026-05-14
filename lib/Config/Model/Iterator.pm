@@ -22,10 +22,6 @@ sub new ($type, %args){
         status                 => 'standard',
     };
 
-    if (delete $args{experience}) {
-        carp "experience parameter is deprecated";
-    }
-
     foreach my $p (qw/root/) {
         $self->{$p} = delete $args{$p}
             or croak "Iterator->new: Missing $p parameter";

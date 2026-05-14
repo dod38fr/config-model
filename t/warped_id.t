@@ -88,7 +88,7 @@ $model->create_config_class(
                 follow  => '- macro',
                 'rules' => {
                     'A' => {
-                        level => 'advanced',
+                        level => 'important',
                     },
                 }
             },

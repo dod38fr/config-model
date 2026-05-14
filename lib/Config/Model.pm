@@ -414,8 +414,6 @@ sub copy_element_information ($self, $model, $normalized_model, $config_class_na
             # warp can be found only in element item
             $self->translate_legacy_info( $config_class_name, $element_names[0], $info );
 
-            $self->handle_experience_permission( $config_class_name, $info );
-
             # copy in element data *after* legacy translation
             foreach my $name (@element_names) {
                 $model->{element}{$name} = dclone($info);
@@ -540,8 +538,6 @@ sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
 
     $self->check_element_duplicates($config_class_name, \@element_list);
 
-    $self->handle_experience_permission( $config_class_name, $normalized_model );
-
     # element is handled first
     $self->copy_element_information ($model, $normalized_model, $config_class_name);
 
@@ -559,18 +555,6 @@ sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
     $model->{element_list} = \@element_list;
 
     return $model;
-}
-
-sub handle_experience_permission {
-    my ( $self, $config_class_name, $model ) = @_;
-
-    if (delete $model->{permission}) {
-        die "$config_class_name: parameter permission is obsolete\n";
-    }
-    if (delete $model->{experience}) {
-        carp "experience parameter is deprecated";
-    }
-    return;
 }
 
 sub translate_legacy_info {
@@ -1089,7 +1073,6 @@ sub translate_rules_arg {
     }
 
     for my $rule (@rules) {
-        $self->handle_experience_permission( $config_class_name, $rule );
         next unless defined $type and $type eq 'leaf';
         $self->translate_legacy_builtin( $config_class_name, $rule, $rule );
     }
@@ -2023,10 +2006,6 @@ enum like type, default value ...)
 
 =item *
 
-The targeted audience (beginner, advanced, master)
-
-=item *
-
 The on-line help
 
 =back
@@ -2317,12 +2296,6 @@ The default values of parameters (if any)
 =item *
 
 Whether the parameter is mandatory
-
-=item *
-
-Targeted audience (beginner, advance, master), i.e. the level of
-expertise required to tinker a parameter (to hide expert parameters
-from newbie eyes)
 
 =item *
 

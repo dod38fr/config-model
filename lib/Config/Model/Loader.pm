@@ -102,10 +102,6 @@ sub load ($self, %args) {
 
     my $caller_is_root = delete $args{caller_is_root};
 
-    if (delete $args{experience}) {
-        carp "load: experience parameter is deprecated";
-    }
-
     my $inst = $node->instance;
 
     # tune value checking
