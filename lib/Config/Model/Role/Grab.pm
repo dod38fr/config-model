@@ -76,7 +76,7 @@ sub grab ($self, @args) {
           )+      # can have several parts in one command
          )        # end of *one* command
         /gx
-    );
+    ); # " # work-around cperl-mode issues
 
     my @saved = @command;
 

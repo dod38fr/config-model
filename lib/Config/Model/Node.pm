@@ -84,7 +84,7 @@ sub fetch_gist {
     my $self = shift;
     my $gist = $self->gist // '';
     # handle hash or list element count
-    $gist =~ s!\@\{([\w -]+)}!$self->grab($1)->fetch_size!ge;
+    $gist =~ s!\@\{([\w -]+)\}!$self->grab($1)->fetch_size!ge;
     # handle element value
     $gist =~ s!{([\w -]+)}!$self->grab($1)->fetch // ''!ge;
     return $gist;
