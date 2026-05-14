@@ -87,6 +87,12 @@ sub fetch_gist {
     $gist =~ s!\@\{([\w -]+)\}!$self->grab($1)->fetch_size!ge;
     # handle element value
     $gist =~ s!{([\w -]+)}!$self->grab($1)->fetch // ''!ge;
+
+    # cleanup extra white spaces
+    $gist =~ s!\s+! !g;
+    $gist =~ s/^\s//;
+    $gist =~ s/\s$//;
+
     return $gist;
 }
 
@@ -1296,6 +1302,8 @@ may contain element values in the form "C<{foo} and
 @{a_hash_or_list}>". When constructing the gist, C<{foo}> is replaced
 by the value of element C<foo>, and C<@{a_hash_of_list}> is replaced
 by the number of elements of the hash or list element.
+
+Resulting gist is trimmed of extra spaces.
 
 =item B<level>
 
