@@ -46,10 +46,6 @@ $model->create_config_class(
             type  => 'leaf',
             class => 'Config::Model::Value',
             @args,
-            warp => {
-                follow => '- enum',
-                rules  => \@rules
-            }
         },
         recursive_warped_object => {
             type  => 'leaf',
@@ -61,7 +57,6 @@ $model->create_config_class(
             type  => 'leaf',
             class => 'Config::Model::Value',
             @args,
-            warp => { follow => '- enum', rules => \@rules },
         },
         'Standards-Version' => {
             'default' => '4.1.0',
@@ -90,7 +85,11 @@ $model->create_config_class(
             }
         },
 
-    ],    # dummy class
+    ],
+    # experimental
+    warp => [
+        [qw/warped_object w2 w3/] => { follow => '- enum', rules => \@rules },
+    ]
 );
 
 # check model content

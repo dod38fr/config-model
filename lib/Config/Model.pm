@@ -423,8 +423,10 @@ sub copy_element_information ($self, $model, $normalized_model, $config_class_na
     return;
 }
 
+# 2026-05-14 experiment: also copy warp information. This does not apply to
+# warp property inside cargo spec.
 sub copy_element_properties ($self, $model, $normalized_model, $config_class_name) {
-    foreach my $info_name (qw/status description summary level/) {
+    foreach my $info_name (qw/status description summary level warp/) {
         my $raw_compact_info = delete $normalized_model->{$info_name};
 
         next unless defined $raw_compact_info;
@@ -440,7 +442,10 @@ sub copy_element_properties ($self, $model, $normalized_model, $config_class_nam
             my @element_names = ref($item) ? @$item : ($item);
 
             # move some information into element declaration (without clobberring)
-            if ( $info_name =~ /^description|level|summary|status$/ ) {
+            if ( $info_name =~ /^description|level|summary|status|warp$/ ) {
+                if ($info_name eq 'warp') {
+                    $self->translate_warp_info( $config_class_name, $element_names[0], $info );
+                }
                 foreach my $elt_name (@element_names) {
                     Config::Model::Exception::ModelDeclaration->throw(
                         error => "create class $config_class_name: '$info_name' "
