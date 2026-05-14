@@ -567,7 +567,7 @@ sub translate_legacy_info {
 
     #translate legacy warp information
     if ( defined $info->{warp} ) {
-        $self->translate_warp_info( $config_class_name, $elt_name, $info->{type}, $info->{warp} );
+        $self->translate_warp_info( $config_class_name, $elt_name, $info->{warp} );
     }
 
     $self->translate_cargo_info( $config_class_name, $elt_name, $info );
@@ -580,10 +580,7 @@ sub translate_legacy_info {
 
     if (    defined $info->{cargo}
         and defined $info->{cargo}{warp} ) {
-        $self->translate_warp_info(
-            $config_class_name, $elt_name,
-            $info->{cargo}{type},
-            $info->{cargo}{warp} );
+        $self->translate_warp_info($config_class_name, $elt_name, $info->{cargo}{warp} );
     }
 
     # compute cannot be warped
@@ -939,7 +936,7 @@ sub translate_warped_node_info {
 
 # internal: translate warp information into 'boolean expr' => { ... }
 sub translate_warp_info {
-    my ( $self, $config_class_name, $elt_name, $type, $warp_info ) = @_;
+    my ( $self, $config_class_name, $elt_name, $warp_info ) = @_;
 
     $legacy_logger->debug(
         "translate_warp_info $elt_name input:\n",
@@ -954,7 +951,7 @@ sub translate_warp_info {
     my $multi_follow = @warper_items > 1 ? 1 : 0;
 
     my $rules =
-        $self->translate_rules_arg( $config_class_name, $elt_name, $type, \@warper_items,
+        $self->translate_rules_arg( $config_class_name, $elt_name, \@warper_items,
         $warp_info->{rules} );
 
     $warp_info->{follow} = $follow;
@@ -1000,7 +997,7 @@ sub translate_follow_arg {
 }
 
 sub translate_rules_arg {
-    my ( $self, $config_class_name, $elt_name, $type, $warper_items, $raw_rules ) = @_;
+    my ( $self, $config_class_name, $elt_name, $warper_items, $raw_rules ) = @_;
 
     my $follow = @$warper_items;
 
@@ -1073,7 +1070,7 @@ sub translate_rules_arg {
     }
 
     for my $rule (@rules) {
-        next unless defined $type and $type eq 'leaf';
+        # no effect on non leaf type which cannot have old built_in
         $self->translate_legacy_builtin( $config_class_name, $rule, $rule );
     }
 
