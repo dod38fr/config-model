@@ -26,7 +26,7 @@ my $logger = get_logger("Grab");
 # - climbs up
 # ! climbs up to the top
 
-# Now return an object and not a value !
+# Now returns an object and not a value !
 
 sub grab ($self, @args) {
     my %args = _resolve_arg_shortcut(\@args, 'steps');
@@ -404,12 +404,12 @@ Examples:
 
 =item C<autoadd>
 
-When set to 1, C<hash> or C<list> configuration element are created
+When set to 1, C<hash> or C<list> configuration elements are created
 when requested by the passed steps. (default is 1). 
 
 =item grab_non_available
 
-When set to 1, grab returns an object even if this one is not
+When set to 1, C<grab> returns an object even if this one is not
 available. I.e. even if this element was warped out. (default is 0).
 
 =back
