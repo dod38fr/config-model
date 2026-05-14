@@ -262,6 +262,9 @@ eq_or_diff( [ split /\n/, $cds ], [ split /\n/, $expect ], "check dump of all pr
 my $tm = $root->fetch_element('tree_macro');
 for ( qw/XY XZ mXY XY mXY XZ/ ) { $tm->store($_); }
 
+# store data in warped in node
+$root->load("warped_node_list:0 aa2=plop");
+
 $cds = $root->dump_tree( mode => 'user', skip_auto_write => 'cds_file' );
 print "cds string:\n$cds" if $trace;
 

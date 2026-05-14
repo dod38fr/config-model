@@ -253,7 +253,22 @@ return [
             plain_object => {
                 type              => 'node',
                 config_class_name => 'SubSlave2',
-            }
+            },
+            warped_node_list => {
+                type => 'list',
+                cargo => {
+                    type              => 'warped_node',
+                    config_class_name => 'SubSlave',
+                    morph             => 1,
+                    warp => {
+                        follow            => '! tree_macro',
+                        rules             => [
+                            mXY => { config_class_name => 'SubSlave2' },
+                            XZ  => { config_class_name => 'SubSlave2' }
+                        ]
+                    }
+                }
+            },
         ],
         description => [
             tree_macro => 'controls behavior of other elements'

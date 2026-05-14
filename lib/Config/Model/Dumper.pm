@@ -132,7 +132,7 @@ sub dump_tree ($self, %args) {
         my $list_note = note_quote( $list_obj->annotation );
         $$data_r .= "\n$pad$element#$list_note" if $list_note;
 
-        if ( $list_obj->cargo_type eq 'node' ) {
+        if ( $list_obj->cargo_type =~ 'node' ) {
             foreach my $k (@keys) {
                 $scanner->scan_list( $data_r, $node, $element, $k );
             }
