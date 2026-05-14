@@ -635,10 +635,8 @@ sub translate_legacy_info {
             $self->translate_id_auto_create( $config_class_name, $elt_name, $info );
         }
         $self->translate_id_min_max( $config_class_name, $elt_name, $info );
-        $self->translate_id_names( $config_class_name, $elt_name, $info );
         if ( defined $info->{warp} ) {
             foreach my $rule_effect ( map { $_->{apply} } $info->{warp}{rules}->@*) {
-                $self->translate_id_names( $config_class_name, $elt_name, $rule_effect );
                 $self->translate_id_min_max( $config_class_name, $elt_name, $rule_effect );
                 next unless defined $rule_effect->{default};
                 $self->translate_id_default_info( $config_class_name, $elt_name, $rule_effect );
@@ -747,30 +745,6 @@ sub translate_cargo_info {
     $legacy_logger->debug( 
         Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ) 
     ) if $legacy_logger->is_debug;
-    return;
-}
-
-sub translate_id_names {
-    my $self              = shift;
-    my $config_class_name = shift;
-    my $elt_name          = shift;
-    my $info              = shift;
-    $self->translate_name( $config_class_name, $elt_name, $info, 'allow',      'allow_keys',       'die' );
-    $self->translate_name( $config_class_name, $elt_name, $info, 'allow_from', 'allow_keys_from',  'die' );
-    $self->translate_name( $config_class_name, $elt_name, $info, 'follow',     'follow_keys_from', 'die' );
-    return;
-}
-
-sub translate_name {
-    my ($self, $config_class_name, $elt_name, $info, $from, $to, $legacy) = @_;
-
-    if ( defined $info->{$from} ) {
-        $self->show_legacy_issue(
-            "$config_class_name->$elt_name: parameter $from is deprecated in favor of $to",
-            $legacy
-        );
-        $info->{$to} = delete $info->{$from};
-    }
     return;
 }
 
