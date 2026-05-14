@@ -441,13 +441,13 @@ sub copy_element_properties ($self, $model, $normalized_model, $config_class_nam
 
             # move some information into element declaration (without clobberring)
             if ( $info_name =~ /^description|level|summary|status$/ ) {
-                foreach (@element_names) {
+                foreach my $elt_name (@element_names) {
                     Config::Model::Exception::ModelDeclaration->throw(
                         error => "create class $config_class_name: '$info_name' "
-                            . "declaration for non declared element '$_'" )
-                        unless defined $model->{element}{$_};
+                            . "declaration for non declared element '$elt_name'" )
+                        unless defined $model->{element}{$elt_name};
 
-                    $model->{element}{$_}{$info_name} ||= $info;
+                    $model->{element}{$elt_name}{$info_name} //= $info;
                 }
             }
             else {
