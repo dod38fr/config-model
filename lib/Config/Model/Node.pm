@@ -1329,7 +1329,7 @@ element raises an exception (See L<Config::Model::Exception>.
 
   status  => [ [qw/X Y/] => 'obsolete' ]
 
-=item B<description>
+=item B<summary>
 
 Optional C<list ref> of element summaries. These summaries may be used
 when generating user interfaces.
