@@ -80,10 +80,11 @@ __END__
  $model->create_config_class(
     name    => "Foo",
     element => [
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
     ],
     description => [
         foo => 'some foo explanation',
@@ -95,11 +96,11 @@ __END__
     name => "MyClass",
 
     element => [
-
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
         my_enum => {
             type       => 'leaf',
             value_type => 'enum',

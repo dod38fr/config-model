@@ -2013,21 +2013,19 @@ __END__
     name => "MyClass",
 
     element => [
-
-        [qw/foo bar/] => {
+        foo => {
             type	   => 'leaf',
             value_type => 'string',
             description => 'foobar',
-        }
-        ,
+        },
+        bar => '*foo',
         country => {
             type =>		  'leaf',
             value_type => 'enum',
             choice =>	   [qw/France US/],
             description => 'big countries',
         }
-    ,
-    ],
+    ]
  ) ;
 
  my $inst = $model->instance(root_class_name => 'MyClass' );

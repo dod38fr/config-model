@@ -347,21 +347,22 @@ sub list_cd_path ($self) {
   $model->create_config_class(
     name    => "Foo",
     element => [
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
     ]
  );
  $model ->create_config_class (
     name => "MyClass",
 
     element => [
-
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
         hash_of_nodes => {
             type       => 'hash',     # hash id
             index_type => 'string',

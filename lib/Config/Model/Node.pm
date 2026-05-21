@@ -1183,11 +1183,13 @@ __END__
     class_description => "OneConfigClass detailed description",
 
     element => [
-        [qw/X Y Z/] => {
+        X => {
             type       => 'leaf',
             value_type => 'enum',
             choice     => [qw/Av Bv Cv/]
-        }
+        },
+        Y => '*X', # same properties as X element
+        Z => '*X', # same properties as X element
     ],
 
     status      => [ X => 'deprecated' ],
@@ -1287,9 +1289,9 @@ Mandatory C<list ref> of elements of the configuration class :
                bar => { type = 'leaf', ... }
              ]
 
-Element names can be grouped to save typing:
+Element names can be aliases to save typing:
 
-  element => [ [qw/foo bar/] => { type = 'leaf', ... } ]
+  element => [ foo => { type = 'leaf', ... }, bar => '*foo' ]
 
 See below for details on element declaration.
 
@@ -1499,6 +1501,29 @@ C<leaf> (default).
 
 See L<Config::Model::ListId> and L<Config::Model::AnyId> for more
 details.
+
+=head1 Declaration re-use
+
+Element names can be aliases to save typing:
+
+  element => [
+    foo => { type = 'leaf', ... },
+    bar => '*foo'
+  ]
+
+Since each element probably have different purpose, their description
+can be declared outside of the element list using aliases:
+
+  element => [
+    foo => { type = 'leaf', ... },
+    bar => '*foo',
+  ],
+  description => {
+    foo => 'foo description'
+    bar => 'bar description'
+  }
+
+The element properties C<summary> and C<warp> can also be aliased.
 
 =head1 Constructor
 

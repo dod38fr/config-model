@@ -1065,10 +1065,11 @@ __END__
  $model->create_config_class(
     name    => "Foo",
     element => [
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
     ]
  );
 
@@ -1088,7 +1089,9 @@ __END__
             index_type => 'integer',
 
             # hash boundaries
-            min_index => 1, max_index => 123, max_nb => 2,
+            min_index => 1,
+            max_index => 123,
+            max_nb => 2,
 
             # specify cargo held by hash
             cargo => {

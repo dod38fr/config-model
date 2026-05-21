@@ -32,11 +32,13 @@ subtest "test simple model (Sarge)" => sub {
         summary     => [ X => 'X-ray (summary)' ],
 
         element => [
-            [qw/D X Y Z/] => {
+            D => {
                 type       => 'leaf',
                 class      => 'Config::Model::Value',
                 value_type => 'enum',
-                choice     => [qw/Av Bv Cv/] }
+                choice     => [qw/Av Bv Cv/]
+            },
+            qw/X *D Y *D Z *D/
         ],
     );
 

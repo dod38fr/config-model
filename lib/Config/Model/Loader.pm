@@ -1146,10 +1146,11 @@ __END__
   $model->create_config_class(
     name    => "Foo",
     element => [
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
     ]
  );
 
@@ -1158,10 +1159,11 @@ __END__
 
     element => [
 
-        [qw/foo bar/] => {
+        foo => {
             type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
         hash_of_nodes => {
             type       => 'hash',     # hash id
             index_type => 'string',
@@ -1170,12 +1172,14 @@ __END__
                 config_class_name => 'Foo'
             },
         },
-        [qw/lista listb/] => {
-			      type => 'list',
-			      cargo =>  {type => 'leaf',
-					 value_type => 'string'
-					}
-			      },
+        lista => {
+            type => 'list',
+            cargo =>  {
+                type => 'leaf',
+                value_type => 'string'
+            }
+        },
+        listb => '*lista',
     ],
  ) ;
 

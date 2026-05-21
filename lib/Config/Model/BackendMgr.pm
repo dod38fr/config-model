@@ -483,11 +483,13 @@ __END__
  $model->create_config_class(
     name    => "Foo",
     element => [
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
+      'foo' => {
+        'value_type' => 'string',
+        'type' => 'leaf'
+      },
+      'bar' => '*foo'
     ]
+
  );
 
  $model->create_config_class(
@@ -502,18 +504,19 @@ __END__
     },
 
     element => [
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-        hash_of_nodes => {
-            type       => 'hash',     # hash id
-            index_type => 'string',
-            cargo      => {
-                type              => 'node',
-                config_class_name => 'Foo'
-            },
-        },
+      'foo' => {
+        'value_type' => 'string',
+        'type' => 'leaf'
+      },
+      'bar' => '*foo'
+      hash_of_nodes => {
+          type       => 'hash',     # hash id
+          index_type => 'string',
+          cargo      => {
+              type              => 'node',
+              config_class_name => 'Foo'
+          },
+      },
     ],
  );
 

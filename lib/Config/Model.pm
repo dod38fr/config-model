@@ -406,20 +406,68 @@ sub include_backend {
 
 sub copy_element_information ($self, $model, $normalized_model, $config_class_name) {
     if (my $elt_info = delete $normalized_model->{element}) {
+        # TODO: remove in 2029
+        $self->translate_legacy_element_names($config_class_name, $elt_info);
+
         my @raw_info = $elt_info->@*;
+        my %elt_info;
         while (@raw_info) {
-            my ( $item, $info ) = splice @raw_info, 0, 2;
-            my @element_names = ref($item) ? @$item : ($item);
+            my ( $name, $info ) = splice @raw_info, 0, 2;
 
-            # warp can be found only in element item
-            $self->translate_legacy_info( $config_class_name, $element_names[0], $info );
-
-            # copy in element data *after* legacy translation
-            foreach my $name (@element_names) {
-                $model->{element}{$name} = dclone($info);
+            my $actual_info;
+            if (ref $info) {
+                # warp can be found only in element item
+                $self->translate_legacy_info( $config_class_name, $name, $info );
+                $actual_info = $info;
+                $elt_info{$name} = $info;
             }
+            elsif ($info =~ /^\*(.*)/) {
+                my $target = $1;
+                $actual_info = $elt_info{$target};
+                if (not defined $actual_info) {
+                    Config::Model::Exception::ModelDeclaration->throw(
+                        error => "Element alias '$info' points to unknown element. ".
+                        " Aliased element must be declared before alias. Expected one of ".
+                        join(' ',sort keys %elt_info)
+                    );
+                }
+            }
+            else {
+                Config::Model::Exception::ModelDeclaration->throw(
+                    error => "Unpexpected element info: $info"
+                );
+            }
+
+            $model->{element}{$name} = dclone($actual_info);
         }
     }
+    return;
+}
+
+# translate [qw/A B C/ => <info>]
+# in [ A => <info>, B => '*A', c => '*A']
+sub translate_legacy_element_names($self, $config_class_name, $elt_info) {
+    my @raw_info = $elt_info->@*;
+    my @new_info;
+
+    while (@raw_info) {
+        my ( $item, $info ) = splice @raw_info, 0, 2;
+
+        my @element_names = ref($item) ? @$item : ($item);
+        my $first = shift @element_names;
+        push @new_info, $first, $info;
+
+        if (@element_names > 0) {
+            $self->show_legacy_issue("$config_class_name: element '@element_names': ".
+                                     "should use aliases to $first instead of array ref.", 'warn');
+        }
+        foreach my $name (@element_names) {
+            push @new_info, $name, '*'.$first;
+        }
+    }
+
+    $elt_info->@* = @new_info;
+
     return;
 }
 
@@ -1843,10 +1891,17 @@ __END__
  # file in lib/Config/Model/models. Then, run cme as explained below
  $model ->create_config_class (
    name => "MiniModel",
-   element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
-   rw_config => { backend => 'IniFile', auto_create => 1,
-                  config_dir => '.', file => 'mini.ini',
-                }
+   element => [
+     foo => { type => 'leaf', value_type => 'uniline' },
+     bar => '*foo',
+     baz => '*foo',
+   ],
+   rw_config => {
+     backend => 'IniFile',
+     auto_create => 1,
+     config_dir => '.',
+     file => 'mini.ini',
+   }
  ) ;
 
  # create instance (Config::Model::Instance object)
@@ -1867,7 +1922,7 @@ __END__
 
  $ mkdir -p lib/Config/Model/models/
  $ echo "[ { name => 'MiniModel', \
-             element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ], \
+             element => [ foo => { type => 'leaf', value_type => 'uniline' }, qw/bar *foo baz *foo/], \
              rw_config => { backend => 'IniFile', auto_create => 1, \
                             config_dir => '.', file => 'mini.ini', \
                           } \

@@ -143,10 +143,11 @@ __END__
  $model ->create_config_class (
     name => "MyClass",
     element => [ 
-        [qw/foo bar/] => { 
-            type => 'leaf',
+        foo => {
+            type       => 'leaf',
             value_type => 'string'
         },
+        bar => '*foo',
         baz => { 
             type => 'hash',
             index_type => 'string' ,
@@ -155,7 +156,6 @@ __END__
                 value_type => 'string',
             },
         },
-        
     ],
  ) ;
 

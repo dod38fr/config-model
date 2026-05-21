@@ -536,10 +536,11 @@ __END__
     name => "MyClass",
 
     element => [
-       [qw/av bv/] => {
+       av => {
            type => 'leaf',
            value_type => 'integer',
        },
+       bv => '*av',
        compute_int => {
 	       type => 'leaf',
                value_type => 'integer',
@@ -846,10 +847,11 @@ Example:
 
 =head2 String substitution
 
- [qw/sav sbv/] => {
+ sav => {
      type       => 'leaf',
      value_type => 'string',
    },
+ sbv => '*sav',
  compute_string => {
      type       => 'leaf',
      value_type => 'string',
