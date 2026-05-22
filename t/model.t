@@ -28,8 +28,8 @@ subtest "test simple model (Sarge)" => sub {
     my $class_name = $model->create_config_class(
         name       => 'Sarge',
         status      => [ D => 'deprecated' ], #could be obsolete, standard
-        description => [ X => 'X-ray (long description)' ],
-        summary     => [ X => 'X-ray (summary)' ],
+        description => [ [qw/X Y Z/] => 'a long description' ],
+        summary     => [ [qw/X Y Z/] => 'a summary' ],
 
         element => [
             D => {
@@ -62,11 +62,11 @@ subtest "test simple model (Sarge)" => sub {
         $model->get_element_model( $class_name, 'X' ),
         {
             'value_type'  => 'enum',
-            'summary'     => 'X-ray (summary)',
+            'summary'     => 'a summary',
             'type'        => 'leaf',
             'class'       => 'Config::Model::Value',
             'choice'      => [ 'Av', 'Bv', 'Cv' ],
-            'description' => 'X-ray (long description)'
+            'description' => 'a long description'
         },
         "check $class_name X element model"
     );
