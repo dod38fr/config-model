@@ -504,22 +504,17 @@ sub copy_element_properties ($self, $model, $raw_model, $config_class_name) {
             else {
                 $actual_prop = $prop;
             }
-            # move some proprmation into element declaration (without clobberring)
-            if ( $prop_name =~ /^description|level|summary|status|warp$/ ) {
-                if ($prop_name eq 'warp') {
-                    $self->translate_warp_info( $config_class_name, $elt_name, $actual_prop );
-                }
-                if (not defined $model->{element}{$elt_name}) {
-                    Config::Model::Exception::ModelDeclaration->throw(
-                        error => "create class $config_class_name: '$prop_name' "
-                        . "declaration for non declared element '$elt_name'" );
-                }
+            # move some property information into element declaration (without clobberring)
+            if ($prop_name eq 'warp') {
+                $self->translate_warp_info( $config_class_name, $elt_name, $actual_prop );
+            }
+            if (not defined $model->{element}{$elt_name}) {
+                Config::Model::Exception::ModelDeclaration->throw(
+                    error => "create class $config_class_name: '$prop_name' "
+                    . "declaration for non declared element '$elt_name'" );
+            }
 
-                $model->{element}{$elt_name}{$prop_name} //= $actual_prop;
-            }
-            else {
-                die "Unexpected element $prop_name in $config_class_name model";
-            }
+            $model->{element}{$elt_name}{$prop_name} //= $actual_prop;
         }
     }
     return;
