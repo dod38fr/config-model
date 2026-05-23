@@ -1318,7 +1318,11 @@ user in browsing mode. C<Important> elements are shown to the user
 no matter what. C<hidden> elements are explained with the I<warp>
 notion.
 
-  level  => [ [qw/X Y/] => 'important' ]
+  level  => {
+              'X' => 'important'
+              'Y' => '*X',
+            }
+
 
 =item B<status>
 
@@ -1329,7 +1333,11 @@ C<deprecated> or C<standard>.
 Using a deprecated element issues a warning. Using an obsolete
 element raises an exception (See L<Config::Model::Exception>.
 
-  status  => [ [qw/X Y/] => 'obsolete' ]
+  status  => {
+              'X' => 'obsolete',
+              'Y' => '*X'
+            }
+
 
 =item B<summary>
 
@@ -1714,12 +1722,14 @@ Retrieve a property of an element.
 
 I.e. for a model :
 
-  status     => [ X => 'deprecated' ]
   element    => [ X => { ... } ]
+  status     => { X => 'deprecated' }
 
-This call returns C<deprecated>:
+This call:
 
   $node->get_element_property ( element => 'X', property => 'status' )
+
+returns C<deprecated>
 
 =head2 set_element_property
 

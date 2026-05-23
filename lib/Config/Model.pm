@@ -407,7 +407,7 @@ sub include_backend {
 sub copy_element_information ($self, $model, $normalized_model, $config_class_name) {
     if (my $elt_info = delete $normalized_model->{element}) {
         # TODO: remove in 2029
-        $self->translate_legacy_element_names($config_class_name, $elt_info);
+        $self->translate_legacy_element_info($config_class_name, $elt_info, 'name');
 
         my @raw_info = $elt_info->@*;
         my %elt_info;
@@ -446,7 +446,7 @@ sub copy_element_information ($self, $model, $normalized_model, $config_class_na
 
 # translate [qw/A B C/ => <info>]
 # in [ A => <info>, B => '*A', c => '*A']
-sub translate_legacy_element_names($self, $config_class_name, $elt_info) {
+sub translate_legacy_element_info($self, $config_class_name, $elt_info, $info_name) {
     my @raw_info = $elt_info->@*;
     my @new_info;
 
@@ -458,7 +458,7 @@ sub translate_legacy_element_names($self, $config_class_name, $elt_info) {
         push @new_info, $first, $info;
 
         if (@element_names > 0) {
-            $self->show_legacy_issue("$config_class_name: element '@element_names': ".
+            $self->show_legacy_issue("$config_class_name: element $info_name '@element_names': ".
                                      "should use aliases to $first instead of array ref.", 'warn');
         }
         foreach my $name (@element_names) {
@@ -474,41 +474,68 @@ sub translate_legacy_element_names($self, $config_class_name, $elt_info) {
 # 2026-05-14 experiment: also copy warp information. This does not apply to
 # warp property inside cargo spec.
 sub copy_element_properties ($self, $model, $normalized_model, $config_class_name) {
-    foreach my $info_name (qw/status description summary level warp/) {
-        my $raw_compact_info = delete $normalized_model->{$info_name};
+    foreach my $prop_name (qw/status description summary level warp/) {
+        my $raw_prop = $self->translate_legacy_element_properties(
+            $config_class_name,
+            delete $normalized_model->{$prop_name},
+            $prop_name
+        );
 
-        next unless defined $raw_compact_info;
+        next unless defined $raw_prop;
 
         Config::Model::Exception::ModelDeclaration->throw(
-            error => "Data for parameter $info_name of $config_class_name"
-                . " is not an array ref" )
-            unless ref($raw_compact_info) eq 'ARRAY';
+            error => "Data for parameter $prop_name of $config_class_name"
+            . " is not a hash ref" )
+            unless ref($raw_prop) eq 'HASH';
 
-        my @raw_info = @$raw_compact_info;
-        while (@raw_info) {
-            my ( $item, $info ) = splice @raw_info, 0, 2;
-            my @element_names = ref($item) ? @$item : ($item);
 
-            # move some information into element declaration (without clobberring)
-            if ( $info_name =~ /^description|level|summary|status|warp$/ ) {
-                if ($info_name eq 'warp') {
-                    $self->translate_warp_info( $config_class_name, $element_names[0], $info );
-                }
-                foreach my $elt_name (@element_names) {
+        while (my ( $elt_name, $prop ) = each $raw_prop->%*) {
+            my $actual_prop;
+            if (not ref $prop and $prop =~ /^\*(.*)/) {
+                $actual_prop = $raw_prop->{$1};
+                if (not defined $actual_prop) {
+                    my @allowed = grep {! /^\*/ } sort keys $raw_prop->%*;
                     Config::Model::Exception::ModelDeclaration->throw(
-                        error => "create class $config_class_name: '$info_name' "
-                            . "declaration for non declared element '$elt_name'" )
-                        unless defined $model->{element}{$elt_name};
-
-                    $model->{element}{$elt_name}{$info_name} //= $info;
+                        error => "$prop_name alias '$prop' points to unknown $prop_name. ".
+                        " Expected one of @allowed"
+                    );
                 }
             }
             else {
-                die "Unexpected element $item in $config_class_name model";
+                $actual_prop = $prop;
+            }
+            # move some proprmation into element declaration (without clobberring)
+            if ( $prop_name =~ /^description|level|summary|status|warp$/ ) {
+                if ($prop_name eq 'warp') {
+                    $self->translate_warp_info( $config_class_name, $elt_name, $actual_prop );
+                }
+                if (not defined $model->{element}{$elt_name}) {
+                    Config::Model::Exception::ModelDeclaration->throw(
+                        error => "create class $config_class_name: '$prop_name' "
+                        . "declaration for non declared element '$elt_name'" );
+                }
+
+                $model->{element}{$elt_name}{$prop_name} //= $actual_prop;
+            }
+            else {
+                die "Unexpected element $prop_name in $config_class_name model";
             }
         }
     }
     return;
+}
+
+# translate [qw/A B C/ => <info>]
+# in [ A => <info>, B => '*A', c => '*A']
+sub translate_legacy_element_properties($self, $config_class_name, $properties, $prop_name) {
+    if (ref $properties ne 'ARRAY') {
+        return $properties;
+    }
+
+    $self->translate_legacy_element_info($config_class_name, $properties, $prop_name);
+    my %new_prop = $properties->@*;
+
+    return \%new_prop;
 }
 
 sub extract_element_list ($self, $normalized_model) {
