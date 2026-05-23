@@ -404,8 +404,8 @@ sub include_backend {
     return;
 }
 
-sub copy_element_information ($self, $model, $normalized_model, $config_class_name) {
-    if (my $elt_info = delete $normalized_model->{element}) {
+sub copy_element_information ($self, $model, $raw_model, $config_class_name) {
+    if (my $elt_info = delete $raw_model->{element}) {
         # TODO: remove in 2029
         $self->translate_legacy_element_info($config_class_name, $elt_info, 'name');
 
@@ -473,11 +473,11 @@ sub translate_legacy_element_info($self, $config_class_name, $elt_info, $info_na
 
 # 2026-05-14 experiment: also copy warp information. This does not apply to
 # warp property inside cargo spec.
-sub copy_element_properties ($self, $model, $normalized_model, $config_class_name) {
+sub copy_element_properties ($self, $model, $raw_model, $config_class_name) {
     foreach my $prop_name (qw/status description summary level warp/) {
         my $raw_prop = $self->translate_legacy_element_properties(
             $config_class_name,
-            delete $normalized_model->{$prop_name},
+            delete $raw_model->{$prop_name},
             $prop_name
         );
 
@@ -552,10 +552,10 @@ sub extract_element_list ($self, $normalized_model) {
     return @element_list;
 }
 
-sub extract_accept_parameter ($self, $config_class_name, $model, $normalized_model) {
+sub extract_accept_parameter ($self, $config_class_name, $model, $raw_model) {
     my @accept_list;
     my %accept_hash;
-    my $accept_info = delete $normalized_model->{'accept'} || [];
+    my $accept_info = delete $raw_model->{'accept'} || [];
     while (@$accept_info) {
         my $name_match = shift @$accept_info;    # should be a regexp
 
@@ -593,44 +593,44 @@ sub check_element_duplicates ($self, $config_class_name, $element_list) {
     return;
 }
 
-sub normalize_class_parameters ($self, $config_class_name, $normalized_model) {
+sub normalize_class_parameters ($self, $config_class_name, $raw_model) {
     my $model = {};
 
     # sanity check
-    my $raw_name = delete $normalized_model->{name};
+    my $raw_name = delete $raw_model->{name};
     if ( defined $raw_name and $config_class_name ne $raw_name ) {
         my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
         Config::Model::Exception::ModelDeclaration->throw( error => $e );
     }
 
-    my @element_list = $self->extract_element_list($normalized_model);
+    my @element_list = $self->extract_element_list($raw_model);
 
     foreach my $info (@legal_params_to_move) {
-        next unless defined $normalized_model->{$info};
-        $model->{$info} = delete $normalized_model->{$info};
+        next unless defined $raw_model->{$info};
+        $model->{$info} = delete $raw_model->{$info};
     }
 
     # first deal with perl file and cds_file backend
     $self->translate_legacy_backend_info( $config_class_name, $model );
 
     # handle accept parameter
-    $self->extract_accept_parameter($config_class_name, $model, $normalized_model);
+    $self->extract_accept_parameter($config_class_name, $model, $raw_model);
 
     $self->check_element_duplicates($config_class_name, \@element_list);
 
     # element is handled first
-    $self->copy_element_information ($model, $normalized_model, $config_class_name);
+    $self->copy_element_information ($model, $raw_model, $config_class_name);
 
-    $self->copy_element_properties ($model, $normalized_model, $config_class_name);
+    $self->copy_element_properties ($model, $raw_model, $config_class_name);
 
     Config::Model::Exception::ModelDeclaration->throw(
               error => "create class $config_class_name: unexpected "
             . "parameters '"
-            . join( ', ', sort keys %$normalized_model ) . "' "
+            . join( ', ', sort keys %$raw_model ) . "' "
             . "Expected '"
             . join( "', '", @legal_params_to_move, @other_legal_params )
             . "'" )
-        if keys %$normalized_model;
+        if keys %$raw_model;
 
     $model->{element_list} = \@element_list;
 
