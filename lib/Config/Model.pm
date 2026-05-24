@@ -1970,7 +1970,7 @@ To provide these tools, Config::Model needs:
 =item *
 
 A description of the structure and constraints of the project's configuration
-(fear not, a GUI is available with L<App::Cme>)
+(fear not, a GUI is available with L<App::Cme> to create this structure)
 
 =item *
 
@@ -2257,6 +2257,8 @@ configuration file.
 
 =head1 Configuration Model
 
+=head2 Configuration Model structure
+
 To validate a configuration tree, we must create a configuration model
 that defines all the properties of the validation engine you want to
 create.
@@ -2333,6 +2335,8 @@ classes). But they must be declared as a DAG (directed acyclic graph).
 See also
 L<Directed acyclic graph on Wikipedia|http://en.wikipedia.org/wiki/Directed_acyclic_graph">More on DAGs>
 
+=head2 Configuration Model declaration
+
 Each configuration class declaration specifies:
 
 =over
@@ -2347,11 +2351,11 @@ A C<class_description> used in user interfaces (optional)
 
 =item *
 
-Optional include specification to avoid duplicate declaration of elements.
+Optional include specification to avoid duplicated declaration of elements.
 
 =item *
 
-The class elements
+The class elements (usually matching configuration parameters)
 
 =back
 
@@ -2361,7 +2365,7 @@ Each element specifies:
 
 =item *
 
-Most importantly, the type of the element (mostly C<leaf>, or C<node>)
+First and foremost, the type of the element (mostly C<leaf>, or C<node>)
 
 =item *
 
@@ -2382,35 +2386,50 @@ On-line help (for each parameter or value of parameter)
 
 =back
 
-See L<Config::Model::Node> for details on how to declare a
-configuration class.
+L<Config::Model::Node/"Configuration class declaration"> provides more
+details on how to declare a configuration class.
 
 Example:
 
- $ cat lib/Config/Model/models/Xorg.pl
- [
+ $ cat lib/Config/Model/models/Popcon.pl
+ use strict;
+ use warnings;
+
+ return [
    {
-     name => 'Xorg',
-     class_description => 'Top level Xorg configuration.',
-     include => [ 'Xorg::ConfigDir'],
-     element => [
-                 Files => {
-                           type => 'node',
-                           description => 'File pathnames',
-                           config_class_name => 'Xorg::Files'
-                          },
-                 # snip
-                ]
-   },
-   {
-     name => 'Xorg::DRI',
-     element => [
-                 Mode => {
-                          type => 'leaf',
-                          value_type => 'uniline',
-                          description => 'DRI mode, usually set to 0666'
-                         }
-                ]
+     'name' => 'PopCon',
+     'author' => ['Dominique Dumont'],
+     'copyright' => ['2010,2011 Dominique Dumont'],
+     'license' => 'LGPL2',
+     'element' => [
+       'PARTICIPATE',
+       {
+         'description' => 'If you don\'t want to participate [...]',
+         'type' => 'leaf',
+         'upstream_default' => '0',
+         'value_type' => 'boolean',
+         'write_as' => ['no', 'yes']
+       },
+       'ENCRYPT',
+       {
+         'choice' => ['no', 'maybe', 'yes'],
+         'description' => 'encrypt popcon submission.',
+         'help' => {
+           'maybe' => 'encrypt if gpg is available',
+           'yes' => 'try to encrypt and fail if gpg is not available'
+         },
+         'summary' => 'support for encrypted submissions',
+         'type' => 'leaf',
+         'upstream_default' => 'no',
+         'value_type' => 'enum'
+       },
+       # [etc ...]
+     ],
+     'rw_config' => {
+       'backend' => 'ShellVar',
+       'config_dir' => '/etc',
+       'file' => 'popularity-contest.conf'
+     }
    }
  ];
 
@@ -2615,11 +2634,10 @@ can also be declared within the element declaration:
   (
    config_class_name => 'SomeRootClass',
    class_description => "SomeRootClass description",
-   'element'
-   => [
-        tree_macro => { level => 'important'},
-        X          => { description => 'X-ray', } ,
-      ]
+   'element' => [
+     tree_macro => { level => 'important'},
+     X          => { description => 'X-ray', } ,
+   ]
   ) ;
 
 
