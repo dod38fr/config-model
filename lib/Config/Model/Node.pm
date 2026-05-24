@@ -1281,17 +1281,21 @@ Optional C<string> to specify a Perl class to override the default
 implementation (L<Config::Model::Node>).  This Perl Class B<must>
 inherit L<Config::Model::Node>. Use with care.
 
+=item B<copyright>
+
+Optional array of C<strings>.
+
+=item B<license>
+
+Optional string.
+
 =item B<element>
 
-Mandatory C<list ref> of elements of the configuration class :
+Mandatory C<array ref> of elements of the configuration class :
 
   element => [ foo => { type = 'leaf', ... },
                bar => { type = 'leaf', ... }
              ]
-
-Element names can be aliases to save typing:
-
-  element => [ foo => { type = 'leaf', ... }, bar => '*foo' ]
 
 See below for details on element declaration.
 
@@ -1351,9 +1355,12 @@ used when generating user interfaces.
 
 =item B<rw_config>
 
+Parameter used to load on demand configuration data.
+See L<Config::Model::BackendMgr> for details.
+
 =item B<config_dir>
 
-Parameters used to load on demand configuration data.
+Configuration directory.
 See L<Config::Model::BackendMgr> for details.
 
 =item B<accept>
@@ -1381,8 +1388,8 @@ Example:
 
 All C<element> parameters can be used in specifying accepted elements.
 
-If L<Text::Levenshtein::Damerau> is installed, a warning is issued if an accepted
-element is too close to an existing element.
+If L<Text::Levenshtein::Damerau> module is installed, a warning is
+issued if an accepted element is too close to an existing element.
 
 The parameter C<accept_after> to specify where to insert the accepted element.
 This does not change much the behavior of the tree, but helps generate
@@ -1412,7 +1419,7 @@ The model snippet above ensures that C<Bug-Debian> is shown right after C<bug>.
 
 =head2 Element type
 
-Each element is declared with a list ref that contains all necessary
+Each element is declared with an array ref that contains all necessary
 information:
 
   element => [
@@ -1422,7 +1429,7 @@ information:
 This most important information from this hash ref is the mandatory
 B<type> parameter. The I<type> type can be:
 
-=over 8
+=over
 
 =item C<node>
 
@@ -1461,10 +1468,16 @@ L</"List element">
 The element is a collection of values which are unique in the
 check_list. See L<CheckList>.
 
+=back
+
+Other element properties are:
+
+=over
+
 =item C<class>
 
 Override the default class for leaf, list and hash elements. The override
-class be inherit L<Config::Model::Value> for leaf element,
+class must inherit L<Config::Model::Value> for leaf element,
 L<Config::Model::HashId> for hash element and
 L<Config::Model::ListId> for list element.
 
