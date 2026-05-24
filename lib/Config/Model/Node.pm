@@ -1182,19 +1182,18 @@ __END__
     name              => 'OneConfigClass',
     class_description => "OneConfigClass detailed description",
 
-    element => [
+    element => [ # use array ref to keep element ordering
         X => {
             type       => 'leaf',
             value_type => 'enum',
             choice     => [qw/Av Bv Cv/]
+            status     => 'deprecated',
+            description => 'A description (can be long)',
+            summary     => 'A summary',
         },
         Y => '*X', # same properties as X element
         Z => '*X', # same properties as X element
     ],
-
-    status      => [ X => 'deprecated' ],
-    description => [ X => 'X-ray description (can be long)' ],
-    summary     => [ X => 'X-ray' ],
 
     accept => [
         'ip.*' => {
@@ -1310,48 +1309,6 @@ by the value of element C<foo>, and C<@{a_hash_of_list}> is replaced
 by the number of elements of the hash or list element.
 
 Resulting gist is trimmed of extra spaces.
-
-=item B<level>
-
-Optional C<list ref> of the elements whose level are different from
-default value (C<normal>). Possible values are C<important>, C<normal>
-or C<hidden>.
-
-The level is used to set how configuration data is presented to the
-user in browsing mode. C<Important> elements are shown to the user
-no matter what. C<hidden> elements are explained with the I<warp>
-notion.
-
-  level  => {
-              'X' => 'important'
-              'Y' => '*X',
-            }
-
-
-=item B<status>
-
-Optional C<list ref> of the elements whose status are different from
-default value (C<standard>). Possible values are C<obsolete>,
-C<deprecated> or C<standard>.
-
-Using a deprecated element issues a warning. Using an obsolete
-element raises an exception (See L<Config::Model::Exception>.
-
-  status  => {
-              'X' => 'obsolete',
-              'Y' => '*X'
-            }
-
-
-=item B<summary>
-
-Optional C<list ref> of element summaries. These summaries may be used
-when generating user interfaces.
-
-=item B<description>
-
-Optional C<list ref> of element descriptions. These descriptions may be
-used when generating user interfaces.
 
 =item B<rw_config>
 
@@ -1480,6 +1437,33 @@ Override the default class for leaf, list and hash elements. The override
 class must inherit L<Config::Model::Value> for leaf element,
 L<Config::Model::HashId> for hash element and
 L<Config::Model::ListId> for list element.
+
+=item B<level>
+
+Level is used to set how configuration data is presented to the user
+in GUI. Possible level values are C<important>, C<normal>
+or C<hidden>.
+
+<Important> elements are shown to the user no matter what. C<hidden>
+elements are, well, hidden. The mechanism used to show them is
+explained with the I<warp> notion
+(See L<Config::Model::Value/"Warp: dynamic value configuration"> for details).
+
+=item B<status>
+
+Possible values are C<obsolete>, C<deprecated> or C<standard> (default).
+
+Using a deprecated element issues a warning. Using an obsolete
+element raises an exception (See L<Config::Model::Exception>.
+
+=item B<summary>
+
+Summry of the element. This may be used when generating user interfaces.
+
+=item B<description>
+
+Long description of the element. This descriptions is used when
+generating user interfaces.
 
 =back
 

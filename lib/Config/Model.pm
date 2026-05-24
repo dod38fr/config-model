@@ -2526,33 +2526,6 @@ several other properties:
 
 =over
 
-=item level
-
-Level is C<important>, C<normal> or C<hidden>.
-
-The level is used to set how configuration data is presented to the
-user in browsing mode. C<Important> elements are shown to the user no
-matter what. C<hidden> elements are well, hidden. Their purpose is
-explained with the I<warp> notion.
-
-=item status
-
-Status is C<obsolete>, C<deprecated> or C<standard> (default).
-
-Using a deprecated element raises a warning. Using an obsolete
-element raises an exception.
-
-=item description
-
-Description of the element. This description is used while
-generating user interfaces.
-
-=item summary
-
-Summary of the element. This description is used while generating
-a user interfaces and may be used in comments when writing the
-configuration file.
-
 =item class_description
 
 Description of the configuration class. This description is used
