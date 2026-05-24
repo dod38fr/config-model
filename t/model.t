@@ -24,10 +24,69 @@ subtest "check available models" => sub {
     is( $models->{popcon}{model}, 'PopCon', "check available popcon" );
 };
 
+subtest "copy summary properties" => sub {
+    my $raw_model = {
+        element => [foo => {}, bar => {}],
+        summary => {
+            foo => 'foo summary',
+            bar => 'bar summary',
+        }
+    };
+    my $expect = {
+        element => {
+            foo => {
+                summary => 'foo summary'
+            },
+            bar => {
+                summary => 'bar summary'
+            }
+        },
+        element_list => [qw/foo bar/],
+    };
+    my $normalized_model = {
+        element_list => [qw/foo bar/],
+        element => {foo => {}, bar => {} }
+    };
+    $model->copy_aliased_element_properties($normalized_model, $raw_model, "SummaryTest", ['summary']);
+    eq_or_diff($normalized_model, $expect, "check copied summary");
+};
+
+subtest "copy status properties" => sub {
+    my $raw_model = {
+        element => [foo => {}, bar => {}, baz => {}, baz2 => {},],
+        status => {
+            deprecated => [qw/foo bar/],
+            obsolete => 'baz',
+        }
+    };
+    my $expect = {
+        element => {
+            foo => {
+                status => 'deprecated'
+            },
+            bar => {
+                status => 'deprecated'
+            },
+            baz => {
+                status => 'obsolete'
+            },
+            baz2 => {}
+        },
+        element_list => [qw/foo bar baz baz2/],
+    };
+    my $normalized_model = {
+        element_list => [qw/foo bar baz baz2/],
+        element => {foo => {}, bar => {}, baz => {}, baz2 => {} }
+    };
+    $model->copy_reversed_element_properties($normalized_model, $raw_model, "StatusTest",['status']);
+    eq_or_diff($normalized_model, $expect, "check copied status");
+};
+
 subtest "test simple model (Sarge)" => sub {
     my $class_name = $model->create_config_class(
         name       => 'Sarge',
-        status      => [ D => 'deprecated' ], #could be obsolete, standard
+        #could be obsolete, standard
+        status      => [ D => 'deprecated', [qw/X Y Z/] => 'standard' ],
         description => [ [qw/X Y Z/] => 'a long description' ],
         summary     => [ [qw/X Y Z/] => 'a summary' ],
 
@@ -63,7 +122,8 @@ subtest "test simple model (Sarge)" => sub {
         {
             'value_type'  => 'enum',
             'summary'     => 'a summary',
-            'type'        => 'leaf',
+            status        => 'standard',
+            type          => 'leaf',
             'class'       => 'Config::Model::Value',
             'choice'      => [ 'Av', 'Bv', 'Cv' ],
             'description' => 'a long description'

@@ -1530,6 +1530,17 @@ can be declared outside of the element list using aliases:
 
 The element properties C<summary> and C<warp> can also be aliased.
 
+C<status> and C<level> can be factorized using a different mechanism:
+
+  element => [
+    foo => { type = 'leaf', ... },
+    bar => '*foo',
+    baz => '*foo',
+  ],
+
+  status => { deprecated => ['bar']}
+  level => { important => ['foo','baz']}
+
 =head1 Constructor
 
 The C<new> constructor accepts the following parameters:

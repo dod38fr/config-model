@@ -471,11 +471,9 @@ sub translate_legacy_element_info($self, $config_class_name, $elt_info, $info_na
     return;
 }
 
-# 2026-05-14 experiment: also copy warp information. This does not apply to
-# warp property inside cargo spec.
-sub copy_element_properties ($self, $model, $raw_model, $config_class_name) {
-    foreach my $prop_name (qw/status description summary level warp/) {
-        my $raw_prop = $self->translate_legacy_element_properties(
+sub copy_aliased_element_properties ($self, $model, $raw_model, $config_class_name, $properties) {
+    foreach my $prop_name ($properties->@*) {
+        my $raw_prop = $self->translate_legacy_aliased_element_properties(
             $config_class_name,
             delete $raw_model->{$prop_name},
             $prop_name
@@ -520,17 +518,75 @@ sub copy_element_properties ($self, $model, $raw_model, $config_class_name) {
     return;
 }
 
+# reversed means declared like prop_name => { prop_value => [qw/eltA eltB/]}
+sub copy_reversed_element_properties ( $self, $model, $raw_model, $config_class_name, $properties) {
+    foreach my $prop_name ($properties->@*) {
+        my $raw_prop =
+          $self->translate_legacy_reversed_element_properties( $config_class_name,
+            delete $raw_model->{$prop_name}, $prop_name );
+
+        next unless defined $raw_prop;
+
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "Data for parameter $prop_name of $config_class_name"
+              . " is not a hash ref" )
+          unless ref($raw_prop) eq 'HASH';
+
+        while (my ($prop_value, $elts) = each $raw_prop->%*) {
+            foreach my $elt_name (ref $elts ? $elts->@* : ($elts)) {
+                if ( not defined $model->{element}{$elt_name} ) {
+                    Config::Model::Exception::ModelDeclaration->throw(
+                        error => "create class $config_class_name: '$prop_name' "
+                        . "declaration for non declared element '$elt_name'" );
+                }
+
+                $model->{element}{$elt_name}{$prop_name} //= $prop_value;
+            }
+        }
+    }
+    return;
+}
+
 # translate [qw/A B C/ => <info>]
-# in [ A => <info>, B => '*A', c => '*A']
-sub translate_legacy_element_properties($self, $config_class_name, $properties, $prop_name) {
+# in { A => <info>, B => '*A', c => '*A' }
+sub translate_legacy_aliased_element_properties($self, $cfg_class_name, $properties, $prop_name) {
     if (ref $properties ne 'ARRAY') {
         return $properties;
     }
 
-    $self->translate_legacy_element_info($config_class_name, $properties, $prop_name);
+    $self->translate_legacy_element_info($cfg_class_name, $properties, $prop_name);
     my %new_prop = $properties->@*;
 
     return \%new_prop;
+}
+
+# translate for $prop_name: [qw/A B C/ => <prop_value>]
+# in { <prop_value> => [qw/A B C/]
+sub translate_legacy_reversed_element_properties($self, $cfg_class_name, $properties, $prop_name) {
+    if (ref $properties ne 'ARRAY') {
+        return $properties;
+    }
+
+    my @raw_info = $properties->@*;
+    my %new_info;
+
+    while (@raw_info) {
+        my ( $item, $prop_value ) = splice @raw_info, 0, 2;
+
+        my @element_names = ref($item) ? @$item : ($item);
+        $new_info{$prop_value} //=[];
+        push $new_info{$prop_value}->@*, @element_names;
+
+        if (@element_names > 0) {
+            $self->show_legacy_issue(
+                "$cfg_class_name: element $prop_name '@element_names': ".
+                "should use reversed declaration (i.e $prop_value => [ @element_names]) ".
+                "instead of array ref.", 'warn'
+            );
+        }
+    }
+
+    return \%new_info;
 }
 
 sub extract_element_list ($self, $normalized_model) {
@@ -614,22 +670,33 @@ sub normalize_class_parameters ($self, $config_class_name, $raw_model) {
     $self->check_element_duplicates($config_class_name, \@element_list);
 
     # element is handled first
-    $self->copy_element_information ($model, $raw_model, $config_class_name);
+    $self->copy_element_information($model, $raw_model, $config_class_name);
 
-    $self->copy_element_properties ($model, $raw_model, $config_class_name);
+    # copy factorized element properties that are declared as class properties
+    $self->copy_element_properties($model, $raw_model, $config_class_name);
 
-    Config::Model::Exception::ModelDeclaration->throw(
-              error => "create class $config_class_name: unexpected "
-            . "parameters '"
-            . join( ', ', sort keys %$raw_model ) . "' "
-            . "Expected '"
-            . join( "', '", @legal_params_to_move, @other_legal_params )
-            . "'" )
-        if keys %$raw_model;
+    if (keys %$raw_model) {
+        my $msg = sprintf(
+            "create class $config_class_name: unexpected property '%s'. Expected '%s'",
+            join( ', ', sort keys %$raw_model ),
+            join( "', '", @legal_params_to_move, @other_legal_params )
+        );
+        Config::Model::Exception::ModelDeclaration->throw(error => $msg);
+    }
 
     $model->{element_list} = \@element_list;
 
     return $model;
+}
+
+sub copy_element_properties($self, $model, $raw_model, $config_class_name) {
+    # 2026-05-14 experiment: also copy warp information. This does not apply to
+    # warp property inside cargo spec.
+    $self->copy_aliased_element_properties( $model, $raw_model,
+        $config_class_name, [qw/description summary warp/] );
+    $self->copy_reversed_element_properties( $model, $raw_model,
+        $config_class_name, [qw/status level/] );
+    return;
 }
 
 sub translate_legacy_info {
