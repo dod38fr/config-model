@@ -638,7 +638,7 @@ sub translate_legacy_info {
     my $elt_name          = shift;
     my $info              = shift;
 
-    $self->translate_warped_node_info( $config_class_name, $elt_name, 'warped_node', $info );
+    $self->translate_warped_node_info( $config_class_name, $elt_name, $info );
 
     #translate legacy warp information
     if ( defined $info->{warp} ) {
@@ -650,7 +650,7 @@ sub translate_legacy_info {
     if (   defined $info->{cargo}
         && defined $info->{cargo}{type}
         && $info->{cargo}{type} eq 'warped_node' ) {
-        $self->translate_warped_node_info( $config_class_name, $elt_name, 'warped_node', $info->{cargo} );
+        $self->translate_warped_node_info( $config_class_name, $elt_name, $info->{cargo} );
     }
 
     if (    defined $info->{cargo}
@@ -983,7 +983,7 @@ sub translate_id_min_max {
 }
 
 sub translate_warped_node_info {
-    my ( $self, $config_class_name, $elt_name, $type, $info ) = @_;
+    my ( $self, $config_class_name, $elt_name, $info ) = @_;
 
     $legacy_logger->debug(
         "translate_warped_node_info $elt_name input:\n",
