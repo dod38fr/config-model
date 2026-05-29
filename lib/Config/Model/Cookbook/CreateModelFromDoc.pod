@@ -23,7 +23,7 @@ is stored in C</etc/popularity-contest.conf</t>:
  #
  # See /usr/share/popularity-contest/default.conf for more info
  # on the options.
- 
+
  MY_HOSTID="172921501FFFFFAAAA6897etc"
  PARTICIPATE="yes"
  USEHTTP="yes"
@@ -42,7 +42,7 @@ I<upstream_default>):
  # Default config file for Debian's popularity-contest package.
  #
  # Local overrides are in /etc/popularity-contest.conf
- 
+
  # PARTICIPATE can be one of "yes" or "no".
  # If you don't want to participate in the contest, say "no"
  # and we won't send messages.
@@ -50,11 +50,11 @@ I<upstream_default>):
  # If this option is missing, the default is "no".
  #
  PARTICIPATE="no"
- 
+
  # MAILTO specifies the address to e-mail statistics to each week.
  #
  MAILTO="survey@popcon.debian.org"
- 
+
  # MAILFROM is the forged sender email address you want to use in
  # email submitted to the popularity-contest.  If this is commented
  # out, no From: or Sender: lines will be added to the outgoing mail,
@@ -68,18 +68,18 @@ I<upstream_default>):
  # commented out.
  #
  #MAILFROM="root@example.org"
- 
+
  # SUBMITURLS is a space separated list of where to submit
  # popularity-contest reports using http.
  SUBMITURLS="http://popcon.debian.org/cgi-bin/popcon.cgi"
- 
+
  # USEHTTP enables http reporting.   Set this to 'yes' to enable it.
  USEHTTP="yes"
- 
+
  # HTTP_PROXY allows one to specify an HTTP proxy server, the syntax is
  # HTTP_PROXY="http://proxy:port". This overrides the environment
  # variable http_proxy.
- 
+
  # MY_HOSTID is a secret number that the popularity-contest receiver
  # uses to keep track of your submissions.  Whenever you send in a
  # new entry, it overwrites the last one that had the same HOSTID.
@@ -99,7 +99,7 @@ Parameter names
 
 =item *
 
-Documentation 
+Documentation
 
 =item *
 
@@ -140,65 +140,68 @@ C<PARTICIPATE> element. Here's the spec in from C<default.conf>:
  #
  PARTICIPATE="no"
 
-In the YAML file, the comments are moved in the C<description> field and
-the value in the file is used as upstream default:
+In the YAML file, the comments are copied in the C<description> field and
+the value shown in C<default.conf> is used as upstream default:
 
-      PARTICIPATE:
-        upstream_default: no
-        description: >
-         If you don't want to participate in the contest, 
-         say "no" and we won't send messages.
+ ---
+ class:
+   PopCon:
+     element:
+       PARTICIPATE:
+         upstream_default: no
+         description: >
+          If you don't want to participate in the contest,
+          say "no" and we won't send messages.
 
 Likewise for the remaining parameters:
 
-      MAILTO:
-        description: >
-         specifies the address to e-mail statistics to each week.
-        default: 'survey@popcon.debian.org'
-      MAILFROM:
-        description: >-
-         MAILFROM is the forged sender email address you want to use
-         in email submitted to the popularity-contest.  If this is
-         commented out, no From: or Sender: lines will be added to the
-         outgoing mail, and it will be your MTA's job to add them.  This
-         is usually what you want. 
-  
-  
-         If your MTA is misconfigured or
-         impossible to configure correctly, and it always generates
-         invalid From: and/or Sender: lines, you can force different
-         results by setting MAILFROM here.  This can cause problems with
-         spam bouncers, so most people should leave it commented out.
+       MAILTO:
+         description: >
+          specifies the address to e-mail statistics to each week.
+         default: 'survey@popcon.debian.org'
+       MAILFROM:
+         description: >-
+          MAILFROM is the forged sender email address you want to use
+          in email submitted to the popularity-contest.  If this is
+          commented out, no From: or Sender: lines will be added to the
+          outgoing mail, and it will be your MTA's job to add them.  This
+          is usually what you want.
+
+          If your MTA is misconfigured or
+          impossible to configure correctly, and it always generates
+          invalid From: and/or Sender: lines, you can force different
+          results by setting MAILFROM here.  This can cause problems with
+          spam bouncers, so most people should leave it commented out.
 
 In the description above, the C<chimping> marker '-' after '>' is used to
 keep paragraph formatting in the help.
 
-      SUBMITURLS:
-        description: >
-         Space separated list of where to submit popularity-contest 
-         reports using http.
-        default: >
-         http://popcon.debian.org/cgi-bin/popcon.cgi
-        
-      USEHTTP:
-        description: >
-         enables http reporting.   Set this to 'yes' to enable it.
-        default: "yes"
-        
-      HTTP_PROXY:
-        description: >
-         allows one to specify an HTTP proxy server, the syntax is 
-         "http://proxy:port". This overrides the environment variable 
-         http_proxy.
-        
-      MY_HOSTID:
-        description: >-
-         secret number that the popularity-contest receiver uses to 
-         keep track of your submissions.  Whenever you send in a new 
-         entry, it overwrites the last one that had the same HOSTID.
-  
-         This key was generated automatically so you should normally 
-         just leave it alone.
+       SUBMITURLS:
+         description: >
+          Space separated list of where to submit popularity-contest
+          reports using http.
+         default: >
+          http://popcon.debian.org/cgi-bin/popcon.cgi
+
+       USEHTTP:
+         description: >
+          enables http reporting.   Set this to 'yes' to enable it.
+         default: "yes"
+
+       HTTP_PROXY:
+         description: >
+          allows one to specify an HTTP proxy server, the syntax is
+          "http://proxy:port". This overrides the environment variable
+          http_proxy.
+
+       MY_HOSTID:
+         description: >-
+          secret number that the popularity-contest receiver uses to
+          keep track of your submissions.  Whenever you send in a new
+          entry, it overwrites the last one that had the same HOSTID.
+
+          This key was generated automatically so you should normally
+          just leave it alone.
 
 =head1 Loading the YAML skeleton
 
@@ -215,7 +218,7 @@ missing parameters are also flagged with a red cross in the GUI.
 
 To complete the model, the easiest way is to run the wizard to
 complete the missing values. In the GUI, you can use the menu
-C<< File -> wizard >> to launch the wizard. 
+C<< File -> wizard >> to launch the wizard.
 Then click on the 'OK' button in
 the new window.
 
@@ -224,7 +227,7 @@ an error, but because the parameter list is flagged as I<important>)
 
 There, you can re-order the parameters by selecting one and clicking
 on one of the blue arrows to move it up or down. Once you're
-satisfied, click on I<Next>. 
+satisfied, click on I<Next>.
 
 The widget will now stop on the first missing information. Just select
 the correct type ('leaf' here), click 'store' and 'Next'.
