@@ -333,7 +333,7 @@ my @legal_params_to_move = (
     qw/class_description author copyright gist license include include_after include_backend class/
 );
 
-my @other_legal_params = qw/ author element status description summary level accept/;
+my @other_legal_params = qw/author element status description summary level accept warp/;
 
 # keep as external API. All internal call go through _store_model
 #  See comments around raw_models attribute for explanations
