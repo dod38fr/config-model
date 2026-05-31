@@ -140,6 +140,14 @@ has log_level => (
     is => 'ro',
 );
 
+my %log_map = (
+    ERROR => $ERROR,
+    WARN => $WARN,
+    INFO => $INFO,
+    DEBUG => $DEBUG,
+    TRACE => $TRACE
+);
+
 has skip_inheritance => (
     isa     => 'Bool',
     is      => 'ro',
@@ -194,7 +202,12 @@ sub initialize_log4perl (@args) {
 sub BUILD {
     my $self = shift;
     my $args = shift;
-    initialize_log4perl(verbose => $args->{verbose}) unless Log::Log4perl->initialized();
+    if (my $level = $self->log_level) {
+        Log::Log4perl->easy_init($log_map{$level});
+    }
+    else {
+        initialize_log4perl(verbose => $args->{verbose}) unless Log::Log4perl->initialized();
+    }
     return;
 }
 
