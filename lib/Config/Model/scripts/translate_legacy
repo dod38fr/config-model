@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+
+# app: itself
+
+## Translate old element property declaration like:
+##
+##   summary  => [ [qw/X Y/] => 'a good summary' ]
+##
+## into a new form:
+##
+##    summary  => {
+##                  'X' => 'a good summary'
+##                  'Y' => '*X',
+##                }
+##
+## Usage: echo "old style declaration" | cme run translate_legacy
+##
+## This script expect input lines like in stdin
+##
+##  key => <perl data struct>
+##
+## and print an updated version for Config::Model
+##
+## So far, the class properties: element, status, description, level, status
+## are translated. Warp element property is also translated.
+##
+## Security: This script evaluates the input lines. Run it ONLY on TRUSTED code.
+##
+## With emacs, set region to translate, hit M-| ,
+## use command "cme run translate_legacy"
+
+use strict;
+use warnings;
+use 5.20.0;
+use Data::Dumper;
+
+use feature qw/signatures/;
+no warnings qw/experimental::signatures/;
+
+use Config::Model;
+
+my $info = join('',<>);
+# $info is " keyword => <perl data structure>"
+# or " keyword, <perl data>"
+
+my ($indent) = ($info =~ m/^(\s*)/);
+
+# wrap info in { } and eval it
+my $old_data = eval ("{ $info }");
+
+my $model = Config::Model->new(log_level => 'ERROR');
+
+foreach my $key (sort keys $old_data->%*) {
+    my $to_translate = $old_data->{$key};
+    if ($key eq 'element' and ref($to_translate) eq 'ARRAY') {
+        $model->translate_legacy_element_info('Dontcare', $to_translate, 'dontcare');
+    }
+    elsif ($key eq 'warp' and ref($to_translate) eq 'HASH' and defined $to_translate->{follow}) {
+        # translate old warp follow and rules
+        $model->translate_warp_info('Dontcare', 'dontcare', $to_translate);
+    }
+    elsif (grep {$key eq $_} qw/summary warp description/ and ref($to_translate) eq 'ARRAY') {
+        $old_data->{$key} = $model->translate_legacy_aliased_element_properties(
+            'Dontcare', $to_translate, 'dontcare'
+           );
+    }
+    elsif (grep {$key eq $_} qw/level status/ and ref($to_translate) eq 'ARRAY') {
+        $old_data->{$key} = $model->translate_legacy_reversed_element_properties(
+            'Dontcare', $to_translate, 'dontcare'
+           );
+    }
+    else {
+        die "Cannot translate '$key' key with ", ref($to_translate), " data\n";
+    }
+}
+
+
+$Data::Dumper::Terse=1;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Quotekeys = 0;
+$Data::Dumper::Sortkeys = 1;
+my @new_str = map {length($_) > 2 ? substr $_,2 : $_;  }
+    split /\n/, Data::Dumper->Dump([$old_data],['new_info']);
+
+# remove first and last line
+pop @new_str;
+shift @new_str;
+
+say $indent, join("\n$indent",@new_str),",";
