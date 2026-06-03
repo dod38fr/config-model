@@ -48,16 +48,18 @@ $model->create_config_class(
         #TODO: Some advanced structures, hashes, etc.
     ],
     element => [
-        [qw/id other/] => {
+        'id' => {
             type       => 'leaf',
-            value_type => 'uniline',
+            value_type => 'uniline'
         },
+        'other'     => '*id',
         'strhidden' => {
+            level      => 'hidden',
             type       => 'leaf',
-            value_type => 'uniline',
-            level => 'hidden',
-        },
-    ] );
+            value_type => 'uniline'
+        }
+    ]
+);
 
 ok( 1, "Created new class with accept parameter" );
 
