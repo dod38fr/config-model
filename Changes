@@ -1,5 +1,58 @@
 {{$NEXT}}
 
+2.163 2026-06-05
+
+  Model declaration changes (backward compatible, except for Config::Model::Itself < 2.031):
+    * Warp: Change warp property to use "when <test> => apply {element properties}"
+    * Model: to save typing, element declaration can now be written like:
+         element => [
+            X => {
+                 type       => 'leaf',
+                 value_type => 'enum',
+                 choice     => [qw/Av Bv Cv/]
+            },
+            Y => '*X', # alias to X
+            Z => '*X',
+         ]
+      This kind of factorization was already possible using clunky Perl tricks. Using
+      aliases inspired from YAML should make model more readable for non Perl gurus.
+      To be able to factorize elements, it may be necessary to declare some properties
+      outside of element declaration. So, 'summary', 'description' and 'warp' properties
+      can be declared as class properties like:
+        summary  => {
+          'X' => 'a good summary'
+          'Y' => '*X',
+        }
+      Likewise, 'level' and 'status' properties can also be declared as class properties
+      with a more suitable structure:
+        level => { important => [qw/X Y/], hidden => 'Z'}
+        status => { deprecated => 'X' }
+      Note that Config::Model::Itself >= 2.031 allows 'cme meta -factorize all' to write
+      models with factorized properties.
+
+  Feature:
+    * add 'cme run translate_legacy' script to help update models.
+
+  Doc updates:
+    * Remove references to 'obsolete' 'experience' and 'permission' properties
+    * Model and Node: fix doc of 'level' 'status' 'description' and 'summary' properties
+
+  Deprecated features:
+    * Warper: deprecate using array for "follow" arguments
+
+  Removed features:
+    * Model: remove inherit and inherit_after deprecated class properties
+
+  Bug fix:
+    * Dumper: fix crash when dumping a list of warped_node
+    * Node: trim white spaces in gist
+    * WarpedNode: better fix of crash during WarpedNode creation
+    * Model: fix bug in translate_rules_arg
+
+  Note:
+    * This new version breaks Config::Model::Itself < 2.031. 
+      Config::Model::Itself 2.031 will be available soon.
+
 2.162 2026-04-22
 
   Bug fix:
