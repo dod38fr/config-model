@@ -5,41 +5,7 @@
 L<cme> and most L<Config::Model> modules are provided as Debian package. The following
 command will install the framework and all available models and UIs:
 
-  sudo apt-get install --install-recommends --install-suggests cme
-
-
-=head2 Mac OSX
-
-L<Config::Model> is provided as ppm package by L<ActiveState|http://www.activestate.com/>:
-
-=over
-
-=item *
-
-Install L<perl from ActiveState|http://www.activestate.com/activeperl/downloads>
-
-=item *
-
-Update your $PATH variable to run ActiveState's perl
-
-=item *
-
-Run ppm to install L<Config::Model package|http://code.activestate.com/ppm/Config-Model/>
-
-=back
-
-=head2 Windows
-
-You can also install L<Config::Model> from  L<ActiveState|http://www.activestate.com/>. See the
-instructions for Mac OSX for details.
-
-=head2 Fedora
-
-Run:
-
- yum install perl-Config-Model perl-App-Cme perl-Config-Model-TkUI
-
-See L<Config::Model rpm|https://apps.fedoraproject.org/packages/perl-Config-Model>
+  sudo apt install --install-recommends --install-suggests cme
 
 =head2 Other systems
 
