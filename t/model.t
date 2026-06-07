@@ -24,6 +24,26 @@ subtest "check available models" => sub {
     is( $models->{popcon}{model}, 'PopCon', "check available popcon" );
 };
 
+subtest "extract element list" => sub {
+    my $raw_model = {
+        element => [foo => {}, bar => {}],
+    };
+    my @list = $model->extract_element_list($raw_model);
+    eq_or_diff(\@list, [qw/foo bar/], "simple list of k,v elements");
+
+    $raw_model = {
+        element => [[qw/foo bar/] => {}, baz => {}],
+    };
+    @list = $model->extract_element_list($raw_model);
+    eq_or_diff(\@list, [qw/foo bar baz/], "array ref as set of keys");
+
+    $raw_model = {
+        element => [ {name => 'foo' }, {name => 'bar'} ],
+    };
+    @list = $model->extract_element_list($raw_model);
+    eq_or_diff(\@list, [qw/foo bar/], "list of hash ref");
+};
+
 subtest "copy summary properties" => sub {
     my $raw_model = {
         element => [foo => {}, bar => {}],

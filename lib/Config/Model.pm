@@ -602,17 +602,32 @@ sub translate_legacy_reversed_element_properties($self, $cfg_class_name, $proper
     return \%new_info;
 }
 
-sub extract_element_list ($self, $normalized_model) {
+# must be compatible with formats:
+# [ name => { info }, name2 => {info} ]
+# [ [qw/name1 name2/] => { info } ]
+# [ { name => ..., info }, ... ]
+sub extract_element_list ($self, $raw_model) {
+    my $list = $raw_model->{element};
+    return () unless defined $list;
+
+    my $i = 0;
     my @element_list;
-
-    # first construct the element list
-    my @compact_list = @{ $normalized_model->{element} || [] };
-    while (@compact_list) {
-        my ( $item, $info ) = splice @compact_list, 0, 2;
-
-        # store the order of element as declared in 'element'
-        push @element_list, ref($item) ? @$item : ($item);
+    while ($i < $list->@*) {
+        my $item = $list->[$i++];
+        if (ref $item eq 'ARRAY') {
+            push @element_list, $item->@*;
+            $i++;
+        }
+        elsif (ref $item eq 'HASH') {
+            my $name = $item->{name} // carp "Missing name in element";
+            push @element_list, $name;
+        }
+        else {
+            push @element_list, $item;
+            $i++;
+        }
     }
+
     return @element_list;
 }
 
