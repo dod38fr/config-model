@@ -44,6 +44,27 @@ subtest "extract element list" => sub {
     eq_or_diff(\@list, [qw/foo bar/], "list of hash ref");
 };
 
+subtest "translate aliased element in list of hash" => sub {
+    my $elements = [foo => {}, bar => {}];
+    $model->translate_legacy_hash_in_list($elements);
+
+    my $expect = [
+            { name => 'foo'},
+            { name => 'bar'},
+        ];
+    eq_or_diff($expect, $elements, "no alias");
+
+    $elements = [foo => {}, bar => {}, baz => '*bar'];
+    $model->translate_legacy_hash_in_list($elements);
+
+    $expect = [
+            { name => 'foo'},
+            { name => 'bar'},
+            { name => 'baz', alias => 'bar'}
+        ];
+    eq_or_diff($expect, $elements, "with alias");
+};
+
 subtest "copy summary properties" => sub {
     my $raw_model = {
         element => [foo => {}, bar => {}],

@@ -419,19 +419,27 @@ sub include_backend {
 
 sub copy_element_information ($self, $model, $raw_model, $config_class_name) {
     if (my $elt_info = delete $raw_model->{element}) {
-        # TODO: remove in 2029
+        # TODO: remove in 2029, translate packed info in aliases
         $self->translate_legacy_element_info($config_class_name, $elt_info, 'name');
+
+        # TODO: remove in 2030, translate aliases in list of hash
+        $self->translate_legacy_hash_in_list($elt_info) ;
 
         my @raw_info = $elt_info->@*;
         my %elt_info;
-        while (@raw_info) {
-            my ( $name, $info ) = splice @raw_info, 0, 2;
+        foreach my $info ( @raw_info ) {
+            my $name = delete $info->{name};
 
             my $actual_info;
             if (ref $info) {
                 # warp can be found only in element item
                 $self->translate_legacy_info( $config_class_name, $name, $info );
-                $actual_info = $info;
+                if (my $alias = $info->{alias}) {
+                    $actual_info = $elt_info{$alias}
+                }
+                else {
+                    $actual_info = $info;
+                }
                 $elt_info{$name} = $info;
             }
             elsif ($info =~ /^\*(.*)/) {
@@ -460,6 +468,11 @@ sub copy_element_information ($self, $model, $raw_model, $config_class_name) {
 # translate [qw/A B C/ => <info>]
 # in [ A => <info>, B => '*A', c => '*A']
 sub translate_legacy_element_info($self, $config_class_name, $elt_info, $info_name) {
+    if (ref $elt_info->[0] eq 'HASH') {
+        # already in new format
+        return;
+    }
+
     my @raw_info = $elt_info->@*;
     my @new_info;
 
@@ -724,6 +737,27 @@ sub copy_element_properties($self, $model, $raw_model, $config_class_name) {
         $config_class_name, [qw/description summary warp/] );
     $self->copy_reversed_element_properties( $model, $raw_model,
         $config_class_name, [qw/status level/] );
+    return;
+}
+
+sub translate_legacy_hash_in_list ($self, $elt_list) {
+    return if ref $elt_list->[0] eq 'HASH';
+    my @new;
+    while (@$elt_list) {
+        my ( $item, $raw_info ) = splice @$elt_list, 0, 2;
+
+        my $info = {};
+        if (ref $raw_info eq 'HASH') {
+            $info = $raw_info;
+        }
+        else {
+            # we have an alias
+            $info->{alias} = $raw_info =~ s/^\*//r;;
+        }
+        $info->{name} = $item;
+        push @new, $info;
+    }
+    $elt_list->@* = @new;
     return;
 }
 
