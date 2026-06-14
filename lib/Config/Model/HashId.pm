@@ -462,6 +462,11 @@ sub _load_data_from_hash ($self, %args) {
         @ordered_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
         $from      = ' with '.$order_key;
     }
+    elsif ($self->{ordered} and tied $data->%*) {
+        # data is coming from YAML::PP with PRESERVE flag, so the hash
+        # key order is preserved
+        @ordered_keys = keys $data->%*;
+    }
     elsif ( $self->{ordered} and (not $data->{__skip_order} and keys %$data > 1)) {
         $logger->warn(
             "HashId " . $self->location . ": loading ordered "
@@ -473,7 +478,7 @@ sub _load_data_from_hash ($self, %args) {
     }
     delete $data->{__skip_order};
 
-    if (@ordered_keys) {
+    if (@ordered_keys and not tied $data->%*) {
         my %data_keys = map { $_ => 1 ; } keys %$data;
         my @left_keys;
         foreach my $k (@ordered_keys) {
@@ -645,14 +650,28 @@ Parameters: C<< ( data => ( hash_ref | array_ref ) [ , check => ... , ... ]) >>
 
 Load data as a hash ref for standard hash.
 
-Ordered hash should be loaded with an array ref or with a hash
-containing a special C<__order> element. E.g. loaded with either:
+Ordered hash should be loaded with either:
+
+=over
+
+=item *
+
+an array ref. For instance:
 
   [ a => 'foo', b => 'bar' ]
 
-or
+=item *
+
+a hash tied with L<Tie::Hash>
+
+=item *
+
+a hash containing a special C<__order>
+element. E.g.
 
   { __order => ['a','b'], b => 'bar', a => 'foo' }
+
+=back
 
 C<__skip_order> parameter can be used if loading order is not
 important:

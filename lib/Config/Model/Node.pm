@@ -19,6 +19,8 @@ use Config::Model::BackendMgr;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
 use List::MoreUtils qw(insert_after_string);
+use YAML::PP;
+use YAML::PP::Common qw/PRESERVE_ORDER/;
 
 extends qw/Config::Model::AnyThing/;
 
@@ -902,6 +904,22 @@ sub load ($self, @args) {
         message => "load called with no 'steps' parameter",
     );
     return;
+}
+
+sub load_yaml ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'yaml');
+
+    my $yaml_str = delete $args{yaml};
+    my $check = $self->_check_check( $args{check} );
+
+    my $ypp = YAML::PP->new(preserve => PRESERVE_ORDER);
+
+    my @documents = $ypp->load_string($yaml_str);
+
+    return $self->load_data(
+        check => $check,
+        data => $documents[0],
+    );
 }
 
 sub load_data ($self, @args) {
@@ -1918,6 +1936,19 @@ the structure of the configuration model.
 Use C<< check => skip >> to make data loading more tolerant: bad data are discarded.
 
 C<load_data> can be called with a single hash ref parameter.
+
+Returns 1 if some data were saved (instead of skipped).
+
+=head2 load_yaml
+
+Parameters: C<< ( yaml => <string>, [ check => $check, ...  ]) >>
+
+Load configuration data with a YAML string. The data contained in YAML must match
+the structure of the configuration model.
+
+Use C<< check => skip >> to make data loading more tolerant: bad data are discarded.
+
+C<load_yaml> can be called with a single string parameter.
 
 Returns 1 if some data were saved (instead of skipped).
 
