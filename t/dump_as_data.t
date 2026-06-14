@@ -126,7 +126,7 @@ my $inst2 = $model->instance(
     root_class_name => 'Master',
     instance_name   => 'test2'
 );
-ok( $inst, "created 2nd dummy instance" );
+ok( $inst2, "created 2nd dummy instance" );
 
 my $root2 = $inst2->config_root;
 ok( $root2, "Config root2  created" );
