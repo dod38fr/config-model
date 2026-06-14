@@ -153,81 +153,6 @@ sub dump_as_data ($self, %args) {
     return $result;
 }
 
-sub dump_annotations_as_pod ($self, %args) {
-    my $dump_node = delete $args{node}
-        || croak "dump_annotations_as_pod: missing 'node' parameter";
-
-    my $annotation_to_pod = sub ($obj, $path = $obj->location) {
-        my $a    = $obj->annotation;
-        if ($a) {
-            chomp $a;
-            return "=item $path\n\n$a\n\n";
-        }
-        else {
-            return '';
-        }
-    };
-
-    my $std_cb = sub ($scanner, $data_r, $obj, $element, $index, $value_obj) {
-        $$data_r .= $annotation_to_pod->($value_obj);
-        return;
-    };
-
-    my $hash_element_cb = sub ($scanner, $data_ref, $node, $element_name, @keys) {
-        my $h      = $node->fetch_element($element_name);
-        my $h_path = $h->location . ':';
-        foreach (@keys) {
-            $$data_ref .= $annotation_to_pod->( $h->fetch_with_id($_), $h_path . $_ );
-            $scanner->scan_hash( $data_ref, $node, $element_name, $_ );
-        }
-        return;
-    };
-
-    my $node_content_cb = sub ($scanner, $data_ref, $node, @element) {
-        my $node_path = $node->location;
-        $node_path .= ' ' if $node_path;
-        foreach (@element) {
-            $$data_ref .= $annotation_to_pod->(
-                $node->fetch_element( name => $_, check => 'no' ),
-                $node_path . $_
-            );
-            $scanner->scan_element( $data_ref, $node, $_ );
-        }
-        return;
-    };
-
-    my @scan_args = (
-        check      => delete $args{check}      || 'yes',
-        leaf_cb    => $std_cb,
-        node_content_cb => $node_content_cb,
-        hash_element_cb => $hash_element_cb,
-        list_element_cb => $hash_element_cb,
-    );
-
-    my @left = keys %args;
-    croak "dump_annotations_as_pod: unknown parameter:@left" if @left;
-
-    # perform the scan
-    my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
-
-    my $obj_type = $dump_node->get_type;
-    my $result   = '';
-
-    my $a = $dump_node->annotation;
-    my $l = $dump_node->location;
-    $result .= "=item $l\n\n$a\n\n" if $a;
-
-    if ( $obj_type =~ /node/ ) {
-        $view_scanner->scan_node( \$result, $dump_node );
-    }
-    else {
-        croak "dump_annotations_as_pod: unexpected type: $obj_type";
-    }
-
-    return '' unless $result;
-    return "=head1 Annotations\n\n=over\n\n" . $result . "=back\n\n";
-}
-
 1;
 
 # ABSTRACT: Dump configuration content as a perl data structure
@@ -376,26 +301,6 @@ Sub reference to map a value of type boolean to a boolean class (since
  to_boolean => sub { boolean($_[0]); }
 
 Default is C<sub { return $_[0] }>
-
-=back
-
-=head1 Methods
-
-=head2 dump_annotations_as_pod
-
-Return a string formatted in pod (See L<perlpod>) with the annotations.
-
-Parameters are:
-
-=over
-
-=item node
-
-Reference to a L<Config::Model::Node> object. Mandatory
-
-=item check_list
-
-Yes, no or skip
 
 =back
 

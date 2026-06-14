@@ -1021,12 +1021,6 @@ sub migrate ($self, @args) {
     return $self->needs_save;
 }
 
-sub dump_annotations_as_pod ($self, @args) {
-    $self->init();
-    my $dumper = Config::Model::DumpAsData->new;
-    return $dumper->dump_annotations_as_pod( node => $self, @args );
-}
-
 sub describe ($self, @args) {
     $self->init();
 
@@ -1923,11 +1917,6 @@ string.  See L<Config::Model::Dumper/dump_tree> for parameter details.
 This string follows the syntax defined in
 L<Config::Model::Loader>. The string produced by C<dump_tree> can be
 passed to C<load>.
-
-=head2 dump_annotations_as_pod
-
-Dumps the configuration annotations of the node and its siblings into a
-string.  See L<Config::Model::Dumper/dump_annotations_as_pod> for parameter details.
 
 =head2 describe
 
