@@ -24,7 +24,7 @@
 ##
 ## Security: This script evaluates the input lines. Run it ONLY on TRUSTED code.
 ##
-## With emacs, set region to translate, hit M-| ,
+## With emacs, set region to translate, hit C-u M-| ,
 ## use command "cme run translate_legacy"
 
 use strict;
