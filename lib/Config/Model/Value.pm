@@ -2817,91 +2817,92 @@ or several pairs:
 
 =over 4
 
-=item mode
+=item *
 
-Whether to fetch default, custom, etc value. See below for details
+B<mode>: Whether to fetch default, custom, etc value. See below for details
 
-=item check
+=item *
 
-Whether to check if the value is valid or not before returning it. Default is 'yes'.
+B<check>: Whether to check if the value is valid or not before returning it. Default is 'yes'.
 Possible value are
 
 =over 4
 
-=item yes
+=item *
 
-Perform check and raise an exception for bad values
+B<yes>: Perform check and raise an exception for bad values
 
-=item skip
+=item *
 
-Perform check and return undef for bad values. A warning is issued when a bad value is skipped.
+B<skip>: Perform check and return undef for bad values. A warning is issued when a bad value is skipped.
 Set C<check> to C<no> to avoid warnings.
 
-=item no
+=item *
 
-Do not check and return values even if bad
+B<no>: Do not check and return values even if bad
 
 =back
 
-=item silent
+=item *
 
-When set to 1, warning are not displayed on STDOUT. User is expected to read warnings
+B<silent>: When set to 1, warning are not displayed on STDOUT. User is expected to read warnings
 with L<warning_msg> method.
 
 =back
 
-According to the C<mode> parameter, this method returns either:
+Depending on C<mode> parameter, this method returns either:
 
 =over
 
-=item empty mode parameter (default)
+=item *
 
-Value entered by user or default value if the value is different from upstream_default or
-layered value. Typically this value is written in a configuration file.
+B<empty mode parameter (default)>: Value entered by user or default
+value if the value is different from upstream_default or layered
+value. Typically this value is written in a configuration file.
 
-=item backend
+=item *
 
-Alias for default mode.
+B<backend>: Alias for default mode.
 
-=item custom
+=item *
 
-The value entered by the user (if different from built in, preset,
+B<custom>: The value entered by the user (if different from built in, preset,
 computed or default value)
 
-=item user
+=item *
 
-The value most useful to user: the value that is used by the application.
+B<user>: The value most useful to user: the value that is used by the application.
 
-=item preset
+=item *
 
-The value entered in preset mode
+B<preset>: The value entered in preset mode
 
-=item standard
+=item *
 
-The preset or computed or default or built in value.
+B<standard>: The preset or computed or default or built in value.
 
-=item default
+=item *
 
-The default value (defined by the configuration model)
+B<default>: The default value (defined by the configuration model)
 
-=item layered
+=item *
 
-The value found in included files (treated in layered mode: values specified
-there are handled as upstream default values).xs
+B<layered>: The value found in included files (treated in layered mode: values specified
+there are handled as upstream default values).
 
-=item upstream_default
+=item *
 
-The upstream_default value. (defined by the configuration model)
+B<upstream_default>: The upstream_default value. (defined by the configuration model)
 
-=item non_upstream_default
+=item *
 
-The custom or preset or computed or default value. Returns undef
+B<non_upstream_default>: The custom or preset or computed or default value. Returns undef
 if either of this value is identical to the upstream_default value. This
 feature is useful to reduce data to write in configuration file.
 
-=item allow_undef
+=item *
 
-With this mode, C<fetch()> behaves like in C<user> mode, but returns
+B<allow_undef>: With this mode, C<fetch()> behaves like in C<user> mode, but returns
 C<undef> for mandatory values. Normally, trying to fetch an undefined
 mandatory value leads to an exception.
 
