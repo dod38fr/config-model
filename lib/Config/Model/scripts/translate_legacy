@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# app: itself
-
 ## Translate old element property declaration like:
 ##
 ##   summary  => [ [qw/X Y/] => 'a good summary' ]
