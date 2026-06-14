@@ -12,6 +12,7 @@ use Config::Model::Exception;
 use Config::Model::Loader;
 use Config::Model::Dumper;
 use Config::Model::DumpAsData;
+use Config::Model::DumpAsYaml;
 use Config::Model::Report;
 use Config::Model::TreeSearcher;
 use Config::Model::Describe;
@@ -1029,6 +1030,12 @@ sub dump_tree ($self, %args) {
     }
     my $dumper = Config::Model::Dumper->new;
     return $dumper->dump_tree( node => $self, %args );
+}
+
+sub dump_as_yaml ($self, %args) {
+    $self->init();
+    my $dumper = Config::Model::DumpAsYaml->new;
+    return $dumper->dump_as_yaml( node => $self, %args );
 }
 
 sub migrate ($self, @args) {
