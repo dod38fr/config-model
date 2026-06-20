@@ -118,7 +118,7 @@ return [
             },
             {
               'apply' => {
-                'config_class_name' => 'Fstab::CommonOptions'
+                'config_class_name' => 'Fstab::VfatOpt'
               },
               'when' => '$f1 eq \'vfat\''
             },
