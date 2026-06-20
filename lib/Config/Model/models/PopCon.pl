@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -107,4 +109,3 @@ This key was generated automatically so you should normally just leave it alone.
   }
 ]
 ;
-

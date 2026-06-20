@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -16,10 +18,7 @@ return [
         'value_type' => 'boolean'
       },
       'joliet',
-      {
-        'type' => 'leaf',
-        'value_type' => 'boolean'
-      }
+      '*rock'
     ],
     'include' => [
       'Fstab::CommonOptions'
@@ -29,4 +28,3 @@ return [
   }
 ]
 ;
-
