@@ -21,7 +21,7 @@ return [
       }
     ],
     'include' => [
-      'Fstab::Ext2FsOpt'
+      'Fstab::Ext3FsOpt'
     ],
     'license' => 'LGPL2',
     'name' => 'Fstab::Ext4FsOpt'
