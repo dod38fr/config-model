@@ -5,6 +5,35 @@ use utf8;
 
 return [
   {
+    'accept' => [
+      'X-[\w-]*',
+      {
+        'description' => 'All options prefixed with "X-" are interpreted as comments or as userspace application-specific options. These options are not stored in user space (e.g., mtab file), nor sent to the mount.type helpers nor to the mount(2) system call. The suggested format is X-appname.option.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'x-[\w-]*',
+      {
+        'description' => "=pod
+
+The same as X-* options, but stored permanently in user space. This
+means the options are also available for umount(8) or other
+operations. Note that maintaining mount options in user space is
+tricky, because it\x{2019}s necessary to use libmount-based tools and there
+is no guarantee that the options will be always available (for example
+after a move mount operation or in unshared namespace).
+
+Note that before util-linux v2.30 the x-* options have not been
+maintained by libmount and stored in user space (functionality was the
+same as for X-* now), but due to the growing number of use-cases (in
+initrd, systemd etc.) the functionality has been extended to keep
+existing fstab configurations usable without a change.
+
+",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      }
+    ],
     'author' => [
       'Dominique Dumont'
     ],
