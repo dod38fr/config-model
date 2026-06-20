@@ -24,11 +24,13 @@ LABEL=ext-2To /mnt/ext-2To ext4 rw,user,relatime,noauto 0 0
 # sysfs entry for powernowd (and others)
 #sysfs /sys sysfs defaults 0 0
 
+# from https://github.com/dod38fr/config-model/issues/37
+/dev/disk/by-uuid/whatever /mnt/hd2tb auto nosuid,nodev,nofail,x-gvfs-show 0 0
+
 # to enable usbmon
 debugfs /sys/kernel/debug debugfs defaults 0 2
-                                                                                                              
-/dev  /var/chroot/testing-i386/dev  none bind 0 0                                                          
-/home /var/chroot/testing-i386/home none bind 0 0                                                          
-/proc /var/chroot/testing-i386/proc none bind 0 0                                                          
-/tmp  /var/chroot/testing-i386/tmp  none bind 0 0
 
+/dev  /var/chroot/testing-i386/dev  none bind 0 0
+/home /var/chroot/testing-i386/home none bind 0 0
+/proc /var/chroot/testing-i386/proc none bind 0 0
+/tmp  /var/chroot/testing-i386/tmp  none bind 0 0
