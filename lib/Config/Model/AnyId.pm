@@ -1343,31 +1343,41 @@ L<Config::Model::Warper> for explanation on warp mechanism)
 
 For instance, with this model:
 
- $model ->create_config_class 
-  (
+ $model ->create_config_class (
    name => 'Root',
-   'element'
-   => [
-       macro => { type => 'leaf',
-                  value_type => 'enum',
-                  name       => 'macro',
-                  choice     => [qw/A B C/],
-                },
-       warped_hash => { type => 'hash',
-                        index_type => 'integer',
-                        max_nb     => 3,
-                        warp       => {
-                                       follow => '- macro',
-                                       rules => { A => { max_nb => 1 },
-                                                  B => { max_nb => 2 }
-                                                }
-                                      },
-                        cargo => { type => 'node',
-                                   config_class_name => 'Dummy'
-                                 }
-                      },
-     ]
-  );
+   element => [
+     macro => {
+       type => 'leaf',
+       value_type => 'enum',
+       name       => 'macro',
+       choice     => [qw/A B C/]
+     },
+     warped_hash => {
+       type => 'hash',
+       index_type => 'integer',
+       max_nb     => 3,
+       warp => {
+         follow => {
+           macro => '- macro'
+         },
+         rules => [
+           {
+             apply => { max_nb => 2 },
+             when => '$macro eq "B"'
+           },
+           {
+             apply => { max_nb => 1 },
+             when => '$macro eq "A"'
+           }
+         ]
+       },
+       cargo => {
+         type => 'node',
+         config_class_name => 'Dummy'
+       }
+     },
+   ]
+ );
 
 Setting C<macro> to C<A> means that C<warped_hash> can only accept
 one C<Dummy> class item .
@@ -1378,13 +1388,22 @@ C<Dummy> class items.
 Like other warped class, a HashId or ListId can have multiple warp
 masters (See L<Config::Model::Warper/"Warp follow argument">:
 
-  warp => { follow => { m1 => '- macro1', 
-                        m2 => '- macro2' 
-                      },
-            rules  => [ '$m1 eq "A" and $m2 eq "A2"' => { max_nb => 1},
-                        '$m1 eq "A" and $m2 eq "B2"' => { max_nb => 2}
-                      ],
-          }
+  warp => {
+    follow => {
+      m1 => '- macro1',
+      m2 => '- macro2'
+    },
+    rules => [
+      {
+        apply => { max_nb => 1 },
+        when => '$m1 eq "A" and $m2 eq "A2"'
+      },
+      {
+        apply => { max_nb => 2 },
+        when => '$m1 eq "A" and $m2 eq "B2"'
+      }
+    ]
+  },
 
 =head2 Warp and auto_create_ids or auto_create_keys
 
