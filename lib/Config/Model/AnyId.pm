@@ -669,7 +669,7 @@ sub check_duplicates {
         $h{$v} = 0 unless defined $h{$v};
         $h{$v}++;
         if ( $h{$v} > 1 ) {
-            $logger->debug("got duplicates $i -> $v : $h{$v}");
+            $logger->info(qq!got $h{$v} duplicates key "$i" value "$v"!);
             push @to_delete, $i;
             push @issues,    qq!$i:"$v"!;
         }
@@ -678,20 +678,20 @@ sub check_duplicates {
     return unless @issues;
 
     if ($apply_fix) {
-        $logger->debug("Fixing duplicates @issues, removing @to_delete");
+        $logger->info("Fixing duplicates @issues, removing @to_delete");
         for (reverse @to_delete) { $self->remove($_) }
     }
     elsif ( $dup eq 'forbid' ) {
-        $logger->debug("Found forbidden duplicates @issues");
+        $logger->info("Found forbidden duplicates @issues");
         push @$error, "Forbidden duplicates value @issues";
     }
     elsif ( $dup eq 'warn' ) {
-        $logger->debug("warning condition: found duplicate @issues");
+        $logger->info("warning condition: found duplicate @issues");
         push @$warn, "Duplicated value: @issues";
         $self->add_fixes( scalar @issues);
     }
     elsif ( $dup eq 'suppress' ) {
-        $logger->debug("suppressing duplicates @issues");
+        $logger->info("suppressing duplicates @issues");
         for (reverse @to_delete) { $self->remove($_) }
     }
     else {
