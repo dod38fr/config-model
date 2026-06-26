@@ -16,6 +16,8 @@ extends qw/Config::Model::AnyThing/;
 
 with "Config::Model::Role::NodeLoader";
 with "Config::Model::Role::Grab";
+# this requires backup method from Config::Model::AnyThing
+with "Config::Model::Role::WarpSubject";
 
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
@@ -41,6 +43,11 @@ around BUILDARGS => sub ($orig, $class, %args) {
     my %h     = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @backup_list;
     return $class->$orig( backup => dclone( \%h ), %args );
 };
+
+# used by roles
+sub allowed_warp_params {
+    return @allowed_warp_params;
+}
 
 sub BUILD ($self, $) {
     # WarpedNode registers this object in a Value object (the
@@ -127,8 +134,9 @@ sub check ($self, $check = 'yes') {
     return 1;
 }
 
-sub set_properties ($self, @args) {
-    my %args = ( %{ $self->backup }, @args );
+sub set_properties ($self, %raw_args) {
+    # merge data passed to set_properties with data passed to the constructor
+    my %args = $self->merge_properties(%raw_args);
 
     # mega cleanup
     foreach my $awp (@allowed_warp_params) {

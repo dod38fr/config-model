@@ -22,6 +22,8 @@ extends qw/Config::Model::AnyId/;
 
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::ComputeFunction";
+# this requires backup method from Config::Model::AnyThing
+with "Config::Model::Role::WarpSubject";
 
 has data => ( is => 'rw', isa => 'HashRef',  default => sub { {}; } );
 has list => (

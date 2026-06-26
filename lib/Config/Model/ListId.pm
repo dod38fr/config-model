@@ -12,6 +12,8 @@ extends qw/Config::Model::AnyId/;
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::Utils";
+# this requires backup method from Config::Model::AnyThing
+with "Config::Model::Role::WarpSubject";
 
 use feature qw/postderef signatures/;
 no warnings qw/experimental::signatures experimental::postderef/;

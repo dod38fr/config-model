@@ -30,6 +30,8 @@ with "Config::Model::Role::WarpMaster";
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
+# this requires backup method from Config::Model::AnyThing
+with "Config::Model::Role::WarpSubject";
 
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
@@ -153,6 +155,11 @@ around BUILDARGS => sub ($orig, $class, %args) {
     my %h = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @backup_list;
     return $class->$orig( backup => dclone( \%h ), %args );
 };
+
+# used by roles
+sub allowed_warp_params {
+    return @allowed_warp_params;
+}
 
 sub BUILD {
     my $self = shift;
@@ -536,12 +543,10 @@ sub setup_grammar_check {
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too confusing.
-sub set_properties ($self, @args) {
-    # cleanup all parameters that are handled by warp
-    for ( @allowed_warp_params ) { delete $self->{$_} }
+sub set_properties ($self, %raw_args) {
 
-    # merge data passed to the constructor with data passed to set_properties
-    my %args = ( %{ $self->backup // {} }, @args );
+    # merge data passed to set_properties with data passed to the constructor
+    my %args = $self->merge_properties(%raw_args);
 
     # these are handled by Node or Warper
     for ( qw/level/ ) { delete $args{$_} }
@@ -2502,7 +2507,7 @@ L<App::Cme::Command::update> for details)
 
 The Warp functionality enable a C<Value> object to change its
 properties (i.e. default value or its type) dynamically according to
-the value of another C<Value> object locate elsewhere in the
+the value of another C<Value> object located elsewhere in the
 configuration tree. (See L<Config::Model::Warper> for an
 explanation on warp mechanism).
 

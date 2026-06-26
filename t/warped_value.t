@@ -311,8 +311,39 @@ $model->create_config_class(
                 follow => { c => '- compute_simple' },
                 rules  => [ '$c =~ /simple/' => { level => 'normal', }, ]
             }
+        },
+        'warn_level' => {
+            type => 'leaf',
+            value_type => 'uniline',
+        },
+        warp_with_merged_properties => {
+            type => 'leaf',
+            value_type => 'uniline',
+            'warn_if_match' => {
+                'foo' => {
+                    'msg' => 'no foo'
+                },
+            },
+            'warp' => {
+                'follow' => {
+                    'wl' => '- warn_level'
+                },
+                'rules' => [
+                    {
+                        'apply' => {
+                            'warn_if_match' => {
+                                'bar' => {
+                                    'msg' => 'no bar',
+                                },
+                            }
+                        },
+                        'when' => 'defined $wl and $wl and $wl eq "high"'
+                    }
+                ]
+            }
         }
-    ] );
+    ]
+);
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -348,7 +379,8 @@ eq_or_diff(
     [
         qw'get_element where_is_element macro m_value_out m2_value_out
             compute var_path class bar foo foo2 ClientAliveCheck
-            compute_simple warped_from_computed_value'
+            compute_simple warped_from_computed_value warn_level
+          warp_with_merged_properties'
     ],
     "Elements of Master"
 );
@@ -384,19 +416,21 @@ eq_or_diff(
     [
         qw'get_element where_is_element macro m2_value_out macro2 m_value
             m_value_old compute var_path class bar foo foo2
-            ClientAliveCheck compute_simple warped_from_computed_value'
+            ClientAliveCheck compute_simple warped_from_computed_value
+            warn_level warp_with_merged_properties'
     ],
     "Elements of Master when macro = B"
 );
 
 is( $root->fetch_element('macro2')->store('A'), 1, "setting master->macro2 to A" );
 
-is_deeply(
+eq_or_diff(
     [ $root->get_element_name() ],
     [
         qw'get_element where_is_element macro macro2
             m_value m_value_old compute var_path class warped_out_ref bar
-            foo foo2 ClientAliveCheck compute_simple warped_from_computed_value'
+            foo foo2 ClientAliveCheck compute_simple warped_from_computed_value
+            warn_level warp_with_merged_properties'
     ],
     "Elements of Master when macro = B macro2 = A"
 );
@@ -621,6 +655,33 @@ $layered_i->layered_stop;
 
 $l_mv->store('Av');
 is( $l_mv->fetch, 'Av', "test warp in layered mode" );
+
+subtest "merged warp properties" => sub {
+    my $inst = $model->instance(
+        root_class_name => 'Master',
+        instance_name => "test_merged_warp",
+    );
+    my $root = $inst->config_root;
+
+    my $value = $root->fetch_element('warp_with_merged_properties');
+
+    my @tests = (
+        # level, value, expected warning
+        [ low => bar => 0],
+        [ low => foo => 1],
+        [ high => bar => 1],
+        [ low => bar => 0],
+        [ high => foo => 1],
+    );
+    
+    foreach my $t (@tests){
+        my ($level, $in, $expect) = $t->@*;
+        $value->clear_warnings;
+        $root->fetch_element('warn_level')->store($level);
+        $value->store($in);
+        is($value->has_warning(), $expect, "test level $level value $in warnings");
+    }
+};
 
 memory_cycle_ok( $model, "test memory cycle" );
 

@@ -147,6 +147,11 @@ sub config_class_name {
     return $self->cargo->{config_class_name};
 }
 
+# used by roles
+sub allowed_warp_params {
+    return @allowed_warp_params;
+}
+
 sub BUILD {
     my $self = shift;
 
@@ -177,16 +182,17 @@ sub BUILD {
 
 # this method can be called by the warp mechanism to alter (warp) the
 # feature of the Id object.
-sub set_properties ($self, @args) {
+sub set_properties ($self, %raw_args) {
     # mega cleanup
     for ( @allowed_warp_params ) { delete $self->{$_}; }
 
-    my %args = ( %{ $self->{backup} }, @args );
+    # merge data passed to set_properties with data passed to the constructor
+    my %args = $self->merge_properties(%raw_args);
 
     # these are handled by Node or Warper
     for ( qw/level/ ) { delete $args{$_}; }
 
-    $logger->trace( $self->name, " set_properties called with @args" );
+    $logger->trace( $self->name, " set_properties called with %raw_args" );
 
     for ( @common_params ) {
         $self->{$_} = delete $args{$_} if defined $args{$_};
