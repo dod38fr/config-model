@@ -91,13 +91,13 @@ __END__
 
 =head1 SYNOPSIS
 
- package Config::Model::Stuff;
+ package Config::Model::SomeStuff;
  use Mouse;
  with Config::Model::Role::WarpMaster
 
 =head1 DESCRIPTION
 
-This role enable a configuration element to become a warp maser, i.e. a parameter
+This role enable a configuration element to become a warp master, i.e. a parameter
 whose value can change the features of the configuration tree (by controlling a
 warped_node) or the feature of various elements like leaf, hash ...
 
