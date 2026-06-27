@@ -30,7 +30,7 @@ my @introspect_params = qw/refer_to computed_refer_to/;
 my @accessible_params = qw/default_list upstream_default_list choice ordered/;
 my @allowed_warp_params = ( @accessible_params, qw/level/ );
 
-has [qw/backup data preset layered/] => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
+has [qw/data preset layered/] => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
 has computed_refer_to => ( is => 'rw', isa => 'Maybe[HashRef]' );
 has [qw/refer_to/]            => ( is => 'rw', isa => 'Str' );
 has [qw/ordered_data choice/] => ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );

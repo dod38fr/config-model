@@ -12,6 +12,8 @@ use v5.20;
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
 
+use Storable qw(dclone);
+
 my $logger        = get_logger("Anything");
 my $change_logger = get_logger("ChangeTracker");
 
@@ -74,6 +76,16 @@ sub _backend_support_annotation ($self) {
     # this method is overridden in Config::Model::Node
     return $self->parent->backend_support_annotation;
 };
+
+has backup => (
+    is => 'bare',
+    isa => 'Maybe[HashRef]',
+);
+
+sub backup ($self) {
+    return dclone($self->{backup});
+}
+
 
 sub notify_change ($self, %args) {
 

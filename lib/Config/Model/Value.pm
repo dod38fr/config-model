@@ -45,7 +45,7 @@ enum ValueType => qw/boolean enum uniline string integer number reference file d
 
 has fixes => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
 
-has [qw/warp compute computed_refer_to backup migrate_from/] =>
+has [qw/warp compute computed_refer_to migrate_from/] =>
     ( is => 'rw', isa => 'Maybe[HashRef]' );
 
 has compute_obj => (

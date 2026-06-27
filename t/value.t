@@ -414,6 +414,14 @@ sub check_error {
 
 my $root = $inst->config_root;
 
+subtest "check backup immutability" => sub {
+    my $i = $root->fetch_element('scalar');
+    my $backup = $i->backup();
+    is($backup->{min},1, "check backedup value");
+    $backup->{min} = 0;
+    is($i->backup()->{min},1, "check stored backedup value");
+};
+
 subtest "simple scalar" => sub {
     my $i = $root->fetch_element('scalar');
     ok( $i, "test create bounded integer" );

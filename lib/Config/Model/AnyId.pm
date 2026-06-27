@@ -122,7 +122,7 @@ around BUILDARGS => sub {
     return $class->$orig( backup => dclone( \%h ), @_ );
 };
 
-has [qw/backup cargo/] => ( is => 'ro', isa => 'HashRef', required => 1 );
+has [qw/cargo/] => ( is => 'ro', isa => 'HashRef', required => 1 );
 has warp => ( is => 'ro', isa => 'Maybe[HashRef]' );
 has [qw/morph/] => ( is => 'ro', isa => 'Bool', default => 0 );
 has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );
@@ -393,8 +393,6 @@ sub handle_args ($self, %args) {
     for (qw/index_class index_type morph ordered/) {
         $self->{$_} = delete $args{$_} if defined $args{$_};
     }
-
-    $self->{backup} = dclone( \%args );
 
     $self->set_properties(%args) if defined $self->{index_type};
 

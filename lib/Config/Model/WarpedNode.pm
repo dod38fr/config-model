@@ -30,8 +30,6 @@ my $logger = get_logger("Tree::Node::Warped");
 
 my @allowed_warp_params = qw/config_class_name level gist/;
 
-has 'backup' => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
-
 has 'warp'  => ( is => 'rw', isa => 'HashRef', default => sub { {}; });
 has 'morph' => ( is => 'ro', isa => 'Bool', default => 0 );
 
