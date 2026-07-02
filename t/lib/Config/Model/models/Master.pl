@@ -53,6 +53,12 @@ return [
                 choice     => [qw/Av Bv Cv Dv/]
             },
         ],
+        accept => [
+            'w.*' => {
+                type => 'leaf',
+                value_type => 'uniline',
+            }
+        ],
         include       => 'X_base_class',
         include_after => 'Z',
     ],

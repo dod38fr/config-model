@@ -326,7 +326,7 @@ sub grab_ancestor_with_element_named {
         my $obj_element_name = $obj->element_name;
 
         if (    $obj->isa('Config::Model::Node')
-            and $obj->has_element( name => $search, type => $type ) ) {
+            and $obj->has_element( name => $search, type => $type, autoadd => 0 ) ) {
 
             # object contains the search element, we need to grab the
             # searched object (i.e. the '?foo' part is done
