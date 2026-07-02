@@ -236,13 +236,31 @@ subtest "test apply regexp with embedded spaces" => sub {
         qq!tata!, "check a_string after regexp with embedded spaces" );
 };
 
-subtest "check with embedded quotes" => sub {
+subtest "check with embedded double quotes" => sub {
     my $step = qq!std_id:ab X=Bv -\na_string="\"titi\" and \"toto\"" std_id:bc X=Av!;
     ok( $root->load( step => $step ), "load steps with embedded quotes" );
     is(
         $root->fetch_element('a_string')->fetch,
         qq!"titi" and "toto"!,
         "check a_string with embedded quotes"
+    );
+};
+
+subtest "check with single quotes" => sub {
+    my $step = qq!a_string='3.0 (native)'!;
+    ok( $root->load( step => $step ), "load steps" );
+    is(
+        $root->fetch_element('a_string')->fetch,
+        qq!3.0 (native)!,
+        "check a_string"
+    );
+
+    $step = qq!a_string='3.0 \'native\''!;
+    ok( $root->load( step => $step ), "load steps" );
+    is(
+        $root->fetch_element('a_string')->fetch,
+        qq!3.0 'native'!,
+        "check a_string"
     );
 };
 
