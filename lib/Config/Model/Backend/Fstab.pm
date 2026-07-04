@@ -87,7 +87,7 @@ sub read ($self, %args) {
             # $v contains the quotes coming from /etc/fstab
             my ($k,$v) = split /=/, $opt;
             $v //= 1;
-            push @steps, $opt_r_translate{$k} // $k.'='.$v ;
+            push @steps, $opt_r_translate{$k} // sprintf('"%s"=%s', $k, $v);
         }
 
         $logger->debug("Loading:@steps");

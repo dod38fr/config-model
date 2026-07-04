@@ -6,13 +6,13 @@ use utf8;
 return [
   {
     'accept' => [
-      'X-[\w-]*',
+      'X-[\w.-]*',
       {
         'description' => 'All options prefixed with "X-" are interpreted as comments or as userspace application-specific options. These options are not stored in user space (e.g., mtab file), nor sent to the mount.type helpers nor to the mount(2) system call. The suggested format is X-appname.option.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
-      'x-[\w-]*',
+      'x-[\w.-]*',
       {
         'description' => "=pod
 
