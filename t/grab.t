@@ -15,13 +15,15 @@ my ($model, $trace) = init_test();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
+    model_file      => 'dump_load_model.pl',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b c" X=Av - a_string="titi , toto" ';
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b c" X=Av - a_string="titi , toto" '
+       . '"a.string"=foo "hash.c":"i.c"="foo.c" "list.d":0="foo.d" ';
 ok( $root->load( step => $step ), "load '$step'" );
 
 subtest "standard grabs" => sub {
@@ -113,6 +115,13 @@ subtest "test grab_value" => sub {
     throws_ok {
         my $trash = $root->grab_value('std_id:ab');
     } qr/Cannot get a value from 'std_id:ab'/, "test grab_value on list item" ;
+};
+
+subtest "grab with quotes" => sub {
+    is($root->grab_value('"a.string"'),'foo',"grab value");
+    is($root->grab('"hash.c"')->element_name,'hash.c',"grab hash object");
+    is($root->grab_value('"hash.c":"i.c"'),'foo.c',"grab hash value");
+    is($root->grab_value('"list.d":0'),'foo.d',"grab list value");
 };
 
 memory_cycle_ok($model, "memory cycle");

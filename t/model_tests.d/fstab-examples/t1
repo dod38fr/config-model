@@ -30,6 +30,9 @@ LABEL=ext-2To /mnt/ext-2To ext4 rw,user,relatime,noauto 0 0
 # to enable usbmon
 debugfs /sys/kernel/debug debugfs defaults 0 2
 
+# with x-systemd.* parameter
+nas:/volume1/foo /mnt/foo nfs defaults,noauto,user,x-systemd.mount-timeout=2m,rw 0 2 
+
 /dev  /var/chroot/testing-i386/dev  none bind 0 0
 /home /var/chroot/testing-i386/home none bind 0 0
 /proc /var/chroot/testing-i386/proc none bind 0 0

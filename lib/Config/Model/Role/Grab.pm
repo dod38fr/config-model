@@ -19,6 +19,41 @@ no warnings qw/experimental::signatures experimental::postderef/;
 
 my $logger = get_logger("Grab");
 
+sub unquote (@in) {
+    for (@in) {
+        if (defined $_) {
+            s/\\\\/\\/g;
+            s/^"// && s/"$// && s!\\"!"!g;
+            s/^'// && s/'$// && s!\\'!'!g;
+        }
+    };
+    return @in;
+}
+
+sub _split_cmd ($cmd) {
+    $logger->trace("split on: ->$cmd<-");
+
+    my $quoted_string = qr/
+                              (?: "(?: \\" | [^"] )*? ") | # double quoted string
+                              (?: '(?: \\' | [^'] )*? ')   # single quoted string
+                          /x;
+    # split in name, action, arg
+    my @command =
+        $cmd =~ /
+                    ($quoted_string | \w[\w-]*)? # element name can be alone
+                    (?:
+                        (:) # action
+                        (
+                            $quoted_string |
+                            (?:[\w:\/\.\-\+]+)
+                        )
+                    )?
+                /x ;
+
+    #return @command;
+    return unquote(@command);
+}
+
 ## Navigation
 
 # accept commands like
@@ -58,25 +93,7 @@ sub grab ($self, @args) {
     my $huge_string = ref $steps ? join( ' ', @$steps ) : $steps;
     return $self unless $huge_string;
 
-    my @command = (
-        $huge_string =~ m/
-         (         # begin of *one* command
-          (?:        # group parts of a command (e.g ...:... )
-           [^\s"]+  # match anything but a space and a quote
-           (?:        # begin quoted group 
-             "         # begin of a string
-              (?:        # begin group
-                \\"       # match an escaped quote
-                |         # or
-                [^"]      # anything but a quote
-              )*         # lots of time
-             "         # end of the string
-           )          # end of quoted group
-           ?          # match if I got more than one group
-          )+      # can have several parts in one command
-         )        # end of *one* command
-        /gx
-    ); # " # work-around cperl-mode issues
+    my @command = _split_string($huge_string);
 
     my @saved = @command;
 
@@ -147,8 +164,7 @@ COMMAND:
             );
         }
 
-        my ( $name, $action, $arg ) =
-            ( $cmd =~ /(\w[\-\w]*)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-\+]+)))?/ );
+        my ( $name, $action, $arg ) = _split_cmd($cmd);
 
         if ( defined $arg and $arg =~ /^"/ and $arg =~ /"$/ ) {
             $arg =~ s/^"//;    # remove leading quote
@@ -358,6 +374,7 @@ __END__
   $root->grab(steps => 'foo:2 bar');
   $root->grab(steps => 'foo:2 bar', type => 'leaf');
   $root->grab_value(steps => 'foo:2 bar');
+  $root->grab_value(steps => '"a.string"'); # contains . in name -> quote
 
 =head1 DESCRIPTION
 
@@ -434,11 +451,13 @@ no C<Foo> class is found when root node is reached.
 
 =item xxx
 
-Go down using C<xxx> element.
+Go down using C<xxx> element. Quotes must be used if element name is
+not alphanumeric.
 
 =item xxx:yy
 
-Go down using C<xxx> element and id C<yy> (valid for hash or list elements)
+Go down using C<xxx> element and id C<yy> (valid for hash or list elements).
+ Quotes must be used if id is not alphanumeric.
 
 =item ?xxx
 
