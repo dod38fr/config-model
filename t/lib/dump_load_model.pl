@@ -106,6 +106,10 @@ return [
                     config_class_name => 'SlaveZ',
                 },
             },
+            'a.string' => {
+                type => 'leaf',
+                value_type => 'uniline',
+            },
             [qw/lista listb listc/] => {
                 type       => 'list',
                 cargo => {

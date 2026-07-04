@@ -48,6 +48,10 @@ subtest "split command" => sub {
         [ q!a:~'b.*'.='\'a'! ],
         [ q!m:=a,'a b '! ],
         [ q!a:=~'s/.*\'.*/c/g'! ],
+        [ q!a_string="titi and\nfoo"!],
+        [ q!'a_string'='titi and\nfoo'!],
+        [ q!"a_string"="titi and\nfoo"!],
+        [ q!"a.string"=foo!],
     );
 
     foreach my $subtest (@tests) {
@@ -75,6 +79,11 @@ subtest "mega regexp" => sub {
         [ '#"m C"',            [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        '"m C"' ] ],
         [ q!#'m C'!,           [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        "'m C'" ] ],
         [ 'a=b',               [ 'a',  'x',  'x',           'x',            '=',  'x',      'b',        'x' ] ],
+        [ '"a.b"=b',           [ '"a.b"','x','x',           'x',            '=',  'x',      'b',        'x' ] ],
+        [ '"a.b"="b"',         [ '"a.b"','x','x',           'x',            '=',  'x',      '"b"',      'x' ] ],
+        [ '"a_string"="titi and\nfoo"',
+                               [ '"a_string"','x','x',      'x',            '=',  'x',      '"titi and\nfoo"', 'x' ] ],
+        [ '"a.string"=foo',    [ '"a.string"','x','x',      'x',            '=',  'x',      'foo', 'x' ] ],
         [ 'a=a~',              [ 'a',  'x',  'x',           'x',            '=',  'x',      'a~',       'x' ] ],
         [ 'a="~"',             [ 'a',  'x',  'x',           'x',            '=',  'x',      '"~"',      'x' ] ],
         [ "a='~'",             [ 'a',  'x',  'x',           'x',            '=',  'x',      "'~'",      'x' ] ],
@@ -199,6 +208,14 @@ subtest "check with embedded \n" => sub {
     ok( $inst->load( step => $step ), "load steps with embedded \\n" );
     $root = $inst->config_root;
     is( $root->fetch_element('a_string')->fetch, "titi and\nfoo", "check a_string" );
+};
+
+subtest "check with quoted element string \n" => sub {
+    #  also check that instance can load before config_root is called
+    my $step = qq!"a.string"="foo"!;
+    ok( $inst->load( step => $step ), "load steps with embedded \\n" );
+    $root = $inst->config_root;
+    is( $root->fetch_element('a.string')->fetch, "foo", "check a.string" );
 };
 
 
