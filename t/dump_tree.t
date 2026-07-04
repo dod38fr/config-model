@@ -35,6 +35,7 @@ $inst->preset_stop;
 $step =
       'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
     . '- a_string="toto \"titi\" tata" another_string="foobar" a_string2=dod@foo.com '
+    . '"a.string"=foo "hash.c":"i.c"="foo.c" "list.d":0="foo.d" '
     . 'a_string_to_test_newline="foo\nbar\\\\nbaz" '
     . 'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,"c c2",d listc:="dod@foo.com" '
     . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 hash_b:comment_test="#"'
@@ -76,14 +77,17 @@ std_id:"b d "
   X=Av -
 std_id:bc
   X=Av -
+"a.string"=foo
 lista:=c,d
 listb:="c c2",d
 listc:="dod@foo.com"
+"list.d":="foo.d"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_a:"~"="~/bar"
 hash_b:X3=xy
 hash_b:comment_test="#"
+"hash.c":"i.c"=foo.c
 olist:0
   X=Av -
 olist:1
@@ -116,14 +120,17 @@ std_id:"b d "
 std_id:bc
   X=Av
   DX=Dv -
+"a.string"=foo
 lista:=a,b,c,d
 listb:=b,"c c2",d
 listc:="dod@foo.com"
+"list.d":="foo.d"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_a:"~"="~/bar"
 hash_b:X3=xy
 hash_b:comment_test="#"
+"hash.c":"i.c"=foo.c
 olist:0
   X=Av
   DX=Dv -
@@ -160,13 +167,16 @@ std_id:"b d "
 std_id:bc
   X=Av
   DX=Dv -
+"a.string"=foo
 lista:=a,b,c,d
 listc:="dod@foo.com"
+"list.d":="foo.d"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_a:"~"="~/bar"
 hash_b:X3=xy
 hash_b:comment_test="#"
+"hash.c":"i.c"=foo.c
 olist:0
   X=Av
   DX=Dv -
@@ -206,13 +216,16 @@ std_id:"b d "
 std_id:bc
   X=Av
   DX=Dv -
+"a.string"=foo
 lista:=a,b,c,d
 listc:="dod@foo.com"
+"list.d":="foo.d"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_a:"~"="~/bar"
 hash_b:X3=xy
 hash_b:comment_test="#"
+"hash.c":"i.c"=foo.c
 olist:0
   X=Av
   DX=Dv -
