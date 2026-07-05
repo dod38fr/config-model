@@ -1,5 +1,33 @@
 {{$NEXT}}
 
+2.164 2026-07-05
+
+  Bug fix:
+    * Loader: fix single quoted arguments
+    * Grab: fix bug where '?foo' step can create accepted elements
+    * all tree classes: merge warped properties
+    * Fstab backend: fix parsing of no-something parameters
+      (Close #37)
+    * FsTab app: handle fs mount options like x-systemd.mount-timeout
+
+  Feature:
+    * Loader and Grab: allow quotes around element names
+    * Dumper: add quotes around element names when needed
+
+  Doc updates:
+    * AnyId: update and reformat warp example in pod doc
+    * WarpMaster: Small improvements of pod doc
+    * translate_legacy script: fix emacs instructions
+
+  Model update:
+    * Fstab: add vfat parameters
+    * Fstab common options: add missing parameters
+    * Fstab common options: accept x-* and X-* parameters
+    * Fstab Ext4 model: add ext3 parameters
+
+  Misc change:
+    * rename translate_legacy script to translate-legacy
+
 2.163 2026-06-05
 
   Model declaration changes (backward compatible, except for Config::Model::Itself < 2.031):
