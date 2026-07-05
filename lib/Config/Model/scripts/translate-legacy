@@ -44,6 +44,7 @@ my $info = join('',<>);
 my ($indent) = ($info =~ m/^(\s*)/);
 
 # wrap info in { } and eval it
+## no critic (BuiltinFunctions::ProhibitStringyEval)
 my $old_data = eval ("{ $info }");
 
 my $model = Config::Model->new(log_level => 'ERROR');
