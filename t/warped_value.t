@@ -11,6 +11,9 @@ use Config::Model::Tester::Setup qw/init_test/;
 use strict;
 use warnings;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my ($model, $trace) = init_test();
 
 $model->create_config_class(
