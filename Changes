@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.165 2026-07-08
+
+  Bug fix:
+    * Dumper: fix dump of "''" values
+    * Loader: fix load of "''" values
+    * warped_value.t: fix failure for perl < 5.24
+
 2.164 2026-07-05
 
   Bug fix:
