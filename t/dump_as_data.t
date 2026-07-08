@@ -117,7 +117,7 @@ $expect->{olist}[0]{DX}    = 'Dv';
 $expect->{olist}[1]{DX}    = 'Dv';
 $expect->{std_id}{ab}{DX}  = 'Dv';
 $expect->{std_id}{bc}{DX}  = 'Dv';
-$expect->{a_uniline}       = 'yada yada';
+$expect->{a_uniline_with_default} = 'yada yada';
 my $full_data = $root->dump_as_data(mode => 'user');
 
 is_deeply( $full_data, $expect, "check full data dump" );

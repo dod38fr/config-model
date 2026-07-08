@@ -138,7 +138,7 @@ olist:1
   X=Bv
   DX=Dv -
 string_with_def="yada yada"
-a_uniline="yada yada"
+a_uniline_with_default="yada yada"
 a_string="toto \"titi\" tata"
 a_string2=dod@foo.com
 a_string_to_test_newline="foo
@@ -184,7 +184,7 @@ olist:1
   X=Bv
   DX=Dv -
 string_with_def="yada yada"
-a_uniline="yada yada"
+a_uniline_with_default="yada yada"
 a_string="toto \"titi\" tata"
 a_string2=dod@foo.com
 a_string_to_test_newline="foo
@@ -233,7 +233,7 @@ olist:1
   X=Bv
   DX=Dv -
 string_with_def="yada yada"
-a_uniline="yada yada"
+a_uniline_with_default="yada yada"
 a_string=""
 a_string2=dod@foo.com
 a_string_to_test_newline="foo

@@ -200,7 +200,7 @@ return [
                 value_type => 'string',
                 default    => 'yada yada'
             },
-            a_uniline => {
+            a_uniline_with_default => {
                 type       => 'leaf',
                 value_type => 'uniline',
                 default    => 'yada yada'
