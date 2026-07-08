@@ -16,11 +16,11 @@ sub new {
 }
 
 sub quote (@args) {
-    return _quote( qr/[\s~"#*]/, @args ); # "
+    return _quote( qr/[\s~'"#*]/, @args ); # "
 }
 
 sub id_quote (@args) {
-    return _quote( qr/[\s~"@*<>.=#]/, @args ); # " ))
+    return _quote( qr/[\s~'"@*<>.=#]/, @args ); # " ))
 }
 
 sub _quote ($re, @res) {
