@@ -420,8 +420,14 @@ sub unquote {
         if (defined $_) {
             s/(?<!\\)\\n/\n/g;
             s/\\\\/\\/g;
-            s/^"// && s/"$// && s!\\"!"!g;
-            s/^'// && s/'$// && s!\\'!'!g;
+            # handle double quote
+            if (s/^"//) {
+                s/"$// && s!\\"!"!g;
+            }
+            # or single quotes, but not both!
+            elsif (s/^'//) {
+                s/'$// && s!\\'!'!g;
+            }
         }
     }
     return;

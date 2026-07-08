@@ -79,6 +79,8 @@ subtest "mega regexp" => sub {
         [ '#"m C"',            [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        '"m C"' ] ],
         [ q!#'m C'!,           [ 'x',  'x',  'x',           'x',            'x',  'x',      'x',        "'m C'" ] ],
         [ 'a=b',               [ 'a',  'x',  'x',           'x',            '=',  'x',      'b',        'x' ] ],
+        [ q!a='""'!,           [ 'a',  'x',  'x',           'x',            '=',  'x',      q!'""'!,    'x' ] ],
+        [ q!a="''"!,           [ 'a',  'x',  'x',           'x',            '=',  'x',      q!"''"!,    'x' ] ],
         [ '"a.b"=b',           [ '"a.b"','x','x',           'x',            '=',  'x',      'b',        'x' ] ],
         [ '"a.b"="b"',         [ '"a.b"','x','x',           'x',            '=',  'x',      '"b"',      'x' ] ],
         [ '"a_string"="titi and\nfoo"',
@@ -218,6 +220,12 @@ subtest "check with quoted element string \n" => sub {
     is( $root->fetch_element('a.string')->fetch, "foo", "check a.string" );
 };
 
+subtest qq!check string values with "" and ''! => sub {
+    my $step = q!a_string="''" a_uniline='""' !;
+    ok( $root->load( step => $step ), 'load steps with empty values' );
+    is( $root->fetch_element('a_string')->fetch, "''", "check a_string" );
+    is( $root->fetch_element('a_uniline')->fetch, '""', "check a_uniline" );
+};
 
 subtest "check with embedded \n and \\n" => sub {
     my $step = q!a_string="titi and\nfoo and \\\\n literal" !;
