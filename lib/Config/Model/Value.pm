@@ -1071,7 +1071,7 @@ sub run_code_on_value {
 
     unless ($ret) {
         $logger->debug("run_code_on_value sub returned false");
-        $msg =~ s/\$_/$$value_r/g if defined $$value_r;
+        $msg =~ s!\$_!$$value_r // '<undef>'!ge;
         if ($msg =~ /\$std_value/) {
             my $std = $self->_fetch_std_no_check ;
             $msg =~ s/\$std_value/$std/g if defined $std;

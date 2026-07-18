@@ -1088,9 +1088,8 @@ subtest "warn_unless" => sub {
 
     my $xp = Test::Log::Log4perl->expect(
         ignore_priority => 'info',
-        ['User', warn => qr/value #@! should contain alphanum/]
+        ['User', warn => qr/value <undef> should contain alphanum/]
     );
-    $warn_unless->store('#@!');
     $warn_unless->fetch();
 
     $warn_unless->apply_fixes;
