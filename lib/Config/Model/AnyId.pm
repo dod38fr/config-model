@@ -501,7 +501,7 @@ sub check_content ($self, %args) {
         my @warn;
 
         foreach my $sub ( $self-> get_all_content_checks ) {
-            $sub->( \@error, \@warn, $apply_fix, $silent );
+            $sub->( \@error, \@warn, $apply_fix );
         }
 
         my $nb = $self->fetch_size;
