@@ -1702,9 +1702,13 @@ Delete all values (without deleting underlying value objects).
 
 Parameters: C<( [index] )>
 
-Returns warnings concerning indexes of this hash.
-Without parameter, returns a string containing all warnings or undef. With an index, return the warnings
-concerning this index or undef.
+With an index parameter, this function returns warnings concerning this index.
+For instance a warning about index greater than max_nb.
+
+Without parameter, returns a string containing warnings about the content of a hash or list.
+For instance a missing value is a list.
+
+Return an empty string if no warnings are found.
 
 =head2 has_warning
 
