@@ -51,7 +51,7 @@ The following dependencies are optional, but are required for tests:
 Run
 
 #+begin_example
-dzil build 
+dzil build
 #+end_example
 
 or

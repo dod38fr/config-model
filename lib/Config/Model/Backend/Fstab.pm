@@ -172,7 +172,7 @@ This backend is able to read and write comments in the C</etc/fstab> file.
 
 =head1 STOP
 
-The documentation below describes methods that are currently used only by 
+The documentation below describes methods that are currently used only by
 L<Config::Model>. You don't need to read it to write a model.
 
 =head1 CONSTRUCTOR
@@ -204,8 +204,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::BackendMgr>, 
-L<Config::Model::Backend::Any>, 
+L<Config::Model>,
+L<Config::Model::BackendMgr>,
+L<Config::Model::Backend::Any>,
 
 =cut

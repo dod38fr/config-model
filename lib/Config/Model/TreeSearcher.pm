@@ -142,13 +142,13 @@ __END__
  my $model = Config::Model->new ;
  $model ->create_config_class (
     name => "MyClass",
-    element => [ 
+    element => [
         foo => {
             type       => 'leaf',
             value_type => 'string'
         },
         bar => '*foo',
-        baz => { 
+        baz => {
             type => 'hash',
             index_type => 'string' ,
             cargo => {
@@ -168,13 +168,13 @@ __END__
 
  my @result = $root->tree_searcher(type => 'value')->search('jour');
  print join("\n",@result),"\n" ;
- # print 
+ # print
  #  baz:fr
  #  foo
 
 =head1 DESCRIPTION
 
-This class provides a way to search the content of a configuration tree. 
+This class provides a way to search the content of a configuration tree.
 Given a keyword or a pattern, the search method scans the tree to find
 a value, a description or anything that match the given pattern (or keyword).
 
@@ -184,17 +184,17 @@ a value, a description or anything that match the given pattern (or keyword).
 
 Creates a new searcher object. The C<type> parameter can be:
 
-=over 
+=over
 
-=item element 
+=item element
 
-=item value 
+=item value
 
-=item key 
+=item key
 
-=item summary 
+=item summary
 
-=item description 
+=item description
 
 =item help
 
@@ -217,7 +217,7 @@ on the path syntax.
 
 =head1 BUGS
 
-Creating a class with just one search method may be overkill. OTOH, it may 
+Creating a class with just one search method may be overkill. OTOH, it may
 be extended later to provide iterative search.
 
 =head1 AUTHOR
@@ -229,6 +229,6 @@ Dominique Dumont, (ddumont at cpan dot org)
 L<Config::Model>,
 L<Config::Model::SearchElement>,
 L<Config::Model::AnyThing>
- 
+
 =cut
 

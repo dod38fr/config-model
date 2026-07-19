@@ -119,7 +119,7 @@ __END__
  my $model = Config::Model->new;
  $model->create_config_class (
     name    => "MyClass",
-    element => [ 
+    element => [
         [qw/foo bar/] => {qw/type leaf value_type string/}
     ],
 
@@ -141,7 +141,7 @@ __END__
 File C<foo.conf> now contains:
 
  ## This file was written by Config::Model
- ## You may modify the content of this file. Configuration 
+ ## You may modify the content of this file. Configuration
  ## modifications will be preserved. Modifications in
  ## comments may be mangled.
  ##
@@ -189,8 +189,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::BackendMgr>, 
-L<Config::Model::Backend::Any>, 
+L<Config::Model>,
+L<Config::Model::BackendMgr>,
+L<Config::Model::Backend::Any>,
 
 =cut

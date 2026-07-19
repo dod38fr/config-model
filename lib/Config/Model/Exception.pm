@@ -588,7 +588,7 @@ is used to generate the error message.
 
 =back
 
-  TODO: list all exception classes and hierarchy. 
+  TODO: list all exception classes and hierarchy.
 
 =head1 How to get trace
 
@@ -604,8 +604,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::Instance>, 
+L<Config::Model>,
+L<Config::Model::Instance>,
 L<Config::Model::Node>,
 L<Config::Model::Value>
 

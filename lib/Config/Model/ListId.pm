@@ -565,7 +565,7 @@ Returns the number of elements of the list.
 
 Parameters: C<< (string, [ check => 'no' ] ) >>
 
-Store a set of values passed as a comma separated list of values. 
+Store a set of values passed as a comma separated list of values.
 Values can be quoted strings. (i.e C<"a,a",b> yields
 C<('a,a', 'b')> list).
 
@@ -601,7 +601,7 @@ Like push with extended options. Options are:
 
 =item check
 
-Check value validaty. Either C<yes> (default), C<no>, C<skip> 
+Check value validaty. Either C<yes> (default), C<no>, C<skip>
 
 =item values
 
@@ -648,7 +648,7 @@ list values. Prefer C<push_x> when practical.
 
 =over 4
 
-=item check 
+=item check
 
 C<yes>, C<no> or C<skip>
 
@@ -714,8 +714,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model::Model>, 
-L<Config::Model::Instance>, 
+L<Config::Model::Model>,
+L<Config::Model::Instance>,
 L<Config::Model::AnyId>,
 L<Config::Model::HashId>,
 L<Config::Model::Value>

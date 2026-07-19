@@ -142,14 +142,14 @@ The first is done with a declaration of the I<path> to I<follow> to find
 the warp master (associated to a variable). The second is a set of
 value properties:
 
- element => [ 
-   size => { 
+ element => [
+   size => {
      type => 'leaf',
      value_type => 'enum',
      choice     => ['big','small'],
    },
 
-   length => { 
+   length => {
      type => 'leaf',
      value_type => 'integer',
      warp => {                         # change specification
@@ -162,7 +162,7 @@ value properties:
              when => '$size_type eq "small"',
              apply => {
                  # set max to 10 when size is small
-                 max => 10 
+                 max => 10
              }
          },
          {

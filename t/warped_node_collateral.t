@@ -160,7 +160,7 @@ ok( $root->load('type=hash cargo atime=1'), "check warping in of a node" );
 subtest "get function call in rule" => sub {
     my $hown = $root->grab('hash_of_warped_nodes:foo');
     ok ($hown, "got node from hash_of_warped_nodes");
-}; 
+};
 
 memory_cycle_ok($model, "memory cycle");
 

@@ -355,14 +355,14 @@ __END__
 
 This class provides a way to change dynamically the configuration
 class (or some other properties) of a node. The changes are done
-according to the model declaration. 
+according to the model declaration.
 
 This declaration specifies one (or several) leaf in the
 configuration tree that triggers the actual property change of the
 warped node. This leaf is also referred as I<warp master>.
 
 When the warp master(s) value(s) changes, C<WarpedNode> creates an instance
-of the new class required by the warp master. 
+of the new class required by the warp master.
 
 If the morph parameter is set, the values held by the old object are
 (if possible) copied to the new instance of the object using
@@ -399,7 +399,7 @@ See L<Config::Model::Warper/"Warp follow argument"> for details.
 =item morph
 
 boolean. If 1, C<WarpedNode> tries to recursively copy the value from
-the old object to the new object using 
+the old object to the new object using
 L<copy_from method|Config::Model::Node/"copy_from ( another_node_object )">.
 When a copy is not possible, undef values
 are assigned to object elements.
@@ -407,8 +407,8 @@ are assigned to object elements.
 =item rules
 
 Hash or array ref that specify the property change rules according to the
-warp master(s) value(s). 
-See L<Config::Model::Warper/"Warp rules argument"> for details 
+warp master(s) value(s).
+See L<Config::Model::Warper/"Warp rules argument"> for details
 on how to specify the warp master values (or combination of values).
 
 =back
@@ -472,7 +472,7 @@ the available elements of the node carried by the warped node.
 =head1 EXAMPLE
 
 
- $model ->create_config_class 
+ $model ->create_config_class
   (
    element =>
     [
@@ -525,7 +525,7 @@ access C<bar> raises an exception.
 
 =item *
 
-When C<tree_macro> is changed from C<ZZ> to C<XX>, 
+When C<tree_macro> is changed from C<ZZ> to C<XX>,
 C<bar> refers to a brand new C<ClassX>
 object constructed with C<< ClassX->new(foo => 'bar') >>
 
@@ -544,8 +544,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model::Instance>, 
-L<Config::Model>, 
+L<Config::Model::Instance>,
+L<Config::Model>,
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
 L<Config::Model::AnyThing>,

@@ -305,7 +305,7 @@ object. See L</container_type>
 =head2 container_type
 
 Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
-C<warped_node>) of the element containing this object. 
+C<warped_node>) of the element containing this object.
 
 =head2 root
 
@@ -427,14 +427,14 @@ L<Config::Model::Searcher> for details on how to handle a search.
 =head2 dump_as_data
 
 Dumps the configuration data of the node and its siblings into a perl
-data structure. 
+data structure.
 
 Returns a hash ref containing the data. See
 L<Config::Model::DumpAsData> for details.
 
 =head2 warp_error
 
-Returns a string describing any issue with L<Config::Model::Warper> object. 
+Returns a string describing any issue with L<Config::Model::Warper> object.
 Returns '' if invoked on a tree object without warp specification.
 
 =head1 AUTHOR
@@ -443,10 +443,10 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::Instance>, 
-L<Config::Model::Node>, 
-L<Config::Model::Loader>, 
+L<Config::Model>,
+L<Config::Model::Instance>,
+L<Config::Model::Node>,
+L<Config::Model::Loader>,
 L<Config::Model::Dumper>
 
 =cut

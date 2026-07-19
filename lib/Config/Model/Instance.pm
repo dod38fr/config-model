@@ -648,7 +648,7 @@ __END__
  my $conf_file = "$wr_dir/popularity-contest.conf" ;
 
  unless (-d $wr_dir) {
-     mkpath($wr_dir, { mode => 0755 }) 
+     mkpath($wr_dir, { mode => 0755 })
        || die "can't mkpath $wr_dir: $!";
  }
  open(my $conf,"> $conf_file" ) || die "can't open $conf_file: $!";
@@ -817,7 +817,7 @@ Returns the L<root object|Config::Model::Node> of the configuration tree.
 
 =head2 apply_fixes
 
-Scan the tree and apply fixes that are attached to warning specifications. 
+Scan the tree and apply fixes that are attached to warning specifications.
 See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
 
 =head2 deep_check
@@ -893,7 +893,7 @@ model.
 This method returns a L<Config::Model::Searcher> object. See
 L<Config::Model::Searcher> for details on how to handle a search.
 
-=head2 iterator 
+=head2 iterator
 
 This method returns a L<Config::Model::Iterator> object. See
 L<Config::Model::Iterator> for details.
@@ -1018,7 +1018,7 @@ Later:
 =head1 Read and write backend features
 
 Usually, a program based on config model must first create the
-configuration model, then load all configuration data. 
+configuration model, then load all configuration data.
 
 This feature enables you to declare with the model a way to load
 configuration data (and to write it back). See
@@ -1077,8 +1077,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::Node>, 
+L<Config::Model>,
+L<Config::Model::Node>,
 L<Config::Model::Loader>,
 L<Config::Model::Searcher>,
 L<Config::Model::Value>,

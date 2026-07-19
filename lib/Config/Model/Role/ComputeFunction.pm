@@ -108,7 +108,7 @@ Optional parameter to indicate how many level to go up before
 retrieving the index or element name. Each C<-> is equivalent to a
 call to C<parent|Config::Model::Node/parent>. Can be repeated dashes
 ("C<->", "C<- ->", ...)
-or a dash with a multiplier 
+or a dash with a multiplier
 ("C<->", "C<-2>", ...). White spaces are ignored.
 
 =back

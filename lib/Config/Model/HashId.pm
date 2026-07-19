@@ -611,7 +611,7 @@ Swap the order of the 2 keys. Ignored for non ordered hash.
 
 Parameters: C<< ( key1 , key2 ) >>
 
-Rename key1 in key2. 
+Rename key1 in key2.
 
 Also also optional check parameter to disable warning:
 
@@ -674,8 +674,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::Instance>, 
+L<Config::Model>,
+L<Config::Model::Instance>,
 L<Config::Model::AnyId>,
 L<Config::Model::ListId>,
 L<Config::Model::Value>

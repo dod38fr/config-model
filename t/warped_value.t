@@ -676,7 +676,7 @@ subtest "merged warp properties" => sub {
         [ low => bar => 0],
         [ high => foo => 1],
     );
-    
+
     foreach my $t (@tests){
         my ($level, $in, $expect) = $t->@*;
         $value->clear_warnings;

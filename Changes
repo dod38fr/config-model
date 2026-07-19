@@ -85,7 +85,7 @@
     * Model: fix bug in translate_rules_arg
 
   Note:
-    * This new version breaks Config::Model::Itself < 2.031. 
+    * This new version breaks Config::Model::Itself < 2.031.
       Config::Model::Itself 2.031 will be available soon.
 
 2.162 2026-04-22
@@ -204,7 +204,7 @@
 
   Bug fixes:
     * fix regression (Value): error_msg now returns empty string
-      when there's no error 
+      when there's no error
 
 2.151 2022-07-26
 
@@ -247,7 +247,7 @@
     * fstab: add suid/nosuid (thanks Topi Miettinen)
     * feat (fstab model): add umask element in common options
     * feat (fstab model): add description to common options
-  
+
   Bug fixes:
     * feat (Instance): modify methoed displays changes before saving
     * fix (Loader): typo in .substitute load string command
@@ -390,7 +390,7 @@
 
   Bug fix:
     * Fix undef start_node error occuring with 'cme run' command
-      (this regression from previous version broke app-cme tests) 
+      (this regression from previous version broke app-cme tests)
     * Instance: clear changes after reset
 
   Doc update:
@@ -455,14 +455,14 @@
     * Value" improve warning message about multi line value
 
   Perl backend improvement:
-    * Convert cme boolean values (i.e. value of value_type boolean) to 
+    * Convert cme boolean values (i.e. value of value_type boolean) to
       Perl boolean values
 
   Dependency changes:
     * build require boolean module
 
 2.128 2018-11-21
-  
+
   Usability improvements:
     * CheckList: die or warn (with cme -force) when storing unknown item
       in check list. Bad values used to be silently dropped.
@@ -581,7 +581,7 @@
   Main change:
     * use logger to warn about issues. By default, logged warnings
       are shown on STDOUT. These warnings can be suppressed
-      using ~/.log4config-model file.   
+      using ~/.log4config-model file.
 
   API change:
     * Instance: root_dir parameter can be a Path::Tiny object
@@ -754,7 +754,7 @@
     * ValueComputer: safer use of variables in eval: variables are
       passed to the eval'ed code in a hash insted of being inserted
       *in* the code to eval.
-  
+
   Bug fixes:
     * value: fix mechanism to avoid repetitive warnings (Thanks Tincho)
     * use check => skip when fetching a value from
@@ -778,7 +778,7 @@
 
   Bug fixes:
     * Value: fix fetch in non_upstream_default mode to avoid breaking
-      'cme meta plugin' command 
+      'cme meta plugin' command
 
 2.104 2017-06-03
 
@@ -898,7 +898,7 @@
   Bug fix:
     * fix a regression seen when starting curses interface
       (fix retrieval of an instance using an instance name)
-      
+
 2.096 2016-12-11
 
   Term UI improvement
@@ -938,7 +938,7 @@
   Fix compatibility with older Term::ReadLine::Gnu:
     * TermUI: skip call to enableUTF8 if not available
       (gh #11)
-    
+
 2.093 2016-11-08
 
   Hygiene:
@@ -985,7 +985,7 @@
       (breaks App::Cme older than v1.011)
 
   Bug fix:
-    * Add double quote when dumping value that contain '#' 
+    * Add double quote when dumping value that contain '#'
     * Value: generates same error messages for warn_if, warn_if_match
     * fix other collaterals of '.' removal from @INC
 
@@ -1029,7 +1029,7 @@
 
   A release with mostly documentation improvements:
     * Fixed many grammatical issues in all pod docs
-    * Added CONTRIBUTE.md 
+    * Added CONTRIBUTE.md
     * Instance doc:
       * separate data change methods from internal methods
       * specify value returned by load()
@@ -1051,7 +1051,7 @@
 
 2.086 2016-06-04
 
-   Fixed some bugs so that cme() works with new Systemd model:  
+   Fixed some bugs so that cme() works with new Systemd model:
     * cme() uses config_dir from app file
     * Node: element_type works on not yet accepted element
     * Node: improved doc of accept_element()
@@ -1144,7 +1144,7 @@
 
 2.081 2016-02-29
 
-  Bug fixes: 
+  Bug fixes:
     * Fix error handling in Value. This should fix freebsd smoke tests.
       The weird thing is that these tests should have failed in all arch...
 
@@ -1152,7 +1152,7 @@
 
   Functional improvements:
     * storing a wrong value is no longer ignored but now
-      triggers an exception. 
+      triggers an exception.
 
   Other bug fixes:
     * Trigger change notif when store_set reduces the nb of items
@@ -1172,7 +1172,7 @@
     * Added "ChangeTracker" log class and traces (Log::Log4Perl)
     * HashId: load_data can load ordered data in non-ordered hash
 
-  Bug fixes: 
+  Bug fixes:
     * Removed Exception::Class from warper error handler
       (gh #5, Thanks jplesnik)
     * Dumper/Loader: handle literal \\n
@@ -1225,7 +1225,7 @@
     * IniFile backend can read/write check list
 
 2.075 2015-11-22
-  
+
   Functionality improvements:
     * Lister: can list local (dev) application
 
@@ -1284,7 +1284,7 @@
     * Loader: fixed parding of command like foo:.insort("bar( stuff )")
       which are also used in shell UI.
     * Backend::Any: mention cme command used to edit config file in
-      comment header when writing back files. (e.g. "You can run 
+      comment header when writing back files. (e.g. "You can run
       'cme edit lcdproc' to modify this file" is written in header
       of /etc/LCDd.conf)
     * Value: fixed formatting and errors in pod doc
@@ -1353,7 +1353,7 @@
 2.064 2014-12-04
 
   A small change for this release:
-  
+
     * Version 2.062 added the possibility to override the Perl class
       implementing a configuration node by adding a class parameter in a
       place that is confusing. This release fix this bug: this optional
@@ -1615,12 +1615,12 @@
 2.043 2013-09-20
 
 	* build depends on Config::Model::Tester 2.046 to avoid dependency
-      issues 
+      issues
     * Value: accept yes/no true/false as default value for Boolean.
       This can make model declaration more consistent when boolean
-      value must be written as true/false, yes/no. In this case, 
+      value must be written as true/false, yes/no. In this case,
       forcing model developer to write default value as 0/1 was not
-      cool and prevented generation of model like LcdProc's model. 
+      cool and prevented generation of model like LcdProc's model.
 
 2.042 2013-09-15
 
@@ -1657,7 +1657,7 @@
 2.039 2013-07-18
 
   Framework changes:
-    * CheckList: 
+    * CheckList:
 	  + Added clear_item and clear_layered methods
 	  + added user mode to retrieve data
       * clear now reset (undefs) a check-list instead of setting items to 0
@@ -1668,14 +1668,14 @@
 
   Backends:
     * BackendAny: lack of suffix method is now an info not a warning
-    * BackendMgr: 
+    * BackendMgr:
       + added $home override for tests
       + added default_layer backend parameter
       + added os_config_dir parameter
       - die if obsolete read_config_dir or write_config_dir is specified
 
   Test framework:
-    * Tester: 
+    * Tester:
       + allow override of home directory for tests
       +  can also use $model for internal tests
       * check test item now accepts array refs
@@ -1689,7 +1689,7 @@
     * cme: added -backup option.
 
   Application changes:
-    * popcon model: 
+    * popcon model:
 	  * replace yes/no enum value with boolean written as yes/no
       + added ENCRYPT support
 
@@ -1703,7 +1703,7 @@
     * renamed ChangeLog in Changes to conform to Perl standards
     * added missing dep on File::Slurp
     * cme: added -try-app-as-model option (experimental)
-    * Most pod docs: Replaced obsolete links to Config::Model::AutoRead 
+    * Most pod docs: Replaced obsolete links to Config::Model::AutoRead
       with Config::Model::BackendMgr
 
   Application changes:
@@ -1856,12 +1856,12 @@
 2.024 2012-09-04
 
   * Debian dpkg dependency:
-    * Warn and can remove unversioned dependency on essential 
+    * Warn and can remove unversioned dependency on essential
       package (Debian bug 684208)
     * Warn and replace perl-modules dependency with perl
-    * Don't mess with alternate dependency with < relation 
+    * Don't mess with alternate dependency with < relation
       (Closes Debian #682730)
-    * remove Debian epoch when checking perl module version 
+    * remove Debian epoch when checking perl module version
       from corelist (Debian bug # 683861)
 
   * Framework changes:
@@ -1878,7 +1878,7 @@
 2.023 2012-07-04
 
   * Application changes:
-    * Debian dpkg control binary: 
+    * Debian dpkg control binary:
       * In control binary Depends, replace 'perl' dep with ${perl:Depends}
         This is implemented as a warning and is changed only if apply_fix is
         called. Duplicates ${perl:Depends} will also be removed by apply_fix.
@@ -1898,10 +1898,10 @@
     * Debian::Dpkg
       * Bump default compat level to 9 (for hardening)
       * dependency model:
-	* Make concurrent calls to madison to reduce user wait 
+	* Make concurrent calls to madison to reduce user wait
 	  with AnyEvent::HTTP
-	* make sure that apply_fix trigger notification changes 
-	  so the fixes are indeed saved when running apply_fix 
+	* make sure that apply_fix trigger notification changes
+	  so the fixes are indeed saved when running apply_fix
 	  (thanks to gregoa for the heads up)
       * copyright: allow any non-space character for license short name
 
@@ -1952,8 +1952,8 @@
     * cme: better formatting when printing changes
     * WarpedNode: Don't call notify_change when not needed.
     * added a note parameter for notify_change
-    * Instance: initial_load default value is now 0. 
-    * Node: correctly set initial_load mode when init is called 
+    * Instance: initial_load default value is now 0.
+    * Node: correctly set initial_load mode when init is called
       recursively
 
 2.017 2012-05-21
@@ -1973,20 +1973,20 @@
 2.015 2012-05-14
 
     * Application changes:
-        * Copyright model: replace migrate_keys_from with new 
+        * Copyright model: replace migrate_keys_from with new
 	   migrate_values_from. This simplifies the model
 
-    * Framework changes: 
-	  + List or Hash: added migrate_values_from to enable migration 
+    * Framework changes:
+	  + List or Hash: added migrate_values_from to enable migration
 	    from another hash or list. migrate_keys_from for list element
 	    is now deprecated.
         * List, Hash, Value: ensure that migration is done after initial
 	  load, i.e. once all data from configuration file is loaded.
-        * AnyId, List, Hash: deprecated get_all_indexes in favor of 
+        * AnyId, List, Hash: deprecated get_all_indexes in favor of
 	  fetch_all_indexes
         * Value:
             * make sure that setting a default value triggers
-	      notify_change so the resulting modification in the 
+	      notify_change so the resulting modification in the
 	      config file can be saved
             * don't trigger notify_change with update undef -> undef
 
@@ -2050,15 +2050,15 @@
 2.011 2012-03-19
 
     * Application changes:
-      + Debian copyright: added deprecated License-Alias paramater. 
-        When set to 'Perl', this parameter is migrated into 
+      + Debian copyright: added deprecated License-Alias paramater.
+        When set to 'Perl', this parameter is migrated into
         License: Artistic or GPL-1+
       + Debian DpkgSyntax: better error message. This was really annoying for DEP-3
         patch parser.
       + cme: added forgotten -stack-trace option
 
     * Tester changes:
-      - removed check_* parameter. 
+      - removed check_* parameter.
       + Added wr_check parameter
       + added possibility to pass options to grab and fetch with check and wr_check.
 
@@ -2100,12 +2100,12 @@
 2.006 2012-02-25
 
     * Application changes:
-      * Debian control model: 
+      * Debian control model:
         * bumped default Debian source standards version to 3.9.3
-        - no longer try to enforce first lowercase in Synopsis. 
+        - no longer try to enforce first lowercase in Synopsis.
           Too many false positives (fix debian #661184)
         - Removed check for virtual package (source packages are seen as
-          virtual packages). Unfortunately, virtual packages are now reported 
+          virtual packages). Unfortunately, virtual packages are now reported
           as unknown packages. Suggestions on how to fix this are welcome.
       * Debian copyright model:
         * changed copyright type from line based list to string leaf
@@ -2115,8 +2115,8 @@
 2.005 2012-02-23
 
     * Application changes:
-      * Debian copyright model: updated url for dep-5 format with new 
-        Debian approved one. URL is no longer updated silently, user 
+      * Debian copyright model: updated url for dep-5 format with new
+        Debian approved one. URL is no longer updated silently, user
         will have to request it with 'cme fix' command
 
 2.004 2012-02-09
@@ -2126,7 +2126,7 @@
     configure_requires. This should improve Perl smoke tests.
 
 2.003 2012-02-08
-   
+
    * Added configure_requires on File::Slurp (Fix RT#73611)
    * Updated meta-data to point toward github instead of sourceforge
 
@@ -2142,8 +2142,8 @@
       * AnyId: remove deprecation warning. check is useful as an alias to check_content
       * Lister: no need to require perl 5.10
       * Tester: don't use next to exit from sub
-    
-    * Tests: 
+
+    * Tests:
       * avoid undef $ENV{HOME} problems on Windows
 
 2.001 2012-02-06
@@ -2160,17 +2160,17 @@
 
     * Application changes:
       + New cme program to edit/validate configuration.
-      * model Debian::Dpkg: 
+      * model Debian::Dpkg:
         * fixed computed default value for VcsBrowser
         + added rules element for debian/rules file
-        * DEP-5 model: updated doc and removed obsolete URL. Thanks to skaet 
+        * DEP-5 model: updated doc and removed obsolete URL. Thanks to skaet
 	  for raising this point
         * Debian/Dpkg/Control/Binary model:
-	  + Added deprecated XC-Package-Type. 
+	  + Added deprecated XC-Package-Type.
 	  + Added migration from XC-Package-Type to Package-Type
     * Framework changes:
       * All:
-        + Improved performance by running validation only when data 
+        + Improved performance by running validation only when data
 	  is modified. (implemented with notify_changes method)
         * breaks memory cycles in backend manager
         * Converted to Moose all classes inheriting Config::Model::AnyThing
@@ -2178,14 +2178,14 @@
 1.265 2011-12-06
 
     * Application changes:
-        * model Debian::Dpkg: 
+        * model Debian::Dpkg:
           + added Multi-Arch parameter
           * don't fail when debian/copyright is missing or empty
 
     * Framework changes:
         * Config::Model::Value: layered value is also part of a standard value
         * Config::Model::CheckList: in custom mode, checklist must return the whole
-          list when queried by user, not just the changed items. 
+          list when queried by user, not just the changed items.
           (Fix Config::Model::OpenSsh RT#72916)
 
 1.264 2011-11-29
@@ -2199,7 +2199,7 @@
     * Application changes:
         * model Multistrap:
           * Use convert =>lc on most parameters to match multistrap's behavior
-          + added deprecated forceunpack parameter (migrated to unpack). 
+          + added deprecated forceunpack parameter (migrated to unpack).
           + force sections and key names to be lowercase
           + added components parameter to Multistrap::Section model
         * model Debian::Dpkg:
@@ -2208,20 +2208,20 @@
 
     * Framework changes:
         + Config::Model::HashId: added convert parameter
-        * Config::Model::Value: recompute choice before checking 
+        * Config::Model::Value: recompute choice before checking
           if a reference matches available choices.
         + Config::Model::Lister: new bunch of functions to list models
-	  and applications. Used only by bash_completion. 
+	  and applications. Used only by bash_completion.
     * Inifile backend changes:
         * delay validation after read because read order depends on the
           INI file and not on the model.
-        + added force_lc_(key|name|value) parameter to take care of case 
+        + added force_lc_(key|name|value) parameter to take care of case
           insensitive INI files
 
 1.262 2011-11-18
 
-    * Config/Model/Tester: avoid test failure by sorting file list 
-      before comparing them 
+    * Config/Model/Tester: avoid test failure by sorting file list
+      before comparing them
 
 1.261 2011-11-17
 
@@ -2234,7 +2234,7 @@
       + new multistrap model. Supports multistrap's layered configuration
       * lcdproc:
         * lcdconf2model.pl: added better check of info in square brackets
-        * lcdproc/LCDd.conf: resync with upstream lcdproc LCDd.conf 
+        * lcdproc/LCDd.conf: resync with upstream lcdproc LCDd.conf
 
     * Inifile backend changes:
       + added write_boolean_as, split_list_value, section_map and
@@ -2259,8 +2259,8 @@
         * Backend Debian::Dpkg: skip empty lines in patch series files
     * Framework changes:
         + Config::Model::Tester: new class extracted from t/model_tests.t
-          to test config files and models. 
-        * Config/Model/Loader.pm: Make sure that load("!") goes to root 
+          to test config files and models.
+        * Config/Model/Loader.pm: Make sure that load("!") goes to root
           even if load was called from a child node. Fix RT#69480
 
 1.259 2011-10-16
@@ -2272,26 +2272,26 @@
 1.258 2011-10-14
 
     * Application changes
-        * model Debian::Dpkg::Patch: Synopsis is no longer mandatory. 
-          Issue a warning for empty Synopsis and propose a value based 
+        * model Debian::Dpkg::Patch: Synopsis is no longer mandatory.
+          Issue a warning for empty Synopsis and propose a value based
           on patch name
         + model Debian::Dpkg::Meta: added email element
-        + model Debian::Dpkg::Copyright::LicenseSpec: compute license 
+        + model Debian::Dpkg::Copyright::LicenseSpec: compute license
           text from Software::License (requires version patched for Debian)
-        * Backend::Debian::Dpkg::Copyright: Rewrote parser to classify 
-          correctly Files and Licenses paragraph even if extra fields are 
+        * Backend::Debian::Dpkg::Copyright: Rewrote parser to classify
+          correctly Files and Licenses paragraph even if extra fields are
           prepended.
         * model Debian::Dpkg::Control::Source: Vcs-browser must also accep
           https URLs
         * lcdproc:  fixed some specs in square brackets in LCDd.conf template.
           Reworked model generator to better specs in square brackets and
-          handle model snippets in curly brackets 
+          handle model snippets in curly brackets
 
     * Framework changes:
-        * ValueComputer: &index and &element can only work with parent 
-          or ancestors in tree. Fixed grammar inside of {} statements. 
+        * ValueComputer: &index and &element can only work with parent
+          or ancestors in tree. Fixed grammar inside of {} statements.
           It is now able to return '' when no replacement is found
-        * Value: fix warn_if warn_unless check in custom mode. Cleaned up 
+        * Value: fix warn_if warn_unless check in custom mode. Cleaned up
           mess about mandatory value checks. Custom values are no
           longer checked this way
 
@@ -2300,7 +2300,7 @@
     * Framework changes:
         * config-edit: avoid deprecation warning
         * C::M::AnyId: enable automtic fix of duplicated values
-        * C::M::Node: Create BackendMgr when read_config or write_config 
+        * C::M::Node: Create BackendMgr when read_config or write_config
           is defined (Fixes Debian FTBS in Config::Model::TkUI See #642157)
 
     * Application changes
@@ -2308,13 +2308,13 @@
           added duplicates warning in dependencies
         + model Debian::Dpkg::Control::Source:
           compute Vcs-Browser and Vcs-Git default value for pkg-perl team
-        * model Debian::Dpkg::Patch: No need for a first capital letter 
+        * model Debian::Dpkg::Patch: No need for a first capital letter
           restriction. Look for debian patches in the correct places
 
 1.256 2011-09-16
 
     * Application changes
-        * Dpkg control model: warn (and offer to fix) duplicated 
+        * Dpkg control model: warn (and offer to fix) duplicated
           dependencies
         + Dpkg model: new compat docs and dirs parameters
 
@@ -2325,7 +2325,7 @@
 1.255 2011-09-15
 
     * Framework changes:
-        * Instance.pm, Node.pm: take into account force_load 
+        * Instance.pm, Node.pm: take into account force_load
           with delayed loading of config files
         * BackendMgr.pm: New Moose class (renamed from AutoLoader)
 
@@ -2338,12 +2338,12 @@
     * Framework changes:
         * AnyId: reworked warning storage and display
         * Value: check can be called without arg to check current value
-        
+
 1.252 2011-09-01
 
     * Framework changes:
         * AutoRead.pm: correctly handle ~ as home dir (thanks fabreg)
-        * Backend/ShellVar.pm: do not write global comments if 
+        * Backend/ShellVar.pm: do not write global comments if
           there's no data to write
         * AutoRead.pm: do not leave empty files
 
@@ -2358,9 +2358,9 @@
         * Backend Debian/Dpkg/Patch.pm: patch write is now working
 
     * Framework changes:
-        * Value.pm: rewrote apply_fix to use check to apply fixes. 
+        * Value.pm: rewrote apply_fix to use check to apply fixes.
           No longer stores fixes as sub ref.
-        * AnyId.pm: rewrote apply_fix to use check to apply fixes. 
+        * AnyId.pm: rewrote apply_fix to use check to apply fixes.
           Split check in a global check and dedicated index (check_idx) check
         * AnyId.pm: Added fix_duplicates feature
         * Instance.pm: apply_fixes: now relay the call to hash and lists objects
@@ -2375,7 +2375,7 @@
           because running tests did change a source file.
 
     * Application changes
-        * Debian Dpkg License model and backend: 
+        * Debian Dpkg License model and backend:
           Reworked Licence models to allow comments and arbitrary parameters
           in stand-alone licences section (Closes Debian #633847)
         * Backend Debian::DpkgSyntax: Better handle newlines
@@ -2388,33 +2388,33 @@
 1.249 2011-07-12
 
     * Framework changes:
-        * Config/Model/Value.pm: 
-          * apply_fixes applies all available fixes of a 
+        * Config/Model/Value.pm:
+          * apply_fixes applies all available fixes of a
             value *then* save the value.
-          * Emit one warning per problem instead of one 
+          * Emit one warning per problem instead of one
             warning per problematic values (with embedded newlines)
 
     * Application changes:
-        * Config/Model/Debian/Dependency.pm: reworked to take buildd 
-        limitation into account (check if Perl version is available 
+        * Config/Model/Debian/Dependency.pm: reworked to take buildd
+        limitation into account (check if Perl version is available
         in sid to decide the order of the alternates dependencies)
-   
+
 1.248 2011-07-05
 
     * Framework changes:
-        * Reworked test framework 
+        * Reworked test framework
         * New test require new build dependency: File::Copy::Recursive
         * C::M::Value: allow an enum to have an empty ('') value.
-        * Yaml backend: Do not try to call load_data when YAML 
+        * Yaml backend: Do not try to call load_data when YAML
           file is almost empty (file present but no data in there)
         * config-edit: force save when command are passed in command
           line arguements
 
     * Application changes:
-        * Debian::Dependency: Do not issue warning when a package 
+        * Debian::Dependency: Do not issue warning when a package
         is pure virtual (found from local apt cache)
-        * Debian::Dpkg::Control backend: read control information 
-          according to element order in config class. This avoids 
+        * Debian::Dpkg::Control backend: read control information
+          according to element order in config class. This avoids
           problems when Maintainer field is declared after
           the Dependencies
 
@@ -2423,7 +2423,7 @@
     * Application changes:
         * examples/lcdproc/LCDd.conf: fix typos
     * Framework changes:
-        * lib/Config/Model/Backend/IniFile.pm: Fix failure to load in 
+        * lib/Config/Model/Backend/IniFile.pm: Fix failure to load in
           debug trace: do not call location when $obj is undef
 
 1.246 2011-06-17
@@ -2437,17 +2437,17 @@
     * Application changes:
         * models Debian::Dpkg::Copyright::License:
           Allow any license exception keyword (fix Debian bug #627874)
-        + New model for lcdproc: 
-          The model for lcdproc (LCDd) is generated from the template 
-          LCDd.conf file provided by lcdproc project. This model can be 
+        + New model for lcdproc:
+          The model for lcdproc (LCDd) is generated from the template
+          LCDd.conf file provided by lcdproc project. This model can be
           generated by running Dist::Zilla (when working from Mercurial) or
-          by running Build.PL (when working from Config::Model Perl 
-          distribution). 
-          Note to packagers: LCDd conf files are 
-          (c) 1999-2011 William Ferrell and others, GPL-2. 
-          Consequently, all LCDd models files (generated from LCDd.conf) are 
-          (c) 1999-2011, D Dumont, William Ferrell and others, GPL-2. 
-          
+          by running Build.PL (when working from Config::Model Perl
+          distribution).
+          Note to packagers: LCDd conf files are
+          (c) 1999-2011 William Ferrell and others, GPL-2.
+          Consequently, all LCDd models files (generated from LCDd.conf) are
+          (c) 1999-2011, D Dumont, William Ferrell and others, GPL-2.
+
     * Framework changes:
         * lib/Config/Model/Backend/IniFile.pm:
         - Do not write twice leaf comments
@@ -2455,10 +2455,10 @@
         * lib/Config/Model/Loader.pm:
           Do not remove first and last escaped quotes
         * Build.PL:
-            Check (and may be generate) pod doc at build time 
+            Check (and may be generate) pod doc at build time
             (on top of release time)
         * lib/Config/Model.pm:
-          Fix doc generator to test correctly for time stamp 
+          Fix doc generator to test correctly for time stamp
           before re-writing docs
         * lib/Config/Model/Backend/IniFile.pm:
           When check is 'no', discard data that belongs to unavailable
@@ -2467,16 +2467,16 @@
 1.244 2011-05-16
 
     * Application changes:
-        * Fstab model: Prevent wrong value in fs_passno and fs_freq with 
+        * Fstab model: Prevent wrong value in fs_passno and fs_freq with
           bound mount point
-        * Dpkg: Added doc for control Architecture. Fix pod doc in DpkgSyntax 
+        * Dpkg: Added doc for control Architecture. Fix pod doc in DpkgSyntax
           backend
-        * Debian/Dpkg/Meta.pl: applied Debian patch fix_perl_group_filter 
+        * Debian/Dpkg/Meta.pl: applied Debian patch fix_perl_group_filter
           (set group_filter of debian perl team to 'etch' instead of 'lenny')
-        
+
     * Framework changes:
         * config-edit: added -search and -narrow-search options. This options
-          enable search in tree element, values and tree documentation. 
+          enable search in tree element, values and tree documentation.
         * config-edit: cleaned up option names (always accept '-' in place of '_')
         * Config/Model/AnyThing.pm: fix location string and fix grab function
 
@@ -2491,12 +2491,12 @@
           (first steo to solve Debian #624321)
         * Debian Dpkg Meta model: package filter is computed from group-filter
           OR private policy
-          
+
     * Framework changes:
         * reworked warp registration mechanism (Changed inherited WarpedThing into
           delegation to Warper)
         * t/debian*.t: Put back Apt::Pkg test to avoid smoke test failure
-        * ValueComputer: Fixed bug to allow temporary variables and $_ in eval'ed 
+        * ValueComputer: Fixed bug to allow temporary variables and $_ in eval'ed
           formulas
 
 1.242 2011-04-07
@@ -2513,26 +2513,26 @@
        * t/debian*.t: skip test when /etc/debian_version is not found
 
 1.241 2011-04-07
-    
+
     * Framework changes:
        * Build depend on Test::Differences
-       * Load and grab: fix to accept '-' in element names 
+       * Load and grab: fix to accept '-' in element names
        * Model.pm: Added value help and summary in generated documentation
        * DumpAsData: skip hash keys containing undef values
 
 1.240 2011-04-05
-    
+
     * Framework changes:
-        * Most *.pm: replaced 'no Moose' by 'no Any::Moose' 
-        
+        * Most *.pm: replaced 'no Moose' by 'no Any::Moose'
+
 1.238 2011-04-05
-    
+
     * Framework changes:
         * Build.PL: removed dead code that cause downstream pacaking problems.
         * Model.pm: fix cosmetic issue with doc generation.
-        
+
 1.237 2011-04-04
-    
+
     * Framework changes:
         * added MouseX::NativeTraits dependency (fix RT #67196)
         * config-edit: fixed typo (fix RT #66403)
@@ -2540,58 +2540,58 @@
         * Model: Correctly write author and copyright in doc (i.e not as ARRAY0x0...)
         * Yaml backend: fill full_dump option (did not work when set to 0)
     * Application changes:
-        * dpkg control dependency: 
+        * dpkg control dependency:
             - Dependency filtering mechanism uses source package name to find
               filter value in Meta. This makes more sense than using binary package
               name
-              
+
 1.236 2011-04-01
-    
+
     * Application changes:
-        * dpkg control dependency: 
-          - Dependency filtering mechanism now use dpkg meta 
+        * dpkg control dependency:
+          - Dependency filtering mechanism now use dpkg meta
             package_dependency_filter value (i.e. a user parameter).
             Debian_perl package will be filtered on lenny by default
             Filter mechanism can be overriden in a package by package basis
-            See Debian::Dpkg::Meta config class for details. 
+            See Debian::Dpkg::Meta config class for details.
           - Warn if a package is unknown.
           - Accepts version specified with dpkg variables.
         * dpkg control and copyright: warn if dh-make-perl boilerplate is found
         * dpkg control: added Package-Type parameter (Peter Pentchev)
-        * Dpkg meta: new class to enable user to customize dpkg editor. 
+        * Dpkg meta: new class to enable user to customize dpkg editor.
           (email-updates and dependency-filter). Content of meta is saved in
           ~/.dpkg-meta.yml
-        * Dpkg control: change e-mail address based on content of meta 
+        * Dpkg control: change e-mail address based on content of meta
           email-updates
 
     * Framework changes:
         * Value: added replace_follow parameter to specify automatic
           replacement based on a hash somewhere in the configuration
           tree (used by dpkg e-mail update)
-        * Extracted initialisation of reader and writer from new() and moved in 
+        * Extracted initialisation of reader and writer from new() and moved in
           init() method to avoid deep recursion on startup.
         * Use Any::Moose instead of plain Moose
         * Removed dependency on MooseX::Singleton
         * Model: added author, copyright, license fields. This data is not used by
           Config::Model, but can be used in the user interface or to generate config
           class doc
-        * AnyThing: Fix parsing of multi line annotations. Now use Pod::POM 
+        * AnyThing: Fix parsing of multi line annotations. Now use Pod::POM
           to load annocation from Pod document
         * dist.ini: Depends on Pod::POM
         * Model.pm: added generate_doc method
         * config-edit: new -gen-pod option to generate pod document from config class
-        * HashId: fix default_with_init to be able to auto-create leaf values 
+        * HashId: fix default_with_init to be able to auto-create leaf values
           specified in the model
 
 1.235 2011-03-01
-    
+
     * Application changes:
         * dpkg control source model: Encourage Standard-Version 3.9.1
-        * dpkg control dependency: only versions older than old-stable (i.e. 
+        * dpkg control dependency: only versions older than old-stable (i.e.
           not found on madison) will trigger a warning
         * dpkg copyright: Handle license in header (Closes Debian #614776)
         * Dpkg copyright backend: skip empty copyright lines
-        
+
     * Framework changes:
         * WarpedThing: Can warp based on the location in a tree. For instance to make
         an element mandatory in one place and not in another. Used by Debian copyright model
@@ -2600,29 +2600,29 @@
         a top-model (err.. dpkg) when run with option -ui none
 
 1.234 2011-02-21
-    
-    * factor out comment extraction: code that retrieve comments and tie it to 
-      actual config data is generic. Now this is handled by 
+
+    * factor out comment extraction: code that retrieve comments and tie it to
+      actual config data is generic. Now this is handled by
       C::M::B::Any::associates_comments_with_data
     * factored out comment writing in C::M::B::Any::write_global_comments
       and C::M::B::Any::write_data_and_comments
     * Fix bad handling of leaf type Ini backend (Thanks Krzysztof for the notice)
-    
+
 
 1.233 2011-02-11
-    
+
     * Application changes:
-        * dpkg control source model: Added DM-Upload-Allowed and all Vcs-* tags defined 
+        * dpkg control source model: Added DM-Upload-Allowed and all Vcs-* tags defined
         in Debian reference guide (Thanks Peter Pentchev for the patch)
           (Fix RT 65575)
-        
+
     * Framework changes:
         * Backend Ini file: Fixed comment handling
-        * All modules: Improved synopsis. You can now save them in a file and 
+        * All modules: Improved synopsis. You can now save them in a file and
           have a working program
-        * Remove crappy handling of comments in load_data methods. 
+        * Remove crappy handling of comments in load_data methods.
         * DumpAsData: Write annotations as pod in method dump_annotations_as_pod
-        * Anything: load_pod_annotation load annotations from a pod document 
+        * Anything: load_pod_annotation load annotations from a pod document
         * Instance write back: now correctly call all write_back when several
           nodes in model needs to be called back
 
@@ -2636,10 +2636,10 @@
         * Debian::Dependency: reworked to reduce calls to madison. Report available
           versions when unnessary version issue is found.). Source is optional.
         * dpkg control model: added forgotten Enhances and Pre-Depends. Added warnings for
-          too long lines in Description (plus fixes based on Text::Autoformat). Added 
+          too long lines in Description (plus fixes based on Text::Autoformat). Added
           Synopsis element to better tune warnings and fixes
     * Framework changes:
-        * FuseUI: Fix undef warning. Ensure that files finish with "\n". 
+        * FuseUI: Fix undef warning. Ensure that files finish with "\n".
           Fix bug where value 0 was shown as an empty file.
         * Added PlainFile backend (each config parameter is stored in its own file. useful for
         some dpkg data)
@@ -2652,14 +2652,14 @@
           of other bug fixes (including debian bug #609889 #610231)
 
     * Framework changes:
-        * AnyId: added migrate_keys_from to migrate list or hash content 
+        * AnyId: added migrate_keys_from to migrate list or hash content
           during updgrades.
         * ObjTreeScanner: Added node_dispatch_cb parameter to setup callback
           dedicated to specific configuration classes.
         * ValueComputer: added 'undef_is' to allow undef value in formulas. Useful for
           complex migration scenario where migration can come from several alternative parmeters.
         * FuseUI: Fix bug that disabled write in a boolean value
-        
+
 1.229 2011-01-10
 
         * config-edit: added -apply-fixes option
@@ -2681,12 +2681,12 @@
 
         * Model.pm: deprecated name_match parameter in accept
           specification. The regexp should now be specified as a
-          key of a hash. 
+          key of a hash.
         * Value.pm: warn_if_match and warn_unless_match can speficy instructions to "fix"
           the value.
         * WizardHelper: can be set to stop on items with warnings. Added bail_out method to bail
           out cleanly from wizard helper.
-        * model Debian::Dpkg::Control::Binary: Depends element specifies 
+        * model Debian::Dpkg::Control::Binary: Depends element specifies
           Perl cargo class Config::Model::Debian::Dependency (see below)
         * Likewise for Debian::Dpkg::Control::Source Build-Depends*
         * Debian::Dependency: new class derived from Value to provide checks specific
@@ -2706,18 +2706,18 @@
 
 1.224 2010-12-06
 
-        * Node AnyId Value: get() now accepts check parameter, autoadd parameter 
+        * Node AnyId Value: get() now accepts check parameter, autoadd parameter
         * Node AnyId: added children method
-        * Added Fuse interface: configuration tree is mapped to a virtual directory. 
-          Use config-edit -ui fuse -fuse_dir some/where to use. 
+        * Added Fuse interface: configuration tree is mapped to a virtual directory.
+          Use config-edit -ui fuse -fuse_dir some/where to use.
           Stop with 'fusermount -u some/where'
         * Recommends Fuse (to be able to use fuse user interface)
-        
+
 1.223 2010-11-28
 
         * Debian/Dpkg/Copyright: removed restrictions on copyright format
         * dist.ini: added build dependency on Probe::Perl (to run tests that invoke config-edit)
-        * Model.pm: can now load model snippet from Foo.d directory. I.e. *.pl files found in Foo.d 
+        * Model.pm: can now load model snippet from Foo.d directory. I.e. *.pl files found in Foo.d
           are used to augment Foo model. This will be useful to agregate models coming from several
           teams. For instance any team can extends the Fstab model provided in this distribution.
 
@@ -2761,10 +2761,10 @@
           parameters.
         * Copyright: Removed fuzziness around trailing '+' in licence names
         * AnyThing.pm: grab() : accept '+' without surrounding quotes in argument
-        * WarpedNode: delegates copy_from and dump_tree to Node (fixes hash 
+        * WarpedNode: delegates copy_from and dump_tree to Node (fixes hash
           copy with warped nodes)
         * config-edit: added -open_item option
-        * Build.PL: configure_depends on Text::Template to avoid CPANPLUS 
+        * Build.PL: configure_depends on Text::Template to avoid CPANPLUS
           installation failure
 
 1.217 2010-10-26
@@ -2785,25 +2785,25 @@
 
 1.215 2010-10-19
 
-        * Instance.pm and Loader.pm: added some stub to preserve backwards compatibility 
+        * Instance.pm and Loader.pm: added some stub to preserve backwards compatibility
 
 1.213 2010-10-19
 
         * AutoRead.pm: do not clobber configuration file when trying to write erroneous data
         * Value.pm: fix value check based on Parse::RecDescent
         * Dpkg::Copyright: fix bugs masked by above problem
-        * Dpkg::Copyright: Fix read/write issues with License that can be stored either 
+        * Dpkg::Copyright: Fix read/write issues with License that can be stored either
           in Files section or their own sections
 
 1.212 2010-10-15
 
-        * Value and AnyId: store wrong values when store check is disabled 
+        * Value and AnyId: store wrong values when store check is disabled
         (i.e. config-edit is run with -force option).
         * Debian::Dpkg::Copyright: cosmetic improvements on written file
-        * Instance.pm: Removed all overengineered push_no_value_check, pop_no_value_check. 
-        This stuff had too many drawbacks of global variables. An optional check parameter 
-        was added to a lot of calls on Config::Model. The API was also sanitized with some 
-        positional parameters replaced by named parameters. Most of these changes should 
+        * Instance.pm: Removed all overengineered push_no_value_check, pop_no_value_check.
+        This stuff had too many drawbacks of global variables. An optional check parameter
+        was added to a lot of calls on Config::Model. The API was also sanitized with some
+        positional parameters replaced by named parameters. Most of these changes should
         be internal. The main impact is that read/write backends must now explicitely
         pass this check parameter lest the force_load will not work.
         * ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597794)
@@ -2812,23 +2812,23 @@
 
 1.211 2010-10-01
         * Value.pm: added warn_if_match and warn_unless_match parameters.
-        Value will issue a warning if the stored value match (or does not) 
+        Value will issue a warning if the stored value match (or does not)
         match a Perl regular expression specified in the model.
-        * AnyId.pm: Likewise, added warn_if_key_match and 
-        warn_unless_key_match. 
+        * AnyId.pm: Likewise, added warn_if_key_match and
+        warn_unless_key_match.
         * Value.pm: added warn parameter. Unconditionaly issue a warning with
-        a string specified in the model. Mostly usefull for deprecated or accept'ed 
+        a string specified in the model. Mostly usefull for deprecated or accept'ed
         parameters
-        * Loader.pm: load string can now undef a leaf with '~' action. 
+        * Loader.pm: load string can now undef a leaf with '~' action.
         E.g load("foo~") will set foo parameter to undef.
         * Copyright model: warn if unknown license is used.
 
 1.210 2010-09-30
         * renamed config-edit-dep5 in config-edit-dpkg-copyright
         * renamed Debian::Dep5 model to Debian::Dpkg::Copyright
-        * renamed Config::Model::Backend::Debian::Dep5 backend to 
+        * renamed Config::Model::Backend::Debian::Dep5 backend to
           Config::Model::Backend::Debian::Dpkg::Copyright
-        * Factored out code to read/write control files in 
+        * Factored out code to read/write control files in
           Config::Model::Backend::Debian::DpkgSyntax
         * Created model and backend for Debian control files
         * added config-edit-dpkg-control command line
@@ -3122,7 +3122,7 @@
 
 
         * config-edit: added -dump and -load options
-        
+
 0.634 2009-02-24
 
         * config-edit: removed kludgy read_root_dir and write_root_dir
@@ -3131,7 +3131,7 @@
         * lib/Config/Model/ListId.pm: auto_create parameter is replaced by
         auto_create_ids (still trap wrong parameter to avoid memory
         problems)
- 
+
         * lib/Config/Model/HashId.pm: auto_create parameter is replaced by
         auto_create_keys
 
@@ -3197,7 +3197,7 @@
 
         * ChangeLog: I plainly forgot to update this file for v0.626. This
         is fixed now.
-        
+
 0.626 2008-09-22
 
         * lib/Config/Model/AutoRead.pm (read_augeas): Lot of bug fix to
@@ -3229,16 +3229,16 @@
         * lib/Config/Model/ValueComputer.pm: added 'use_eval' parameter to
         allow more complex computation like regexp in string or uniline
         values
-  
+
 
         * lib/Config/Model/AutoRead.pm: Major changes to interface
         Config::Model with Augeas (http://augeas.net). Changes are
         compatible but new warnings are issued:
         - 'syntax' is replaced by 'backend' to indicate that permanent
-          storage of configuration data is more than a matter of writing 
+          storage of configuration data is more than a matter of writing
           a configuration file.
-        - introduced 'config_dir' and 'root' paramater so a backend can 
-          specify a configuration dir (e.g. /etc/foo) and a pseudo-root 
+        - introduced 'config_dir' and 'root' paramater so a backend can
+          specify a configuration dir (e.g. /etc/foo) and a pseudo-root
           to perform tests (so the config file can land in my_root/etc/foo).
 
         * lib/Config/Model/Dumper.pm (new): skip_auto_write now take a
@@ -3303,12 +3303,12 @@
         * lib/Config/Model/AutoRead.pm: Changed the way to specify auto
         read and write for better clarity. Now they must be specified with
            read_config => [ { syntax => 'ini'},
-                            { syntax => 'custom', 
+                            { syntax => 'custom',
                               class => 'Mine',
                               function=>'my_read'
                             }
                           ]
-        instead of 
+        instead of
            read_config => [ 'ini', { class => 'Mine',function=>'my_read'}]
         likewise for write_config
 
@@ -3358,7 +3358,7 @@
         cargo => { type => ..., config_class_name => ..., <other_parm> => ... }
         Model.pm provides a translation from the old way to the new way so
         this change is (95%) backward compatible.
-        
+
 
         * CheckList.pm (set): Fix bug that prevented to use level or
         permission or status parameter with check_list elements
@@ -3399,7 +3399,7 @@
 
         * TermUI.pm: Fixed to work with Term::ReadLine::Gnu or
         Term::ReadLine::Perl. Can also work in degraded mode without these
-        2 modules. 
+        2 modules.
         The command handling part was moved to SimpleUI.pm
 
         * config-edit: added Simple UI mode so config-edit can be used
@@ -3407,7 +3407,7 @@
 
 0.619 2008-02-29
 
-        * Value.pm: removed kludgy enum_integer value type 
+        * Value.pm: removed kludgy enum_integer value type
 
 
         * Instance.pm (write_back): can override directory where config
@@ -3424,7 +3424,7 @@
         like element:index or element.
 
 
-        * CheckList.pm (): added refer_to and computed_refer_to accessors 
+        * CheckList.pm (): added refer_to and computed_refer_to accessors
 
 0.617 2008-01-28
 
@@ -3445,7 +3445,7 @@
         file with a wrong device driver: all driver option are no longer
         valid.)
 
-        * Value.pm (check): Added doc for check.  
+        * Value.pm (check): Added doc for check.
 
         * ObjTreeScanner.pm (permission): new method to get or set the
         permission of the scanner (after creation).
@@ -3488,7 +3488,7 @@
         to 'default' or 'preset' data for audit purpose
         (preset): new. Query if the instance is in 'preset' mode.
 
-        * Dumper.pm (dump_tree): changed 'full_dump' parameter (0|1) to 
+        * Dumper.pm (dump_tree): changed 'full_dump' parameter (0|1) to
         'mode' (full | preset)
         (dump_tree): if a list contain undef values, they are dumped as
         a_list=a,b,,d. Empty values are dumped as a_list=a,b,"",d
@@ -3529,12 +3529,12 @@
         parameters for compute formula, variables and replace.  Backward
         compatibility is kept by translating old compute declaration in
         Model.pm
-        
+
 
         * Model.pm (include_class): permission, level and description
         parameters can also be declared within the element declaration.
         (i.e. at the same level than 'type' )
-        
+
         * IdElementReference.pm (): A reference to a list will now take
         into account the values of the list instead of the indexes of the
         list. This makes more sense...
@@ -3547,7 +3547,7 @@
         (load_data): new method (forgotten in 0.612)
 
         * Model.pm: -doc: added synopsis
-        - inherit is deprecated in favor of include 
+        - inherit is deprecated in favor of include
         - inherit_after is deprecated in favor of include_after
         - Raise an exception if an element is declared twice in a
           model (even through include mechanism: overriding an
@@ -3571,7 +3571,7 @@
         * Value.pm (load_data): new method
 
         * Node.pm (load_data): new method
-        (dump_as_data): new method 
+        (dump_as_data): new method
 
         * Model.pm (inherit_class): added inherit_after parameter. In a
         model, the order of the elements is important. This parameter
@@ -3590,13 +3590,13 @@
         * WarpedThing.pm: Modified the way to specify complex warped
         rules. The former way based on list of lists was confusing. Now
         you can specify boolean expressions to find the warp rule to apply.
-        
+
         * Model.pm: Simplified config class inheritance mechanism: inherit
         all or nothing. Added translation of legacy warp parameter (based
         on list of lists) to new warp parameters (based on boolean
         expressions). So the change done in WarpedThing is backward
         compatible.
-        
+
 0.610 2007-06-06
 
         * Model.pm (inherit_class): Fix configuration class inheritance
@@ -3642,7 +3642,7 @@
         * Instance.pm (reset_config): new method
         (searcher): renamed search_element to
         searcher. searcher retunrs a Config::Model::Searcher object.
-        
+
         * AnyThing.pm (searcher): renamed search_element to
         searcher. searcher retunrs a Config::Model::Searcher object.
 
@@ -3680,7 +3680,7 @@
         * *.pm: Changed e-mail address to reduce spam.
 
         * *.pm: Small bug and doc fixes.
-        
+
 
         * Model.pm (load): Model files are expected to be delivered as
         Perl module and are searched using @INC. (E.g. Xorg.pl model will
@@ -3722,7 +3722,7 @@
         (grab): bug fix so hash identifier can contain white spaces when
         calling grab (e.g. InputDevice:"Configured Mouse")
 
-        * CheckList.pm: New class to implement a check list. 
+        * CheckList.pm: New class to implement a check list.
 
         * Describe.pm: adapted for ObjTreeScanner changes and new
         CheckList element type
@@ -3752,7 +3752,7 @@
         * Value.pm (set_default): added built_in default
         parameter. Built_in default parameter are not written in
         configuration files but can be used to audit configuration data.
-        
+
         * AutoRead.pm (auto_read_init): bug fix: override of read_dir was
         not taken into account
         (auto_write_init): idem for write_dir

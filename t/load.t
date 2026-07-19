@@ -621,7 +621,7 @@ subtest "test list.ensure" => sub {
 };
 
 subtest "test combination of annotation plus load and some utf8" => sub {
-    my $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
+    my $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note
       - std_id:bc X=Av X#X2_note '
           . '- a_string="toto \"titi\" tata" a_string#string_note '
           . 'lista:=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb:=b,"c c2",d '

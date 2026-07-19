@@ -193,7 +193,7 @@ check: token (oper token)(s?) <reject:$failed>
 oper: 'and' | 'or'
 token: 'Apache' | 'CC-BY' | 'Perl' {
 my $v = $arg[0]->grab("! prd_test_action")->fetch || '';
-$failed++ unless $v =~ /$item[1]/ ; 
+$failed++ unless $v =~ /$item[1]/ ;
 }
 ^,
         },

@@ -601,14 +601,14 @@ __END__
 
 =head1 SYNOPSIS
 
- # internal class 
+ # internal class
 
 =head1 DESCRIPTION
 
 Depending on the value of a warp master (In fact a L<Config::Model::Value>
 or a L<Config::Model::CheckList> object),
 this class changes the properties of a node (L<Config::Model::WarpedNode>),
-a hash (L<Config::Model::HashId>), a list (L<Config::Model::ListId>), 
+a hash (L<Config::Model::HashId>), a list (L<Config::Model::ListId>),
 a checklist (L<Config::Model::CheckList>) or another value.
 
 =head1 Warper and warped
@@ -635,7 +635,7 @@ and C<rules>:
 L<Grab string|Config::Model::Role::Grab/grab> leading to the
 C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
 
- follow => '! tree_macro' 
+ follow => '! tree_macro'
 
 In case of several warp master, C<follow> is a hash of named
 parameters. The values are several
@@ -652,7 +652,7 @@ L<there|Config::Model::ValueComputer/"Compute variables">
 
 C<rules> argument is a  list of hash refs that specify the warped object property
 changes.  These rules specifies the actual property changes for the
-warped object depending on the value(s) of the warp master(s). 
+warped object depending on the value(s) of the warp master(s).
 
 Use named parameters and a boolean expression to specify the
 effect. The first match is applied. In this case, rules is an array
@@ -795,10 +795,10 @@ warp master is an enumerated type)
 
 When a warped object is created, the constructor registers to the
 warp masters. The warp master are found by using the special string
-passed to the C<follow> parameter. As explained in 
+passed to the C<follow> parameter. As explained in
 L<grab method|Config::Model::Role::Grab/grab>,
 the string provides the location of the warp master in the
-configuration tree using a symbolic form. 
+configuration tree using a symbolic form.
 
 =item *
 

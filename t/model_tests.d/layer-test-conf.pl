@@ -23,7 +23,7 @@ Config::Model::BackendMgr::_set_test_home($home_for_test) ;
         'backend' => 'perl_file',
         'config_dir' => '~/foo',
         'file' => 'config.pl',
-        'default_layer' => { 
+        'default_layer' => {
             'config_dir' => '/etc',
             'file' => 'foo-config.pl'
         }

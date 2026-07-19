@@ -134,14 +134,14 @@ __END__
 
  print $root->report ;
  #  foo = FOO
- # 
+ #
  #  my_enum = B
  #         DESCRIPTION: some letters
  #         SELECTED: second letter
- # 
+ #
  # hash_of_nodes:en foo = hello
  #         DESCRIPTION: some foo explanation
- # 
+ #
  # hash_of_nodes:fr foo = bonjour
  #         DESCRIPTION: some foo explanation
 

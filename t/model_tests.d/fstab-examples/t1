@@ -12,10 +12,10 @@ proc            /proc           proc    defaults        0       0
 # /dev/sdd2       none            swap    sw              0       0
 UUID=5333e0e6-11d0-47a5-97af-44880a732e19  none swap sw 0 0
 
-# 320GB usb disk (maxtor) 
+# 320GB usb disk (maxtor)
 LABEL=USB320 /mnt/usb-320gb ext3 rw,user,relatime,noauto 0 0
 
-# 200GB Maxtor disk IEEE1394 through USB 
+# 200GB Maxtor disk IEEE1394 through USB
 LABEL=Maxtor120 /mnt/maxtor120  ext3 rw,user,relatime,noauto 0 0
 
 # 2To external disk (USB or e-sata)
@@ -31,7 +31,7 @@ LABEL=ext-2To /mnt/ext-2To ext4 rw,user,relatime,noauto 0 0
 debugfs /sys/kernel/debug debugfs defaults 0 2
 
 # with x-systemd.* parameter
-nas:/volume1/foo /mnt/foo nfs defaults,noauto,user,x-systemd.mount-timeout=2m,rw 0 2 
+nas:/volume1/foo /mnt/foo nfs defaults,noauto,user,x-systemd.mount-timeout=2m,rw 0 2
 
 /dev  /var/chroot/testing-i386/dev  none bind 0 0
 /home /var/chroot/testing-i386/home none bind 0 0

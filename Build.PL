@@ -7,7 +7,7 @@ require v5.20 ;
 
 # check that pod docs are up-to-date. This is redundant with the work done by
 # dzil, but enables re-building the docs downstream.
-# Use $^X in there as requested in 
+# Use $^X in there as requested in
 # https://rt.cpan.org/Public/Bug/Display.html?id=74891
 my $class = Module::Build->subclass(
     class => "Module::Build::Custom",

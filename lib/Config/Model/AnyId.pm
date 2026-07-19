@@ -1129,7 +1129,7 @@ __END__
 
  # put data
  my $steps = 'plain_hash:foo=boo bounded_list=foo,bar,baz
-   bounded_hash:3=foo bounded_hash:30=baz 
+   bounded_hash:3=foo bounded_hash:30=baz
    hash_of_nodes:"foo node" foo="in foo node" -
    hash_of_nodes:"bar node" bar="in bar node" ';
  $root->load( steps => $steps );
@@ -1212,7 +1212,7 @@ valid when C<cargo> C<type> is C<node>.
 =item <other>
 
 Constructor arguments passed to the cargo object. See
-L<Config::Model::Node> when C<< cargo->type >> is C<node>. See 
+L<Config::Model::Node> when C<< cargo->type >> is C<node>. See
 L<Config::Model::Value> when C<< cargo->type >> is C<leaf>.
 
 =back
@@ -1223,7 +1223,7 @@ Specify the minimum value (optional, only for hash and for integer index)
 
 =item max_index
 
-Specify the maximum value (optional, only for list or for hash with 
+Specify the maximum value (optional, only for list or for hash with
 integer index)
 
 =item max_nb
@@ -1237,12 +1237,12 @@ When set, the default parameter (or set of parameters) are used as
 default keys hashes and created automatically when the C<keys> or C<exists>
 functions are used on an I<empty> hash.
 
-You can use C<< default_keys => 'foo' >>, 
+You can use C<< default_keys => 'foo' >>,
 or C<< default_keys => ['foo', 'bar'] >>.
 
 =item default_with_init
 
-To perform special set-up on children nodes you can also use 
+To perform special set-up on children nodes you can also use
 
    default_with_init =>  {
       foo => 'X=Av Y=Bv',
@@ -1268,7 +1268,7 @@ With a list, you must use numeric keys:
 
 Specifies that the keys of the hash are copied from another hash in
 the configuration tree only when the hash is read for the first time after
-initial load (i.e. once the configuration files are completely read). 
+initial load (i.e. once the configuration files are completely read).
 
    migrate_keys_from => '- another_hash'
 
@@ -1276,7 +1276,7 @@ initial load (i.e. once the configuration files are completely read).
 
 Specifies that the values of the hash (or list) are copied from another hash (or list) in
 the configuration tree only when the hash (or list) is read for the first time after
-initial load (i.e. once the configuration files are completely read). 
+initial load (i.e. once the configuration files are completely read).
 
    migrate_values_from => '- another_hash_or_list'
 
@@ -1312,7 +1312,7 @@ Keys must match the specified regular expression. For instance:
 When set, the default parameter (or set of parameters) are used as
 keys hashes and created automatically. (valid only for hash elements)
 
-Called with C<< auto_create_keys => ['foo'] >>, or 
+Called with C<< auto_create_keys => ['foo'] >>, or
 C<< auto_create_keys => ['foo', 'bar'] >>.
 
 =item warn_if_key_match
@@ -1468,17 +1468,17 @@ object (as declared in the model unless they were warped):
 
 =over
 
-=item min_index 
+=item min_index
 
-=item max_index 
+=item max_index
 
-=item max_nb 
+=item max_nb
 
-=item index_type 
+=item index_type
 
-=item default_keys 
+=item default_keys
 
-=item default_with_init 
+=item default_with_init
 
 =item follow_keys_from
 
@@ -1526,7 +1526,7 @@ This method returns undef if C<cargo> C<type> is not C<node>.
 
 =head2 has_fixes
 
-Returns the number of fixes that can be applied to the current value. 
+Returns the number of fixes that can be applied to the current value.
 
 =head1 Information management
 
@@ -1549,11 +1549,11 @@ Poor man's version of XPath style path. This string is in the form:
 
  /foo/bar/4
 
-Each word between the '/' is either an element name or a hash key or a list index. 
+Each word between the '/' is either an element name or a hash key or a list index.
 
 =item mode
 
-Either C<default>, C<custom>, C<user>,... 
+Either C<default>, C<custom>, C<user>,...
 See C<mode> parameter in <Config::Model::Value/"fetch( ... )">
 
 =item check
@@ -1562,8 +1562,8 @@ Either C<skip>, C<no>
 
 =item get_obj
 
-If the path leads to a leaf, this parameter tell whether to return 
-the stored value or the value object. 
+If the path leads to a leaf, this parameter tell whether to return
+the stored value or the value object.
 
 =item autoadd
 
@@ -1688,7 +1688,7 @@ Return true if the array or hash is not empty.
 
 Parameters: C<( index )>
 
-Delete the C<index>ed value 
+Delete the C<index>ed value
 
 =head2 clear
 
@@ -1702,7 +1702,7 @@ Delete all values (without deleting underlying value objects).
 
 Parameters: C<( [index] )>
 
-Returns warnings concerning indexes of this hash. 
+Returns warnings concerning indexes of this hash.
 Without parameter, returns a string containing all warnings or undef. With an index, return the warnings
 concerning this index or undef.
 

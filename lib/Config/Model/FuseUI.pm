@@ -315,19 +315,19 @@ __END__
  use Config::Model ;
  use Config::Model::FuseUI ;
 
- my $model = Config::Model -> new; 
- my $root = $model -> instance (root_class_name => "PopCon") -> config_root ; 
- my $ui = Config::Model::FuseUI->new( root => $root, mountpoint => "mydir" ); 
+ my $model = Config::Model -> new;
+ my $root = $model -> instance (root_class_name => "PopCon") -> config_root ;
+ my $ui = Config::Model::FuseUI->new( root => $root, mountpoint => "mydir" );
  $ui -> run_loop ;  # blocking call
 
  # explore mydir in another terminal then umount mydir directory
 
 =head1 DESCRIPTION
 
-This module provides a virtual file system interface for you configuration data. Each possible 
-parameter of your configuration file is mapped to a file. 
+This module provides a virtual file system interface for you configuration data. Each possible
+parameter of your configuration file is mapped to a file.
 
-=head1 Example 
+=head1 Example
 
  $ cme fusefs popcon -fuse-dir fused
  Mounting config on fused in background.
@@ -366,7 +366,7 @@ empty and the old value is lost.
 
 parameters are:
 
-=over 
+=over
 
 =item model
 

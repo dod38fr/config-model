@@ -168,7 +168,7 @@ File path from currrent directory.
 
 =item type
 
-File type in lower case, either C<ini>, C<json>, C<yaml> or C<toml>. 
+File type in lower case, either C<ini>, C<json>, C<yaml> or C<toml>.
 
 =item subpath
 

@@ -313,8 +313,8 @@ my $root2 = $model->instance(
     instance_name   => 'test2'
 )->config_root;
 
-$step = ' std_id:ab#std_id_ab_note 
-                                    X=Bv X#std_id_ab_X_note 
+$step = ' std_id:ab#std_id_ab_note
+                                    X=Bv X#std_id_ab_X_note
       - std_id#std_id_note std_id:bc X=Av X#std_id_bc_X_note '
     . '- a_string="toto \"titi\" tata" a_string#a_string_note another_string="foobar"'
     . 'lista#lista_note lista:=a,b,c,d lista:1#lista_1_note olist#o_list_note olist:0#olist_0_note X=Av - olist:1#olist1_c X=Bv - listb:=b,"c c2",d '

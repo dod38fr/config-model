@@ -8,7 +8,7 @@ return [
     'author' => [
       'Dominique Dumont'
     ],
-    'class_description' => 'static information about the filesystems. fstab contains descriptive information about the various file systems. 
+    'class_description' => 'static information about the filesystems. fstab contains descriptive information about the various file systems.
 ',
     'copyright' => [
       '2010,2011 Dominique Dumont'

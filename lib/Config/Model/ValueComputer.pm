@@ -443,13 +443,13 @@ use warnings ;
 
 # @arg is value_object, $variables_h,  $replace_h, $check,$need_quote
 
-pre_compute: <skip:''> pre_value[@arg](s) { 
+pre_compute: <skip:''> pre_value[@arg](s) {
     # print "pre-compute on @{$item[-1]}\n";
     my $str = join ( '', map { $$_ } @{ $item[-1] } ) ;
     $return =  \$str;
 }
 
-pre_value: 
+pre_value:
   <skip:''> '$replace' '{' /\s*/ pre_value[@arg] /\s*/ '}' {
     $return = Config::Model::ValueComputer::_pre_replace($arg[2], ${ $item{pre_value} } ) ;
   }
@@ -479,16 +479,16 @@ func_param: /\(\s*\)/
 
 up: /-\d+|-( ?-)*/
 
-compute:  <skip:''> value[@arg](s) { 
+compute:  <skip:''> value[@arg](s) {
     # if one value is undef, return undef;
     Config::Model::ValueComputer::_compute($item[-1],$return,@arg ) ;
 }
 
-value: 
+value:
   <skip:''> '$replace' '{' <commit> /\s*/ value_to_replace[@arg] /\s*/ '}' {
     $return = Config::Model::ValueComputer::_replace($arg[2], ${ $item{value_to_replace} },@arg ) ;
   }
-  |  <skip:''> /\$(\d+|_)\b/ { 
+  |  <skip:''> /\$(\d+|_)\b/ {
      my $result = $item[-1] ;
      $return = \$result ;
   }
@@ -496,7 +496,7 @@ value:
     $return = Config::Model::ValueComputer::_value_from_object($item{object},@arg ) ;
     1;
   }
-  |  <skip:''> /[^\$]*/ { 
+  |  <skip:''> /[^\$]*/ {
      my $result = $item[-1] ;
      $return = \$result ;
   }
@@ -506,11 +506,11 @@ value_to_replace:
     $return = Config::Model::ValueComputer::_value_from_object($item{object},@arg ) ;
     1;
   }
-  |  <skip:''> /[\w\-\.+]*/ { 
+  |  <skip:''> /[\w\-\.+]*/ {
      my $result = $item[-1] ;
      $return = \$result ;
   }
-  
+
 object: <skip:''> /\$/ /[a-zA-Z]\w*/
 
 function: <skip:''> '&' /\w+/
@@ -575,7 +575,7 @@ value can be used as a default value.
 =head1 Computed value declaration
 
 A computed value must be declared in a 'leaf' element. The leaf element
-must have a C<compute> argument pointing to a hash ref. 
+must have a C<compute> argument pointing to a hash ref.
 
 This array ref contains:
 
@@ -588,7 +588,7 @@ A string formula that use variables and replace function.
 =item *
 
 A set of variable and their relative location in the tree (using the
-notation explained in 
+notation explained in
 L<grab method|Config::Model::Role::Grab/grab">
 
 =item *
@@ -597,7 +597,7 @@ An optional set of replace rules.
 
 =item *
 
-An optional parameter to force a Perl eval of a string. 
+An optional parameter to force a Perl eval of a string.
 
 =back
 
@@ -625,7 +625,7 @@ For instance:
 
 This string or formula may also contain:
 
-=over 
+=over
 
 =item *
 
@@ -645,7 +645,7 @@ The element name of the current object: C<&element> or C<&element()>.
 The element name of a parent object: C<&element(-)>. Likewise, ancestor element name
 can be retrieved with C<&element(-2)> or C<&element(-3)>.
 
-=item * 
+=item *
 
 The full location (path) of the current object: C<&location> or C<&location()>.
 
@@ -984,8 +984,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::Instance>, 
+L<Config::Model>,
+L<Config::Model::Instance>,
 L<Config::Model::Value>
 
 =cut
