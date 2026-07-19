@@ -1442,11 +1442,11 @@ Derived classes can register more global checker with the following method.
 
 =head2 add_check_content
 
-This method expects a sub ref with signature C<( $self, $error, $warn,
+This method expects a sub ref with signature C<( $error, $warn,
 $apply_fix )>.  Where C<$error> and C<$warn> are array ref. You can
 push error or warning messages there.  C<$apply_fix> is a
 boolean. When set to 1, the passed method can fix the warning or the
-error. Please make sure to weaken C<$self> to avoid memory cycles.
+error.
 
 Example:
 
@@ -1455,11 +1455,27 @@ Example:
  extends qw/Config::Model::HashId/;
  use Scalar::Util qw/weaken/;
 
- sub setup {
-    my $self = shift;
+ sub my_check ($self, $error, $warn, $apply_fix) {
+     # check => 'no' is required to avoid deep recursion
+     my @values = $self->fetch_all_values(check => 'no');
+
+     return if $my_condition; # up to you
+
+     if ($apply_fix) {
+         $self->fix_this(); # to be defined by you
+     }
+     else {
+         push $warn->@*, "this data needs to be fixed because bla bla bla.";
+         $self->inc_fixes;
+     }
+     return;
+ }
+
+ sub BUILD ($self, $) {
+    # $self to avoid memory cycles.
     weaken($self);
-    $self-> add_check_content( sub { $self->check_usused_licenses(@_);} )
-}
+    $self-> add_check_content( sub { $self->my_check(@_);} )
+ }
 
 =head1 Introspection methods
 
