@@ -398,7 +398,7 @@ foreach my $what (qw/forbid warn suppress/) {
             }
         }
         else {
-            $lwd->check_content;
+            $lwd->check_or_fix_content;
         }
         is( $lwd->fetch_with_id(0)->fetch,
             'string1', "check that original values is untouched after $what duplicates" );

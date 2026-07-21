@@ -459,7 +459,7 @@ around notify_change => sub ($orig, $self, %args) {
 # the number of checks is becoming confusing. We have
 # - check_idx to check whether an index is fine. This is called when creating
 #   a new index
-# - check_content: a more expensive check that runs all content checker registered
+# - check_or_fix_content: a more expensive check that runs all content checker registered
 #   in this object. By default, none. A plain AnyId can contains a duplicated_content
 #   checker if configured
 # - a deep_check (for lack of a better name): a also expensive check that involve index
@@ -481,12 +481,12 @@ sub deep_check ($self, @args) {
         $self->check_idx(@args, index => $_);
     }
 
-    $self->check_content(@args, logger => $deep_check_logger);
+    $self->check_or_fix_content(@args, logger => $deep_check_logger);
     return;
 }
 
 # check globally the list or hash, called by apply_fix or deep_check
-sub check_content ($self, %args) {
+sub check_or_fix_content ($self, %args) {
     my $silent    = $args{silent} || 0;
     my $apply_fix = $args{fix}    || 0;
     my $local_logger = $args{logger} || $logger;
@@ -861,7 +861,7 @@ sub fetch_all_values ($self, @args) {
     my @keys = $self->fetch_all_indexes;
 
     # verify content restrictions applied to List (e.g. no duplicate values)
-    my $ok = $check eq 'no' ? 1 : $self->check_content();
+    my $ok = $check eq 'no' ? 1 : $self->check_or_fix_content();
 
     if ( $ok or $check eq 'no' ) {
         return grep { defined $_ }
