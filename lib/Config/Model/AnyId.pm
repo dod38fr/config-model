@@ -491,7 +491,7 @@ sub check_or_fix_content ($self, %args) {
     my $apply_fix = $args{fix}    || 0;
     my $local_logger = $args{logger} || $logger;
 
-    if ( $self-> needs_content_check ) {
+    if ( $apply_fix or $self-> needs_content_check ) {
 
         $local_logger->trace( "Running check_content on ",$self->location );
         # need to keep track to update GUI

@@ -12,6 +12,7 @@ use Config::Model::AnyId;
 use strict;
 use warnings;
 use Config::Model::Tester::Setup qw/init_test/;
+use lib 't/lib';
 
 Test::Log::Log4perl->ignore_priority("info");
 
@@ -53,6 +54,11 @@ $model->create_config_class(
                 type              => 'node',
                 config_class_name => 'Slave'
             },
+        },
+        list_that_needs_foo => {
+            type => 'list',
+            class => 'ListWithCheck',
+            @string_cargo,
         },
         list_with_default_with_init_leaf => {
             type              => 'list',
@@ -578,6 +584,19 @@ subtest "test load_data with node list" => sub {
     $load_test->( [{X=>'Av_bogus',Y=>'Bv_bogus'},{X=>'Av',Y=>'Bv'}]);
     is($ol->fetch_size,1,"check that only one element remains");
 };
+
+subtest "test that list contains foo" => sub {
+    my $need_foo = $root->fetch_element('list_that_needs_foo');
+    $need_foo->store_set(qw/bar baz/);
+
+    $need_foo->check;
+    is($need_foo->has_warning, 1, "check warnings");
+    like($need_foo->warning_msg(),qr/Missing foo value/, "check warning message");
+    say $root->dump_tree if $trace;
+    $root->apply_fixes;
+    is($need_foo->fetch_with_id(2)->fetch, "foo", "check fixed list");
+};
+
 
 memory_cycle_ok( $model, "memory cycles" );
 
