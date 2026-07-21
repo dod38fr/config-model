@@ -17,8 +17,7 @@ Test::Log::Log4perl->ignore_priority("info");
 
 my ($model, $trace) = init_test();
 
-my @element = (
-
+my @string_cargo = (
     # Value constructor args are passed in their specific array ref
     cargo => {
         type       => 'leaf',
@@ -42,11 +41,11 @@ $model->create_config_class(
                 match => '^.{1,5}$',
             },
         },
-        plain_list                => { type => 'list', @element },
+        plain_list                => { type => 'list', @string_cargo },
         list_with_auto_created_id => {
             type            => 'list',
             auto_create_ids => 4,
-            @element
+            @string_cargo
         },
         olist => {
             type  => 'list',
@@ -61,7 +60,7 @@ $model->create_config_class(
                 0 => 'def_1 stuff',
                 1 => 'def_2 stuff'
             },
-            @element,
+            @string_cargo,
         },
         list_with_default_with_init_node => {
             type              => 'list',
@@ -74,10 +73,10 @@ $model->create_config_class(
                 config_class_name => 'Slave'
             },
         },
-        map {
-            ( "list_with_" . $_ . "_duplicates" => { type => 'list', duplicates => $_, @element, },
-            );
-        } qw/warn allow forbid suppress/,
+        map {(
+            "list_with_" . $_ . "_duplicates"
+            => { type => 'list', duplicates => $_, @string_cargo, },
+            )} qw/warn allow forbid suppress/,
     ] );
 
 $model->create_config_class(
@@ -86,7 +85,7 @@ $model->create_config_class(
         list_with_wrong_auto_create => {
             type            => 'list',
             auto_create_ids => ['foo'],
-            @element
+            @string_cargo
         },
         list_with_wrong_duplicates => {
             type       => 'list',
@@ -99,7 +98,7 @@ $model->create_config_class(
         list_with_yada_duplicates => {
             type       => 'list',
             duplicates => 'yada',
-            @element,
+            @string_cargo,
         },
     ] );
 
