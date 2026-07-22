@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+2.166 2026-07-22
+
+  Doc updates:
+    * AnyId: improve add_check_content doc
+    * AnyId: improve warning_msg doc
+
+  Bug fix:
+    * AnyId: call check_content callback when applying fixes
+    * AnyId: remove unneeded "silent" argument from callback
+    * Value: fix warn_if or warn_unless message to show undef value
+
 2.165 2026-07-08
 
   Bug fix:
