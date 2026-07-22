@@ -2148,7 +2148,7 @@
 
 2.001 2012-02-06
 
-    Big change this time, hence the version bump tp 2.001. The main
+    Big change this time, hence the version bump to 2.001. The main
     change for users is the deprecation of the config-edit program in
     favor of cme. Instead of using options, this cme uses command
     keywords like git, so users will have more possibilities while
@@ -3879,4 +3879,3 @@
 0.503 2006-03-16
 
         * Makefile.PL (MY::postamble): Corrected CPAN dependencies
-
