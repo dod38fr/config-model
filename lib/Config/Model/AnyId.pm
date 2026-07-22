@@ -282,6 +282,8 @@ sub create_default_with_init {
 
     return unless defined $self->{default_with_init};
 
+    say "default_with_init will soon be deprecated. Please use a add_content_check methods instead.";
+
     my $h = $self->{default_with_init};
     foreach my $def_key ( keys %$h ) {
         $self->create_default_content($def_key);
