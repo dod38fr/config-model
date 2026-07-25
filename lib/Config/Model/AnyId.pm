@@ -944,6 +944,15 @@ sub auto_vivify {
         $el_class = $class;
     }
 
+    foreach my $parm (qw/default upstream_default/) {
+        if ($cargo_args{$parm}) {
+            my $type = $self->get_type;
+            Config::Model::Exception::Model->throw(
+                object  => $self,
+                message => "Setting $parm value in a $type does not make sense."
+            );
+        }
+    }
 
     my @common_args = (
         element_name => $self->{element_name},
@@ -1213,9 +1222,13 @@ valid when C<cargo> C<type> is C<node>.
 
 =item <other>
 
-Constructor arguments passed to the cargo object. See
-L<Config::Model::Node> when C<< cargo->type >> is C<node>. See
-L<Config::Model::Value> when C<< cargo->type >> is C<leaf>.
+Constructor arguments (except C<default> and C<upstream_default>) are
+passed to the cargo object. See L<Config::Model::Node> when C<<
+cargo->type >> is C<node>. See L<Config::Model::Value> when C<<
+cargo->type >> is C<leaf>.
+
+Default parameters are forbidden because they don't make sence: who
+needs a list of identical values ?
 
 =back
 

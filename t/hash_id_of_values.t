@@ -34,7 +34,16 @@ $model->create_config_class(
             index_type => 'integer',
             cargo => {
                 type => 'leaf',
-                value_type => 'string'
+                value_type => 'string',
+            },
+        },
+        bad_hash => {
+            type => 'hash',
+            index_type => 'string',
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+                default => "dummy",
             },
         },
         bounded_hash => {
@@ -162,6 +171,15 @@ Test::Log::Log4perl-> ignore_priority('INFO');
 my $root = $inst->config_root;
 $inst->initial_load_stop;
 is( $inst->needs_save, 0, "verify instance needs_save status after creation" );
+
+subtest "check that cargo with default value is rejected" => sub {
+    my $bh = $root->fetch_element('bad_hash');
+    throws_ok {
+        $bh->fetch_with_id('dont_care')->store('foo');
+    }
+    'Config::Model::Exception::Model',
+   "check bad hash error";
+};
 
 my $b = $root->fetch_element('bounded_hash');
 ok( $b, "bounded hash created" );
