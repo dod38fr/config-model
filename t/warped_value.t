@@ -398,6 +398,15 @@ eq_or_diff( [
     "Elements of Slave from the model"
 );
 
+subtest "check that macro value are sanitized before being used in eval()" => sub {
+    $root->fetch_element('warn_level')->store(q(foo'; die 'gotcha!'; '));
+    my $v = $root->fetch_element('warp_with_merged_properties');
+    $v->store('whatever');
+    # the injected "die" was not executed. Data is wrapped by
+    # Data::Dumper before being used in eval
+    is($v->fetch(),"whatever", "check value");
+};
+
 my $slave = $root->fetch_element('bar');
 ok( $slave, "Created slave(bar)" );
 
