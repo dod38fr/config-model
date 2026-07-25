@@ -651,14 +651,17 @@ L<there|Config::Model::ValueComputer/"Compute variables">
 =head2 Warp rules argument
 
 C<rules> argument is a  list of hash refs that specify the warped object property
-changes.  These rules specifies the actual property changes for the
+changes. These rules specifies the actual property changes for the
 warped object depending on the value(s) of the warp master(s).
 
-Use named parameters and a boolean expression to specify the
-effect. The first match is applied. In this case, rules is an array
-ref:
+C<follow> parameter is used to tell where is the value driving the change. :
 
   follow => { m => '! macro1' } ,
+
+C<rules> parameters specifies when to apply the change, and what is
+the change.  Since we may have several conditions and changes to
+apply, C<rules> parameter expects an array ref.
+
   rules => [
     { when => '$m eq "A"'              , apply => { <effect for macro1 == A> } },
     { when => '$m eq "B" or $m eq"C "' , apply => { <effect for macro1 == B|C> } }
@@ -698,7 +701,15 @@ Note that the boolean expression is sanitized and used in a Perl
 eval, so you can use most Perl syntax and regular expressions.
 
 Functions (like C<&foo>) are called like C<< $self->foo >> before evaluation
-of the boolean expression.
+of the boolean expression. For instance:
+
+ follow => { t => '?type' },
+ rules => [
+   {
+     apply => { level => 'normal' },
+     when => '$t eq "leaf" and &parent->element_name ne "cargo"',
+   }
+ ]
 
 The rules must be declared with a slightly different way when a
 check_list is used as a warp master: a check_list has not a simple
