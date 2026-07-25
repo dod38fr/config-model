@@ -702,7 +702,7 @@ of the boolean expression.
 
 The rules must be declared with a slightly different way when a
 check_list is used as a warp master: a check_list has not a simple
-value. The rule must check whether a value is checked or not amongs
+value. The rule must check whether a value is checked or not among
 all the possible items of a check list.
 
 For example, let's say that C<$cl> in the rule below point to a check list whose
@@ -843,4 +843,3 @@ L<Config::Model::WarpedNode>,
 L<Config::Model::Value>
 
 =cut
-
