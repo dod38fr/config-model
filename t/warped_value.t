@@ -355,48 +355,47 @@ my $inst = $model->instance(
 ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
-
-my $mvo = $root->fetch_element('m_value_out');
-isa_ok( $mvo->{warper}, 'Config::Model::Warper', "check warper object" );
-
 my $macro = $root->fetch_element('macro');
 
-my @macro_slaves = ('Warper of Master m_value_out');
+subtest "check list of warped objects" => sub {
+    my $mvo = $root->fetch_element('m_value_out');
+    isa_ok( $mvo->{warper}, 'Config::Model::Warper', "check warper object" );
 
-eq_or_diff( [ map { $_->name } $macro->get_depend_slave ],
-    \@macro_slaves, "check m_value_out warper" );
+    my @macro_slaves = ('Warper of Master m_value_out');
 
-my $mvo2 = $root->fetch_element('m2_value_out');
-isa_ok( $mvo2->{warper}, 'Config::Model::Warper', "check warper object" );
+    eq_or_diff( [ map { $_->name } $macro->get_depend_slave ],
+                \@macro_slaves, "check m_value_out warper" );
 
-push @macro_slaves, 'Warper of Master m2_value_out', 'Warper of Master macro2';
+    my $mvo2 = $root->fetch_element('m2_value_out');
+    isa_ok( $mvo2->{warper}, 'Config::Model::Warper', "check warper object" );
 
-eq_or_diff(
-    [ sort map { $_->name } $macro->get_depend_slave ],
-    [ sort @macro_slaves ],
-    "check m_value_out and m2_value_out warper"
-);
+    push @macro_slaves, 'Warper of Master m2_value_out', 'Warper of Master macro2';
 
-eq_or_diff(
-    [ $root->get_element_name() ],
-    [
-        qw'get_element where_is_element macro m_value_out m2_value_out
-            compute var_path class bar foo foo2 ClientAliveCheck
-            compute_simple warped_from_computed_value warn_level
-          warp_with_merged_properties'
-    ],
-    "Elements of Master"
-);
+    eq_or_diff(
+        [ sort map { $_->name } $macro->get_depend_slave ],
+        [ sort @macro_slaves ],
+        "check m_value_out and m2_value_out warper"
+    );
+};
 
-# query the model instead of the instance
-eq_or_diff( [
-        $model->get_element_name(
-            class => 'Slave',
-        )
-    ],
-    [qw'X Y Z recursive_slave Comp warped_by_location'],
-    "Elements of Slave from the model"
-);
+subtest "check model read" => sub {
+    eq_or_diff(
+        [ $root->get_element_name() ],
+        [
+            qw'get_element where_is_element macro m_value_out m2_value_out
+               compute var_path class bar foo foo2 ClientAliveCheck
+               compute_simple warped_from_computed_value warn_level
+               warp_with_merged_properties'
+        ],
+        "Elements of Master"
+    );
+
+    # query the model instead of the instance
+    eq_or_diff( [ $model->get_element_name(class => 'Slave') ],
+                [qw'X Y Z recursive_slave Comp warped_by_location'],
+                "Elements of Slave from the model"
+            );
+};
 
 subtest "check that macro value are sanitized before being used in eval()" => sub {
     $root->fetch_element('warn_level')->store(q(foo'; die 'gotcha!'; '));
@@ -407,19 +406,21 @@ subtest "check that macro value are sanitized before being used in eval()" => su
     is($v->fetch(),"whatever", "check value");
 };
 
-my $slave = $root->fetch_element('bar');
-ok( $slave, "Created slave(bar)" );
+subtest "check Slave class" => sub {
+    my $slave = $root->fetch_element('bar');
+    ok( $slave, "Created slave(bar)" );
 
-eq_or_diff(
-    [ $slave->get_element_name() ],
-    [qw'X Y Z recursive_slave Comp warped_by_location'],
-    "Elements of Slave from the object"
-);
+    eq_or_diff(
+        [ $slave->get_element_name() ],
+        [qw'X Y Z recursive_slave Comp warped_by_location'],
+        "Elements of Slave from the object"
+    );
 
-throws_ok { $slave->fetch_element('W')->fetch; }
-    qr/unavailable/, "reading slave->W (undef value_type error)";
+    throws_ok { $slave->fetch_element('W')->fetch; }
+        qr/unavailable/, "reading slave->W (undef value_type error)";
 
-is( $slave->fetch_element('X')->fetch, undef, "reading slave->X (undef)" );
+    is( $slave->fetch_element('X')->fetch, undef, "reading slave->X (undef)" );
+};
 
 is( $macro->store('B'), 1, "setting master->macro to B" );
 
@@ -455,6 +456,7 @@ is( $root->fetch_element('warped_out_ref')->store('foo'),
 
 is( $root->fetch_element('macro')->store('A'), 1, "setting master->macro to A" );
 
+my $slave = $root->fetch_element('bar');
 foreach (qw/X Y Z/) { is( $slave->fetch_element($_)->fetch, 'Av', "reading slave->$_ (Av)" ); }
 
 is( $root->fetch_element('macro')->store('C'), 1, "setting master->macro to C" );
