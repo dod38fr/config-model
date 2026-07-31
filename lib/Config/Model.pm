@@ -1438,7 +1438,7 @@ sub load_model_plugins {
                     my $done_key = $name . ':' . $snippet_file_rel;
                     next if $done{$done_key};
                     $loader_logger->info("Found snippet $snippet_file in $inc_str dir");
-                    my $snippet_model = $self->_load_model_file($snippet_file);
+                    my $snippet_model = $self->_read_model_file($snippet_file);
 
                     $self->_merge_model_in_hash( \%model_graft_by_name, $snippet_model, $snippet_file_rel);
                     $done{$done_key} = 1;
@@ -1458,7 +1458,7 @@ sub load ($self, $model_name, $load_file = '') {
 
     # Searches $load_file in @INC and returns an array containing the
     # names of the loaded classes
-    my $model = $self->_load_model_file($path_load_file->absolute);
+    my $model = $self->_read_model_file($path_load_file->absolute);
 
     my ($loaded_classes, $models_by_name) = $self->store_model( $model_name, $model, $path_load_file );
 
@@ -1519,28 +1519,34 @@ sub _merge_model_in_hash {
     return @names;
 }
 
-sub _load_model_file {
+sub _read_model_file {
     my ( $self, $load_file ) = @_;
 
-    $loader_logger->info("load model $load_file");
+    $loader_logger->info("read model file $load_file");
 
     my $err_msg = '';
     # do searches @INC if the file path is not absolute
-    my $model   = do $load_file;
+    my $model_list   = do $load_file;
 
-    unless ($model) {
-        if    ($@)                   { $err_msg = "couldn't parse $load_file: $@"; }
-        elsif ( not defined $model ) { $err_msg = "couldn't do $load_file: $!" }
-        else                         { $err_msg = "couldn't run $load_file"; }
+    unless ($model_list) {
+        if ($@) {
+            $err_msg = "couldn't parse $load_file: $@";
+        }
+        elsif ( not defined $model_list ) {
+            $err_msg = "couldn't do $load_file: $!"
+        }
+        else {
+            $err_msg = "couldn't run $load_file";
+        }
     }
-    elsif ( ref($model) ne 'ARRAY' ) {
-        $model = [$model];
+    elsif ( ref($model_list) ne 'ARRAY' ) {
+        $model_list = [$model_list];
     }
 
-    Config::Model::Exception::ModelDeclaration->throw( message => "load error: $err_msg" )
+    Config::Model::Exception::ModelDeclaration->throw( message => "read model error: $err_msg" )
         if $err_msg;
 
-    return $model;
+    return $model_list;
 }
 
 sub augment_config_class {
