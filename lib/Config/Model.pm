@@ -1456,22 +1456,13 @@ sub load ($self, $model_name, $load_file = '') {
     $loader_logger->debug("called on model $model_name");
     my $path_load_file = $self->find_model_file_in_inc($model_name, $load_file);
 
-    my %models_by_name;
-
     # Searches $load_file in @INC and returns an array containing the
     # names of the loaded classes
     my $model = $self->_load_model_file($path_load_file->absolute);
-    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $path_load_file );
 
-    $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
+    my ($loaded_classes, $models_by_name) = $self->store_model( $model_name, $model, $path_load_file );
 
-    foreach my $name ( keys %models_by_name ) {
-        my $data = $self->normalize_class_parameters( $name, $models_by_name{$name} );
-        $loader_logger->debug("Store normalized model $name");
-        $self->store_normalized_model( $name, $data );
-    }
-
-    my %model_graft_by_name = $self->load_model_plugins(sort keys %models_by_name);
+    my %model_graft_by_name = $self->load_model_plugins(sort keys $models_by_name->%*);
 
     # store snippet. May be used later
     foreach my $name (keys %model_graft_by_name) {
@@ -1483,14 +1474,29 @@ sub load ($self, $model_name, $load_file = '') {
     # check if a snippet is available for this class
     foreach my $snippet ( $self->all_snippets ) {
         my $class_to_merge = $snippet->{name};
-        next unless $models_by_name{$class_to_merge};
+        next unless $models_by_name->{$class_to_merge};
         $self->augment_config_class_really( $class_to_merge, $snippet );
     }
 
     # return the list of classes found in $load_file. Respecting the order of the class
     # declaration is important for Config::Model::Itself so the class are written back
     # in the same order.
-    return @loaded_classes;
+    return $loaded_classes->@*;
+}
+
+# path_load_file is used to build error messages
+sub store_model ($self, $model_name, $model, $path_load_file ) {
+    my %models_by_name;
+    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $path_load_file );
+
+    $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
+
+    foreach my $name ( keys %models_by_name ) {
+        my $data = $self->normalize_class_parameters( $name, $models_by_name{$name} );
+        $loader_logger->debug("Store normalized model $name");
+        $self->store_normalized_model( $name, $data );
+    }
+    return \@loaded_classes, \%models_by_name;
 }
 
 sub _merge_model_in_hash {
