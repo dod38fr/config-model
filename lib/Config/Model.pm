@@ -1450,11 +1450,9 @@ sub load_model_plugins {
 }
 
 # load a model from file. See comments around raw_models attribute for explanations
-sub load {
-    my $self       = shift;
-    my $model_name = shift;    # model name like Foo::Bar
-    my $load_file  = shift;    # model file (override model name), used for tests
-
+# $model_name: model name like Foo::Bar
+# $load_file: model file (override model name), used for tests
+sub load ($self, $model_name, $load_file = '') {
     $loader_logger->debug("called on model $model_name");
     my $path_load_file = $self->find_model_file_in_inc($model_name, $load_file);
 
