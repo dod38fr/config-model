@@ -495,8 +495,10 @@ sub translate_packed_element_into_alias($self, $config_class_name, $elt_info, $i
         push @new_info, $first, $info;
 
         if (@element_names > 0) {
-            $self->show_legacy_issue("$config_class_name: element $info_name '@element_names': ".
-                                     "should use aliases to $first instead of array ref.", 'warn');
+            $self->show_legacy_issue(
+                "$config_class_name: element $info_name '@element_names': ".
+                "should use aliases to $first instead of array ref.", 'warn'
+            );
         }
         foreach my $name (@element_names) {
             push @new_info, $name, $star ? "*$first" : { alias => $first };
