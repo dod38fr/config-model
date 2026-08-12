@@ -419,38 +419,41 @@ sub include_backend {
 
 sub copy_element_information ($self, $model, $raw_model, $config_class_name) {
     if (my $elt_info = delete $raw_model->{element}) {
-        # TODO: remove in 2029, translate packed info in aliases
-        $self->translate_legacy_element_info($config_class_name, $elt_info, 'name');
+        # TODO: remove in 2029, translate packed info into hash with aliases
+        # i.e. [ [qw/foo bar/] => {...} ]
+        # to [ foo => {...}, bar => { alias => 'foo' } ]
+        my $unpacked_info = $self->translate_packed_element_into_alias($config_class_name, $elt_info, 'name');
 
-        # TODO: remove in 2030, translate aliases in list of hash
-        $self->translate_legacy_hash_in_list($elt_info) ;
+        # translate [ A => <info>, B => <info> ]
+        # in { A => <info>, B => <info> }
+        my $hash_info = $self->translate_array_to_hash($unpacked_info);
 
-        my @raw_info = $elt_info->@*;
-        my %elt_info;
-        foreach my $info ( @raw_info ) {
-            my $name = delete $info->{name};
+        # translate start alias in plain alias
+        # i.e. foo => "*bar"
+        # to foo => { alias => "bar" }
+        my $new_info = $self->translate_star_alias($hash_info) ;
+
+        # TODO: remove in 2030, once all tests and synopsis are cleaned up or translated to YAML
+        $self->translate_legacy_info_in_hash($config_class_name, $new_info );
+
+        foreach my $name ( keys $new_info->%* ) {
+            my $info = $new_info->{$name};
 
             my $actual_info;
             if (ref $info) {
                 # warp can be found only in element item
-                $self->translate_legacy_info( $config_class_name, $name, $info );
                 if (my $alias = $info->{alias}) {
-                    $actual_info = $elt_info{$alias}
+                    $actual_info = $new_info->{$alias};
+                    if (not defined $actual_info) {
+                        Config::Model::Exception::ModelDeclaration->throw(
+                            error => "Element alias '$info' points to unknown element. ".
+                            " Aliased element must be declared before alias. Expected one of ".
+                            join(' ',sort keys $new_info->%*)
+                        );
+                    }
                 }
                 else {
                     $actual_info = $info;
-                }
-                $elt_info{$name} = $info;
-            }
-            elsif ($info =~ /^\*(.*)/) {
-                my $target = $1;
-                $actual_info = $elt_info{$target};
-                if (not defined $actual_info) {
-                    Config::Model::Exception::ModelDeclaration->throw(
-                        error => "Element alias '$info' points to unknown element. ".
-                        " Aliased element must be declared before alias. Expected one of ".
-                        join(' ',sort keys %elt_info)
-                    );
                 }
             }
             else {
@@ -466,11 +469,19 @@ sub copy_element_information ($self, $model, $raw_model, $config_class_name) {
 }
 
 # translate [qw/A B C/ => <info>]
-# in [ A => <info>, B => '*A', c => '*A']
-sub translate_legacy_element_info($self, $config_class_name, $elt_info, $info_name) {
-    if (ref $elt_info->[0] eq 'HASH') {
-        # already in new format
-        return;
+# in [ A => <info>, B => {alias => A }, c => { alias => 'A'} ] (with $star = 0)
+# in [ A => <info>, B => '*A' }, c => '*A' ] (with $star = 1)
+sub translate_packed_element_into_alias($self, $config_class_name, $elt_info, $info_name, $star = 0) {
+    if (ref $elt_info eq 'HASH') {
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "Element declaration of $config_class_name is not an array ref"
+        );
+    }
+
+    if (ref ($elt_info->[0]) eq "HASH") {
+        # we already have a list of hash like
+        # [ { name => A, ...},  {name => B, alias =>A},...]
+        return $elt_info;
     }
 
     my @raw_info = $elt_info->@*;
@@ -488,13 +499,29 @@ sub translate_legacy_element_info($self, $config_class_name, $elt_info, $info_na
                                      "should use aliases to $first instead of array ref.", 'warn');
         }
         foreach my $name (@element_names) {
-            push @new_info, $name, '*'.$first;
+            push @new_info, $name, $star ? "*$first" : { alias => $first };
         }
     }
 
-    $elt_info->@* = @new_info;
+    return \@new_info;
+}
 
-    return;
+# translate [ A => <info>, B => <info> ]
+#        or [ { name => A, ...},  {name => B, ...}, ...]
+# in { A => <info>, B => <info> }
+sub translate_array_to_hash($self, $elt_info) {
+    if (ref $elt_info eq 'HASH') {
+        # already in new format
+        return $elt_info;
+    }
+
+    if (ref ($elt_info->[0]) eq "HASH") {
+        # we have a list of hash like
+        # [ { name => A, ...},  {name => B },...]
+        return { map { delete $_->{name} => $_ ;} $elt_info->@* };
+    }
+
+    return { $elt_info->@* };
 }
 
 sub copy_aliased_element_properties ($self, $model, $raw_model, $config_class_name, $properties) {
@@ -580,10 +607,10 @@ sub translate_legacy_aliased_element_properties($self, $cfg_class_name, $propert
         return $properties;
     }
 
-    $self->translate_legacy_element_info($cfg_class_name, $properties, $prop_name);
-    my %new_prop = $properties->@*;
-
-    return \%new_prop;
+    # translate [qw/A B C/ => <info>]
+    # in { A => <info>, B => '*A', c => '*A' }
+    my $new = $self->translate_packed_element_into_alias($cfg_class_name, $properties, $prop_name, 1);
+    return $self->translate_array_to_hash($new);
 }
 
 # translate for $prop_name: [qw/A B C/ => <prop_value>]
@@ -740,11 +767,13 @@ sub copy_element_properties($self, $model, $raw_model, $config_class_name) {
     return;
 }
 
-sub translate_legacy_hash_in_list ($self, $elt_list) {
-    return if ref $elt_list->[0] eq 'HASH';
-    my @new;
-    while (@$elt_list) {
-        my ( $item, $raw_info ) = splice @$elt_list, 0, 2;
+# translate aliases in hash of hash with explicit alias attribute
+# i.e. { foo => "*bar" }
+# to { foo => { alias => "bar" } }
+sub translate_star_alias ($self, $elt_hash) {
+    my %new;
+    foreach my $item (keys $elt_hash->%*) {
+        my $raw_info = $elt_hash->{$item};
 
         my $info = {};
         if (ref $raw_info eq 'HASH') {
@@ -754,19 +783,25 @@ sub translate_legacy_hash_in_list ($self, $elt_list) {
             # we have an alias
             $info->{alias} = $raw_info =~ s/^\*//r;;
         }
-        $info->{name} = $item;
-        push @new, $info;
+        $new{$item} = $info;
     }
-    $elt_list->@* = @new;
+
+    return \%new;
+}
+
+# translate info in hash
+# i.e { foo => {old info} }
+# to { foo => {new info} }
+sub translate_legacy_info_in_hash ($self, $config_class_name, $elt_hash) {
+    foreach my $item (keys $elt_hash->%*) {
+        $self->translate_legacy_info($config_class_name, $item, $elt_hash->{$item} )
+    }
+
     return;
 }
 
-sub translate_legacy_info {
-    my $self              = shift;
-    my $config_class_name = shift || die;
-    my $elt_name          = shift;
-    my $info              = shift;
 
+sub translate_legacy_info ($self, $config_class_name, $elt_name, $info) {
     $self->translate_warped_node_info( $config_class_name, $elt_name, $info );
 
     #translate legacy warp information
