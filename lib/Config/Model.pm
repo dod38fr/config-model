@@ -673,24 +673,41 @@ sub extract_element_list ($self, $raw_model) {
     return @element_list;
 }
 
+# translate [ pattern => {info}, ... ]
+# in [ { pattern => '', info}, ...]
+sub translate_legacy_accept_info ($self, $config_class_name, $accept_info) {
+    return unless defined $accept_info;
+
+    # already translated
+    return $accept_info if ref $accept_info->[0] eq 'HASH';
+
+    my @new;
+    while (@$accept_info) {
+        my $pattern = shift $accept_info->@*;
+        my $info = shift $accept_info->@*;
+        $info->{pattern} = $pattern;
+        push @new, $info;
+    }
+
+    return \@new;
+}
+
 sub extract_accept_parameter ($self, $config_class_name, $model, $raw_model) {
+    # order of pattern spec is important, so we keep the patterns in a list
     my @accept_list;
     my %accept_hash;
     my $accept_info = delete $raw_model->{'accept'} || [];
-    while (@$accept_info) {
-        my $name_match = shift @$accept_info;    # should be a regexp
 
-        # handle legacy
-        if ( ref $name_match ) {
-            my $implicit = defined $name_match->{name_match} ? '' : 'implicit ';
-            unshift @$accept_info, $name_match;    # put data back in list
-            $name_match = delete $name_match->{name_match} || '.*';
-            $logger->warn("class $config_class_name: name_match ($implicit$name_match)",
-                " in accept is deprecated");
+    foreach my $info ($accept_info->@*) {
+        my $pattern = delete $info->{pattern};
+        if (not $pattern) {
+            Config::Model::Exception::ModelDeclaration->throw(
+                error => "create class $config_class_name: Missing pattern attribute for accept spec"
+            );
         }
 
-        push @accept_list, $name_match;
-        $accept_hash{$name_match} = shift @$accept_info;
+        push @accept_list, $pattern;
+        $accept_hash{$pattern} = $info;
     }
 
     $model->{accept}      = \%accept_hash;
@@ -733,6 +750,10 @@ sub normalize_class_parameters ($self, $config_class_name, $raw_model) {
 
     # first deal with perl file and cds_file backend
     $self->translate_legacy_backend_info( $config_class_name, $model );
+
+    # deal with legacy accept parameter
+    $raw_model->{accept}
+        = $self->translate_legacy_accept_info($config_class_name, $raw_model->{accept});
 
     # handle accept parameter
     $self->extract_accept_parameter($config_class_name, $model, $raw_model);

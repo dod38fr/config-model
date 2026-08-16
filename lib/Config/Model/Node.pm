@@ -825,7 +825,6 @@ sub reset_accepted_element_model {
     my ( $self, $element_name, $accept_model ) = @_;
 
     my $model = dclone $accept_model ;
-    delete $model->{name_match};
     my $accept_after = delete $model->{accept_after};
 
     foreach my $info_to_move (qw/description summary/) {
@@ -1190,7 +1189,8 @@ __END__
     ],
 
     accept => [
-        'ip.*' => {
+        {
+            pattern    => 'ip.*',
             type       => 'leaf',
             value_type => 'uniline',
             summary    => 'ip address',
@@ -1324,15 +1324,17 @@ snippet for the unknown element.
 Example:
 
  accept => [
-    'list.*' => {
-        type  => 'list',
+    {
+        pattern => 'list.*',
+        type => 'list',
         cargo => {
             type       => 'leaf',
             value_type => 'string',
         },
     },
-    'str.*' => {
-        type       => 'leaf',
+    {
+        pattern => 'str.*',
+        type => 'leaf',
         value_type => 'uniline'
     },
   ]
@@ -1351,13 +1353,12 @@ Example:
  element => [
     'Bug' => { type => 'leaf', value_type => 'uniline' } ,
  ]
- accept => [
-    'Bug-.*' =>  {
-         value_type => 'uniline',
-         type => 'leaf'
-         accept_after => 'Bug' ,
-    }
- ]
+ accept => [{
+     pattern => 'Bug-.*',
+     type => 'leaf'
+     value_type => 'uniline',
+     accept_after => 'Bug' ,
+ }]
 
 The model snippet above ensures that C<Bug-Debian> is shown right after C<bug>.
 
