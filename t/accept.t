@@ -19,6 +19,20 @@ use Test::Log::Log4perl;
 use Config::Model::Tester::Setup qw/init_test/;
 my ($model, $trace) = init_test();
 
+subtest "trap bad 'accept' parameter" => sub {
+    throws_ok {
+        $model->create_config_class(
+            name => 'Bad',
+            accept => [{
+                type       => 'leaf',
+                value_type => 'uniline'
+            }]
+        );
+    }
+    "Config::Model::Exception::ModelDeclaration",
+    "check exception for bad 'accept' specification";
+};
+
 $model->create_config_class(
     name => 'Host',
 
@@ -44,8 +58,6 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'uniline',
         },
-
-        #TODO: Some advanced structures, hashes, etc.
     ],
     element => [
         'id' => {

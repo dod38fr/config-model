@@ -681,6 +681,12 @@ sub translate_legacy_accept_info ($self, $config_class_name, $accept_info) {
     # already translated
     return $accept_info if ref $accept_info->[0] eq 'HASH';
 
+    $self->show_legacy_issue(
+        "$config_class_name class: accept attribute should be a list of hash "
+        ."with 'pattern' key. I.e. something like [ { pattern => 'xyz.*', info}, ...] instead "
+        ."of [ 'xyz.*' => {info}, ... ]"
+    );
+
     my @new;
     while (@$accept_info) {
         my $pattern = shift $accept_info->@*;
