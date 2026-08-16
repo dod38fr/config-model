@@ -92,6 +92,9 @@ foreach my $key (sort keys $old_data->%*) {
             'Dontcare', $to_translate, 'dontcare'
            );
     }
+    elsif ($key eq 'accept') {
+        $old_data->{$key} = $model->translate_legacy_accept_info('Dontcare', $old_data->{$key});
+    }
     else {
         die "Cannot translate '$key' key with ", ref($to_translate), " data\n";
     }
