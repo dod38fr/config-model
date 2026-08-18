@@ -71,6 +71,10 @@ my ($indent) = ($info =~ m/^(\s*)/);
 ## no critic (BuiltinFunctions::ProhibitStringyEval)
 my $old_data = eval ("{ $info }");
 
+if ($@) {
+    die "perl code eval failed: $@";
+}
+
 my $model = Config::Model->new(log_level => 'ERROR');
 
 foreach my $key (sort keys $old_data->%*) {
