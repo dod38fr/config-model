@@ -109,6 +109,7 @@ $Data::Dumper::Terse=1;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Quotekeys = 0;
 $Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Trailingcomma = 1;
 my @new_str = map {length($_) > 2 ? substr $_,2 : $_;  }
     split /\n/, Data::Dumper->Dump([$old_data],['new_info']);
 
