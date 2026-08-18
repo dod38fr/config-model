@@ -7,23 +7,8 @@ This page describes how to write a simple configuration
 model. Creation of more complex models are described in
 L<Creating a model with advanced features|Config::Model::Manual::ModelCreationAdvanced>.
 
-Note that this document shows a lot of Perl data structure to
-highlight the content of a model. A Perl data structure is very
-similar to a JSON structure. The only thing you need to know are:
-
-=over
-
-=item *
-
-Curly braces C<{ ... }> contain a dictionary of key, value pairs (a
-C<hash> in Perl land))
-
-=item *
-
-Square brackets C<[ ... ]> contain a list of items (C<array> or
-C<list> in Perl land)
-
-=back
+Since Config::Model v2.167, model can be written as YAML files. They used to be written
+with Perl data structures.
 
 =head1 Some definitions
 
@@ -215,29 +200,23 @@ A hash of string leaves for C<distrib> (no default).
 
 A configuration model is stored this way by Config::Model:
 
- {
-  name => 'Approx',
-  element => [
-      pdiffs => {
-          type => 'leaf',
-          value_type => 'boolean',
-          upstream_default => '1'
-      },
-      max_wait => {
-          type => 'leaf',
-          value_type => 'integer',
-          upstream_default => '10'
-      },
-      distributions => {
-          type => 'hash',
-          index_type => 'string' ,
-          cargo => {
-              value_type => 'uniline',
-              type => 'leaf',
-          },
-      }
-   ]
- }
+ ---
+ name: Approx
+ element:
+ - name: pdiffs
+   type: leaf
+   value_type: boolean
+   upstream_default: '1'
+ - name: max_wait
+   type: leaf
+   value_type: integer
+   upstream_default: '10'
+ - name: distributions
+   type: hash
+   index_type: string
+   cargo:
+     type: leaf
+     value_type: uniline
 
 The C<Xorg> example leads to a slightly more complex model with several classes:
 
@@ -267,52 +246,39 @@ C<Xorg::Screen::Display> for theC<Display> subsection
 
 The root class is declared this way:
 
- {
-  name => 'Xorg',
-  element => [
-              Device => {
-                         type => 'hash',
-                         index_type => 'string'
-                         cargo => {
-                                    type => 'node',
-                                    config_class_name => 'Xorg::Device'
-                                  },
-                        },
-              Screen => {
-                         type => 'hash',
-                         index_type => 'string'
-                         cargo => {
-                                   type => 'node',
-                                   config_class_name => 'Xorg::Screen'
-                                  },
-                        },
-           ]
- }
+  ---
+  name: Xorg
+  element:
+  - name: Device
+    type: hash
+    index_type: string
+    cargo:
+      type: node
+      config_class_name: Xorg::Device
+  - name: Screen
+    type: hash
+    index_type: string
+    cargo:
+      type: node
+      config_class_name: Xorg::Screen
 
-TheC<Xorg::Screen> class is:
+The C<Xorg::Screen> class is:
 
- {
-  name => 'Xorg::Screen',
-  element => [
-               Device => {
-                           type' => 'leaf',
-                           value_type => 'uniline',
-                         },
-               Display => {
-                            type => 'hash',
-                            index_type => 'integer'
-                            cargo => {
-                                       type => 'node',
-                                       config_class_name => 'Xorg::Screen::Display'
-                                     },
-                          }
-              Option => {
-                          type => 'node',
-                          config_class_name => 'Xorg::Screen::Option'
-                        },
-              ]
-  }
-
+  ---
+  name: Xorg::Screen
+  element:
+  - name: Device
+    type: leaf
+    value_type: uniline
+  - name: Display
+    type: hash
+    index_type: integer
+    cargo:
+      type: node
+      config_class_name: Xorg::Screen::Display
+  - name: Option
+    type: node
+    config_class_name: Xorg::Screen::Option
 
 It's now time to detail how the elements of a class are constructed.
 
@@ -322,7 +288,6 @@ To define the required configuration classes, you should
 read the documentation of the target application to :
 
 =over
-
 
 =item *
 
@@ -343,12 +308,12 @@ was understood.
 
 =head2 Configuration class declaration
 
-Since writing the data structure shown below is not fun (even with
-Perl), you are encouraged to use the model editor provided by L<cme>
+Since writing the data structure shown below may not be your idea of
+fun, you are encouraged to use the model editor provided by L<cme>
 using C<cme meta edit> command (provided by L<Config::Model::Itself>).
 This commands provides a GUI to create or update your model.
 
-When saving, C<cme> writes the data structure in the correct directory.
+When saving, C<cme> writes the data structure in the right directory.
 
 =head2 Configuration class declaration (the hard way)
 
@@ -373,14 +338,18 @@ Constraints are translated into element attributes
 
 All models files must be written in a specific directory. For
 instance, for model C<Xorg>, you must create
-C<./lib/Config/Model/models/Xorg.pl>. Other classes
+C<./lib/Config/Model/models/Xorg.yml>. Other classes
 like C<Xorg::Screen> can be stored in their own file
-C<./lib/Config/Model/models/Xorg/Screen.pl> or included in C<Xorg.pl>
+C<./lib/Config/Model/models/Xorg/Screen.yml> or included in C<Xorg.yml>
 
-A model file is a Perl file containing an array for hash ref. Each
-Hash ref contains a class declaration:
+A model file is a YAML file containing a list of hash. Each
+Hash contains a class declaration:
 
- [ { name => 'Xorg', ... } , { name => 'Xorg::Screen', ... } ] ;
+  ---
+  - name: Xorg
+    element: ...
+  - name: Xorg::Screen
+    element: ...
 
 A class can have the following parameters:
 
@@ -410,32 +379,23 @@ For more details, see L<Config::Model/Configuration_Model>.
 
 For instance:
 
- $ cat lib/Config/Model/models/Xorg.pl
- [
-   {
-     name => 'Xorg',
-     class_description => 'Top level Xorg configuration.',
-     include => [ 'Xorg::ConfigDir'],
-     element => [
-                 Files => {
-                           type => 'node',
-                           description => 'File pathnames',
-                           config_class_name => 'Xorg::Files'
-                          },
-                 # snip
-                ]
-   },
-   {
-     name => 'Xorg::DRI',
-     element => [
-                 Mode => {
-                          type => 'leaf',
-                          value_type => 'uniline',
-                          description => 'DRI mode, usually set to 0666'
-                         }
-                ]
-   }
- ];
+ $ cat lib/Config/Model/models/Xorg.yml
+  ---
+  - name: Xorg
+    element:
+    - name: Files
+      type: node
+      config_class_name: Xorg::Files
+      description: File pathnames
+    class_description: Top level Xorg configuration.
+    include:
+    - Xorg::ConfigDir
+  - name: Xorg::DRI
+    element:
+    - name: Mode
+      type: leaf
+      value_type: uniline
+      description: DRI mode, usually set to 0666
 
 =head2 Common attributes for all elements
 
@@ -532,13 +492,14 @@ parameter is left blank in C<sshd_config> file.
 
 Thus the model of this element is :
 
- AddressFamily => {
-   type             => 'leaf',
-   value_type       => 'enum',
-   upstream_default => 'any',
-   description      => 'Specifies which address family should be used by sshd(8).',
-   choice           => [ 'any', 'inet', 'inet6' ]
- }
+  ---
+  element:
+  - name: AddressFamily
+    type: leaf
+    value_type: enum
+    choice: [any, inet, inet6]
+    description: Specifies which address family should be used by sshd(8).
+    upstream_default: any
 
 =head2 Simple list or hash element
 
@@ -581,16 +542,16 @@ the values of the hash are of type C<leaf> and value_type C<uniline>
 
 =back
 
- distribution => {
-                   type => 'hash',
-                   index_type => 'string',
-                   cargo => {
-                              type => 'leaf',
-                              value_type => 'uniline',
-                            },
-                   summary => 'remote repositories',
-                   description => 'The other name/value pairs are ...',
-                 }
+  ---
+  element:
+  - name: distribution
+    type: hash
+    index_type: string
+    cargo:
+      type: leaf
+      value_type: uniline
+    description: The other name/value pairs are ...
+    summary: remote repositories
 
 For more details on list and hash elements, see
 L<hash or list model declaration|Config::Model::AnyId/Hash_or_list_model_declaration> man page.
@@ -623,16 +584,17 @@ type (set to C<node>)
 
 =item *
 
-the name of the configuration class name (>config_class_name>)
+the name of the configuration class name (C<config_class_name>)
 
 =back
 
 So the C<Option> node element is declared with:
 
- Option => {
-             type => 'node',
-             config_class_name => 'Xorg::Screen::Option'
-           },
+  ---
+  element:
+  - name: Option
+    type: node
+    config_class_name: Xorg::Screen::Option
 
 =head2 Hash or list of nodes
 
@@ -669,28 +631,21 @@ cargo of this hash is of type C<node> and refers to 2 different
 configuration classes, one for C<Device> (C<Xorg::Device>) and one for
 C<Screen> (C<Xorg::Screen>):
 
- {
- name => 'Xorg',
- element => [
-             Device => {
-                        type => 'hash',
-                        index_type => 'string'
-                        cargo => {
-                                   type => 'node',
-                                   config_class_name => 'Xorg::Device'
-                                 },
-                       },
-             Screen => {
-                        type => 'hash',
-                        index_type => 'string'
-                        cargo => {
-                                  type => 'node',
-                                  config_class_name => 'Xorg::Screen'
-                                 },
-                       },
-          ]
- }
-
+  ---
+  name: Xorg
+  element:
+  - name: Device
+    type: hash
+    index_type: string
+    cargo:
+      type: node
+      config_class_name: Xorg::Device
+  - name: Screen
+    type: hash
+    index_type: string
+    cargo:
+      type: node
+      config_class_name: Xorg::Screen
 
 =head1 Configuration wizard
 
@@ -753,10 +708,11 @@ Config file name (optional). defaults to C<< <config_class_name>.[pl|ini|cds] >>
 
 =back
 
-   rw_config  => { backend    => 'ini_file' ,
-                   config_dir => '/etc/cfg_dir',
-                   file       => 'cfg_file.ini',
-                 },
+  ---
+  rw_config:
+    backend: ini_file
+    config_dir: /etc/cfg_dir
+    file: cfg_file.ini
 
 See L<Config::Model::Backend::IniFile> for details
 
@@ -766,11 +722,11 @@ configuration model editor (C<cme meta edit>).
 C<rw_config> can also have custom parameters that are passed
 verbatim to C<Config::Model::Backend::Foo> methods:
 
-  rw_config  => {
-     backend    => 'my_backend',
-     config_dir => '/etc/cfg_dir',
-     my_param   => 'my_value',
-  }
+  ---
+  rw_config:
+    backend: my_backend
+    config_dir: /etc/cfg_dir
+    my_param: my_value
 
 This C<Config::Model::Backend::MyBackend> class is expected to inherit
 L<Config::Model::Backend::Any> and provide the following methods:
