@@ -1216,13 +1216,11 @@ sub translate_warp_info {
     # now, follow is only { w1 => 'warp1', w2 => 'warp2'}
     my @warper_items = values %$follow;
 
-    my $multi_follow = @warper_items > 1 ? 1 : 0;
-
     my $rules =
         $self->translate_rules_arg( $config_class_name, $elt_name, \@warper_items,
         $warp_info->{rules} );
 
-    $warp_info->{follow} = $follow;
+    $warp_info->{follow} = $follow if keys $follow->%*;
     $warp_info->{rules}  = $rules;
 
     $legacy_logger->debug(

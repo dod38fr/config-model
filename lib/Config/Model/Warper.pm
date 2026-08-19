@@ -12,7 +12,7 @@ use Carp;
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
 
-has 'follow' => ( is => 'ro', isa => 'HashRef[Str]', required => 1 );
+has 'follow' => ( is => 'ro', isa => 'HashRef[Str]' );
 has 'rules'  => ( is => 'ro', isa => 'ArrayRef',     required => 1 );
 
 has 'warped_object' => (
