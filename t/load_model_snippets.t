@@ -21,94 +21,80 @@ my $model_dir = $wr_root->child('Config/Model/models');
 $model_dir->mkpath;
 
 my $str = << 'EOF' ;
-[
-    {
-        name => "Master",
-
-        accept => [
-            '.*' => {
-                type       => 'leaf',
-                value_type => 'uniline',
-            }
-        ],
-
-        element => [
-            one => {
-                type       => 'leaf',
-                value_type => 'string',
-            },
-            fs_vfstype => {
-                type       => 'leaf',
-                value_type => 'enum',
-                choice     => [qw/auto ext2 ext3/],
-            },
-            fs_mntopts => {
-                type   => 'warped_node',
-                warp => {
-                    follow => { 'f1' => '- fs_vfstype' },
-                    rules  => [
-                        '$f1 eq \'auto\'',
-                        { 'config_class_name' => 'Fstab::CommonOptions' },
-                        '$f1 eq \'ext2\'',
-                        { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                        '$f1 eq \'ext3\'',
-                        { 'config_class_name' => 'Fstab::Ext3FsOpt' },
-                    ]
-                },
-            }
-        ]
-    }
-];
+---
+- name: Master
+  element:
+  - name: one
+    type: leaf
+    value_type: string
+  - name: fs_vfstype
+    type: leaf
+    value_type: enum
+    choice: [auto, ext2, ext3]
+  - name: fs_mntopts
+    type: warped_node
+    warp:
+      follow:
+        f1: '- fs_vfstype'
+      rules:
+      - when: $f1 eq 'auto'
+        apply:
+          config_class_name: Fstab::CommonOptions
+      - when: $f1 eq 'ext2'
+        apply:
+          config_class_name: Fstab::Ext2FsOpt
+      - when: $f1 eq 'ext3'
+        apply:
+          config_class_name: Fstab::Ext3FsOpt
+  accept:
+  - .*
+  - type: leaf
+    value_type: uniline
 EOF
 
-$model_dir->child('Master.pl')->spew($str);
+$model_dir->child('Master.yml')->spew($str);
 
 $str = << 'EOF' ;
-[{
-    name => "Two",
-    element => [ two => { type => 'leaf', value_type => 'string', }, ]
-}] ;
+---
+- name: Two
+  element:
+  - name: two
+    type: leaf
+    value_type: string
 EOF
 
-$model_dir->child('Two.pl')->spew($str);
+$model_dir->child('Two.yml')->spew($str);
 
 
 $str = << 'EOF' ;
-{
-    name    => "Master",
-    include => 'Two',
-    include_after => 'fs_mntopts',
-
-    accept => [
-        '.*'   => { description => "catchall" },
-        'ip.*' => {
-            type       => 'leaf',
-            value_type => 'uniline',
-        }
-    ],
-
-    element => [
-        three => {
-            type       => 'leaf',
-            value_type => 'string',
-        },
-        fs_vfstype => { choice => [qw/ext4/], },
-        fs_mntopts => {
-            warp => {
-                rules => [
-                    q!$f1 eq 'ext4'!,
-                    { 'config_class_name' => 'Fstab::Ext4FsOpt' },
-                ]
-            },
-        },
-    ]
-};
+---
+name: Master
+include: Two
+include_after: fs_mntopts
+element:
+- name: three
+  type: leaf
+  value_type: string
+- name: fs_vfstype
+  choice: [ext4]
+- name: fs_mntopts
+  warp:
+    rules:
+    - when: $f1 eq 'ext4'
+      apply:
+        config_class_name: Fstab::Ext4FsOpt
+accept:
+- pattern: .*
+  description: catchall
+- pattern: ip.*
+  type: leaf
+  value_type: uniline
 EOF
 
 my $snippet_dir = $model_dir->child('Master.d');
 $snippet_dir->mkpath();
 
-$snippet_dir->child('Three.pl')->spew($str);
+$snippet_dir->child('Three.yml')->spew($str);
 
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
 
@@ -136,19 +122,19 @@ eq_or_diff(
     $augmented_model->{element}{fs_mntopts}{warp}{rules},
     [
         {
-            when => '$f1 eq \'auto\'',
+            when => q!$f1 eq 'auto'!,
             apply => { config_class_name => 'Fstab::CommonOptions' }
         },
         {
-            when => '$f1 eq \'ext2\'',
+            when => q!$f1 eq 'ext2'!,
             apply => { config_class_name => 'Fstab::Ext2FsOpt' }
         },
         {
-            when => '$f1 eq \'ext3\'',
+            when => q!$f1 eq 'ext3'!,
             apply => { config_class_name => 'Fstab::Ext3FsOpt' }
         },
         {
-            when => '$f1 eq \'ext4\'',
+            when => q!$f1 eq 'ext4'!,
             apply => { config_class_name => 'Fstab::Ext4FsOpt' }
         }
     ],
@@ -157,6 +143,7 @@ eq_or_diff(
 
 eq_or_diff( $augmented_model->{accept_list}, [ '.*', 'ip.*' ], "test accept_list" );
 is( $augmented_model->{accept}{'.*'}{description}, 'catchall', "test augmented rules" );
-memory_cycle_ok($model);
+
+memory_cycle_ok($model, "memory cycles");
 
 done_testing;
