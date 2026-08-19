@@ -633,13 +633,7 @@ and C<rules>:
 =head2 Warp follow argument
 
 L<Grab string|Config::Model::Role::Grab/grab> leading to the
-C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
-
- follow => '! tree_macro'
-
-In case of several warp master, C<follow> is a hash of named
-parameters. The values are several
-L<grab|Config::Model::Role::Grab/grab> strings:
+C<Config::Model::Value> or L<Config::Model::CheckList> warp master(s). E.g.:
 
  follow => { m1 => '! macro1', m2 => '- macro2' }
 
