@@ -635,7 +635,9 @@ and C<rules>:
 L<Grab string|Config::Model::Role::Grab/grab> leading to the
 C<Config::Model::Value> or L<Config::Model::CheckList> warp master(s). E.g.:
 
- follow => { m1 => '! macro1', m2 => '- macro2' }
+  follow:
+    m1: '! macro1'
+    m2: '- macro2'
 
 Note: By design C<follow> argument of warper module is a plain path to keep
 warp mechanism (relatively) simple. C<follow> argument
@@ -650,46 +652,49 @@ warped object depending on the value(s) of the warp master(s).
 
 C<follow> parameter is used to tell where is the value driving the change. :
 
-  follow => { m => '! macro1' } ,
+  follow:
+    m: '! macro1'
 
 C<rules> parameters specifies when to apply the change, and what is
 the change.  Since we may have several conditions and changes to
 apply, C<rules> parameter expects an array ref.
 
-  rules => [
-    { when => '$m eq "A"'              , apply => { <effect for macro1 == A> } },
-    { when => '$m eq "B" or $m eq"C "' , apply => { <effect for macro1 == B|C> } }
-  ]
+  rules:
+  - { when: '$m eq "A"',              apply: { <effect for macro1 == A> } }
+  - { when: '$m eq "B" or $m eq"C "', apply: { <effect for macro1 == B|C> } }
 
 In case of several warp masters, C<follow> must use several named parameters:
 
- follow => { m1 => '! macro1', m2 => '- macro2' } ,
- rules => [
-   { when => '$m1 eq "A" && $m2 eq "C"', apply => { <effect for A C> } },
-   { when => '$m1 eq "A" && $m2 eq "D"', apply => { <effect for A D> } },
-   { when => '$m1 eq "B" && $m2 eq "C"', apply => { <effect for B C> } },
-   { when => '$m1 eq "B" && $m2 eq "D"', apply => { <effect for B D> } },
- ]
+  follow:
+    m1: '! macro1'
+    m2: '- macro2'
+  rules:
+  - { when: '$m1 eq "A" && $m2 eq "C"', apply: { <effect for values A C> } }
+  - { when: '$m1 eq "A" && $m2 eq "D"', apply: { <effect for values A D> } }
+  - { when: '$m1 eq "B" && $m2 eq "C"', apply: { <effect for values B C> } }
+  - { when: '$m1 eq "B" && $m2 eq "D"', apply: { <effect for values B D> } }
 
 Of course some combinations of warp master values can have the same
 effect:
 
- follow => { m1 => '! macro1', m2 => '- macro2' } ,
- rules => [
-   { when => '$m1 eq "A" && $m2 eq "C"', apply => { <effect X> } },
-   { when => '$m1 eq "A" && $m2 eq "D"', apply => { <effect Y> } },
-   { when => '$m1 eq "B" && $m2 eq "C"', apply => { <effect Y> } },
-   { when => '$m1 eq "B" && $m2 eq "D"', apply => { <effect Y> } },
- ]
+  follow:
+    m1: '! macro1'
+    m2: '- macro2'
+  rules:
+  - { when: '$m1 eq "A" && $m2 eq "C"', apply: { <effect X> } }
+  - { when: '$m1 eq "A" && $m2 eq "D"', apply: { <effect Y> } }
+  - { when: '$m1 eq "B" && $m2 eq "C"', apply: { <effect Y> } }
+  - { when: '$m1 eq "B" && $m2 eq "D"', apply: { <effect Y> } }
 
 In this case, you can use different boolean expressions to save typing:
 
- follow => { m1 => '! macro1', m2 => '- macro2' } ,
- rules => [
-   { when => '$m1 eq "A" && $m2 eq "C"', apply => { <effect X> } },
-   { when => '$m1 eq "A" && $m2 eq "D"', apply => { <effect Y> } },
-   { when => '$m1 eq "B" && ( $m2 eq "C" or $m2 eq "D") ', apply => { <effect Y> } },
- ]
+  follow:
+    m1: '! macro1'
+    m2: '- macro2'
+  rules:
+  - { when: '$m1 eq "A" && $m2 eq "C"', apply: { <effect X> } }
+  - { when: '$m1 eq "A" && $m2 eq "D"', apply: { <effect Y> } }
+  - { when: ''$m1 eq "B" && ( $m2 eq "C" or $m2 eq "D") '', apply: { <effect Y> } }
 
 Note that the boolean expression is sanitized and used in a Perl
 eval, so you can use most Perl syntax and regular expressions.
@@ -697,13 +702,12 @@ eval, so you can use most Perl syntax and regular expressions.
 Functions (like C<&foo>) are called like C<< $self->foo >> before evaluation
 of the boolean expression. For instance:
 
- follow => { t => '?type' },
- rules => [
-   {
-     apply => { level => 'normal' },
-     when => '$t eq "leaf" and &parent->element_name ne "cargo"',
-   }
- ]
+  follow:
+    t: ?type
+  rules:
+  - when: $t eq "leaf" and &parent->element_name ne "cargo"
+    apply:
+      level: normal
 
 The rules must be declared with a slightly different way when a
 check_list is used as a warp master: a check_list has not a simple
@@ -713,54 +717,43 @@ all the possible items of a check list.
 For example, let's say that C<$cl> in the rule below point to a check list whose
 items are C<A> and C<B>. The rule must verify if the item is set or not:
 
- rules => [
-   { when => '$cl.is_set(A)', apply => { <effect when A is set> } },
-   { when => '$cl.is_set(B)', apply => { <effect when B is set> } },
+ rules:
+ - { when: '$cl.is_set(A)', apply: { <effect when A is set> } }
+ - { when: '$cl.is_set(B)', apply: { <effect when B is set> } }
    # can be combined
-   { when => '$cl.is_set(B) and $cl.is_set(A)', apply => { <effect when A and B are set> } },
+ - { when: '$cl.is_set(B) and $cl.is_set(A)', apply: { <effect when A and B are set> } }
  ],
 
 With this feature, you can control with a check list whether some element must
 be shown or not (assuming C<FooClass> and C<BarClass> classes are declared):
 
- element => [
-   # warp master
-   my_check_list => {
-     type       => 'check_list',
-     choice     => ['has_foo','has_bar']
-   },
-   # controlled element that show up only when has_foo is set
-   foo => {
-     type => 'warped_node',
-     level => 'hidden',
-     config_class_name => 'FooClass',
-     follow => {
-       selected => '- my_check_list'
-     },
-     rules => [
-       {
-         when => '$selected.is_set(has_foo)',
-         apply => { level => 'normal' }
-       }
-     ]
-   },
-   # controlled element that show up only when has_bar is set
-   bar => {
-     type => 'warped_node',
-     level => 'hidden',
-     config_class_name => 'BarClass',
-     follow => {
-         selected => '- my_check_list'
-     },
-     rules => [
-       {
-         when => '$selected.is_set(has_bar)',
-         apply => { level => 'normal' }
-       }
-     ]
-   }
- ]
-
+  element:
+  # warp master
+  - name: my_check_list
+    type: check_list
+    choice: [has_foo, has_bar]
+  # controlled element that show up only when has_foo is set
+  - name: foo
+    type: warped_node
+    config_class_name: FooClass
+    follow:
+      selected: '- my_check_list'
+    level: hidden
+    rules:
+    - when: $selected.is_set(has_foo)
+      apply:
+        level: normal
+  # controlled element that show up only when has_bar is set
+  - name: bar
+    type: warped_node
+    config_class_name: BarClass
+    follow:
+      selected: '- my_check_list'
+    level: hidden
+    rules:
+    - when: $selected.is_set(has_bar)
+      apply:
+        level: normal
 
 =head1 Methods
 
