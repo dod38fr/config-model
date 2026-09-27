@@ -1,5 +1,24 @@
 {{$NEXT}}
 
+2.167 2026-09-27
+
+  Deprecated features:
+    * AnyId: add deprecation notice for default_with_init. This
+      attribute will be removed very soon.
+
+  Doc updates:
+    * (Model): update doc with new style of element list
+
+  Bug fix:
+    * translate-legacy: add trailing comma in list or hash
+    * translate-legacy: die when input code is wrong
+    * translate_legacy: translate 'accept' attribute
+
+  Backward compatible feature changes:
+    * Model: deprecate old style for 'accept' attribute
+    * Model: 'accept' attribute is now a list of hash
+    * AnyId: forbid "default" property for value cargo
+
 2.166 2026-07-22
 
   Doc updates:
