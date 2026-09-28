@@ -1227,7 +1227,7 @@ passed to the cargo object. See L<Config::Model::Node> when C<<
 cargo->type >> is C<node>. See L<Config::Model::Value> when C<<
 cargo->type >> is C<leaf>.
 
-Default parameters are forbidden because they don't make sence: who
+Default parameters are forbidden because they don't make sense: who
 needs a list of identical values ?
 
 =back
