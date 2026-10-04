@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.168 2026-10-04
+
+  Bug fix:
+    * relax 'accept' property legacy msg from warning to note
+      Closes Debian: 1149747 and 1149748
+
 2.167 2026-09-27
 
   Deprecated features:
