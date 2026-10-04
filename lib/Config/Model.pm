@@ -218,13 +218,12 @@ sub show_legacy_issue {
 
     my @msg = ref $ref ? @$ref : $ref;
     unshift @msg, "Model ";
-    if ( $behavior eq 'die' ) {
-        die @msg, "\n";
-    }
-    elsif ( $behavior eq 'warn' ) {
+    if ( $behavior eq 'warn' ) {
         $legacy_logger->warn(@msg);
-    } elsif ( $behavior eq 'note' ) {
+    } elsif ( $behavior eq 'note' or $behavior eq 'info') {
         $legacy_logger->info( @msg);
+    } else {
+        die @msg, "\n";
     }
     return;
 }
@@ -684,7 +683,8 @@ sub translate_legacy_accept_info ($self, $config_class_name, $accept_info) {
     $self->show_legacy_issue(
         "$config_class_name class: accept attribute should be a list of hash "
         ."with 'pattern' key. I.e. something like [ { pattern => 'xyz.*', info}, ...] instead "
-        ."of [ 'xyz.*' => {info}, ... ]"
+        ."of [ 'xyz.*' => {info}, ... ]",
+        "note"
     );
 
     my @new;
